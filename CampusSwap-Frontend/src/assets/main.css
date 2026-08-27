@@ -1,0 +1,26 @@
+:root {
+  --navy: #10254A;
+  --navy-dark: #0B1B38;
+  --accent-orange: #F5A623;
+  --price-green: #1E8E5A;
+  --bg-light: #F3F5F8;
+  --card-white: #FFFFFF;
+  --border-light: #E3E6EB;
+  --text-dark: #1A1A1A;
+  --text-muted: #6B7280;
+  --badge-mint-bg: #DDF5E8;
+  --badge-mint-text: #1E8E5A;
+  --badge-fair-bg: #FDF0D5;
+  --badge-fair-text: #B87B1E;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}

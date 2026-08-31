@@ -1,60 +1,48 @@
+<script setup>
+defineProps({
+  filters: {
+    type: Object,
+    required: true
+  }
+})
+
+defineEmits(['update:filters'])
+</script>
+
 <template>
   <aside class="filter-sidebar">
     <h3>Filters</h3>
 
     <div class="filter-group">
       <label>University</label>
-      <select>
+      <select :value="filters.university" @change="$emit('update:filters', { ...filters, university: $event.target.value })">
+        <option value="">All</option>
         <option>University of Cape Town (UCT)</option>
         <option>Wits</option>
         <option>Stellenbosch</option>
-        <option>UKZN</option>
-        <option>UP</option>
-        <option>UJ</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label>Faculty</label>
-      <select>
-        <option>Science & Engineering</option>
-        <option>Commerce</option>
-        <option>Humanities</option>
-        <option>Law</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label>Module Code</label>
-      <select>
-        <option>MAM / CSC</option>
-        <option>ACCN200</option>
-        <option>ENGL101</option>
       </select>
     </div>
 
     <div class="filter-group">
       <label>Condition</label>
-      <select>
-        <option>Used - Like New</option>
-        <option>New</option>
-        <option>Fair</option>
+      <select :value="filters.condition" @change="$emit('update:filters', { ...filters, condition: $event.target.value })">
+        <option value="">All</option>
+        <option>Used: Like New</option>
+        <option>Like New</option>
+        <option>Fair Condition</option>
       </select>
     </div>
 
     <div class="filter-group">
-      <label>Price Range</label>
-      <select>
-        <option>R200 - R2000</option>
-        <option>Under R200</option>
-        <option>R2000+</option>
+      <label>Max Price</label>
+      <select :value="filters.maxPrice" @change="$emit('update:filters', { ...filters, maxPrice: Number($event.target.value) })">
+        <option value="5000">Any</option>
+        <option value="500">Under R500</option>
+        <option value="2000">Under R2000</option>
       </select>
     </div>
   </aside>
 </template>
-
-<script setup lang="ts">
-</script>
 
 <style scoped>
 .filter-sidebar {

@@ -1,12 +1,9 @@
-<script setup lang="ts">
-import type { PropType } from 'vue'
+<script setup>
 import ProductCard from './ProductCard.vue'
 
-type Product = Record<string, unknown>
-
-const props = defineProps({
+defineProps({
   products: {
-    type: Array as PropType<Product[]>,
+    type: Array,
     required: true
   }
 })
@@ -17,8 +14,8 @@ const props = defineProps({
     <h2>Tech & Textbooks</h2>
     <p class="subtitle">Campus Academic Marketplace</p>
 
-    <div class="product-grid" v-if="props.products.length">
-      <ProductCard v-for="p in props.products" :key="p.id" :product="p" />
+    <div class="product-grid" v-if="products.length">
+      <ProductCard v-for="p in products" :key="p.id" :product="p" />
     </div>
     <p v-else class="empty">No products match those filters.</p>
   </section>

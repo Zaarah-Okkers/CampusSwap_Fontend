@@ -98,7 +98,7 @@
                 <input
                   v-model="location"
                   type="text"
-                  placeholder="Enter your suburb or area"
+                  placeholder="Enter your Location"
                 />
 
               </div>
@@ -278,9 +278,9 @@ import { ref, computed } from 'vue'
 import Sidebar from '@/components/icons/sidebar.vue'
 
 
-/* ============================
+/* 
    LAYOUT / SIDEBAR SYNC
-============================ */
+ */
 
 const sidebarRef = ref(null)
 
@@ -295,9 +295,9 @@ const sidebarWidth = computed(() => {
 })
 
 
-/* ============================
+/* 
    PROFILE
-============================ */
+ */
 
 // swap this out for real user data later
 const profileImage = ref('')
@@ -308,9 +308,9 @@ const userInitial = computed(() =>
 )
 
 
-/* ============================
+/*
    STATE
-============================ */
+ */
 
 const selectedService = ref('')
 
@@ -319,9 +319,9 @@ const location = ref('')
 const showProviders = ref(false)
 
 
-/* ============================
+/* 
    SERVICES
-============================ */
+ */
 
 const services = [
 
@@ -370,9 +370,9 @@ const services = [
 ]
 
 
-/* ============================
+/* 
    PROVIDERS
-============================ */
+ */
 
 const providers = ref([
 
@@ -409,9 +409,9 @@ const providers = ref([
 ])
 
 
-/* ============================
+/* 
    FUNCTIONS
-============================ */
+ */
 
 function findProviders() {
 
@@ -442,9 +442,9 @@ function getQuote(provider) {
 
 <style scoped>
 
-/* =========================================
+/* 
    GLOBAL LAYOUT
-========================================= */
+*/
 
 .app-layout {
 
@@ -485,9 +485,9 @@ function getQuote(provider) {
 }
 
 
-/* =========================================
+/* 
    TOP BAR / PROFILE
-========================================= */
+ */
 
 .top-bar {
 
@@ -522,7 +522,7 @@ function getQuote(provider) {
 
   place-items: center;
 
-  background: #2563eb;
+  background: #0D1B3D;
 
   color: white;
 
@@ -552,9 +552,9 @@ function getQuote(provider) {
 }
 
 
-/* =========================================
+/* 
    HERO
-========================================= */
+*/
 
 .hero {
 
@@ -563,7 +563,7 @@ function getQuote(provider) {
   background:
     linear-gradient(
       135deg,
-      #2563eb,
+      #0D1B3D,
       #7c3aed
     );
 
@@ -643,9 +643,9 @@ function getQuote(provider) {
 }
 
 
-/* =========================================
+/* 
    SEARCH
-========================================= */
+*/
 
 .search-card {
 
@@ -727,14 +727,14 @@ function getQuote(provider) {
   outline: none;
 
   border-color:
-    #2563eb;
+    #00a6a6;
 
 }
 
 
-/* =========================================
+/* 
    BUTTON
-========================================= */
+ */
 
 .search-btn,
 .provider-footer button {
@@ -742,7 +742,7 @@ function getQuote(provider) {
   border: none;
 
   background:
-    #2563eb;
+    #0D1B3D;
 
   color: white;
 
@@ -764,14 +764,14 @@ function getQuote(provider) {
 .provider-footer button:hover {
 
   background:
-    #1d4ed8;
+    #00a6a6;
 
 }
 
 
-/* =========================================
+/* 
    SECTIONS
-========================================= */
+ */
 
 .services-section,
 .providers-section {
@@ -800,7 +800,7 @@ function getQuote(provider) {
 .section-heading > span {
 
   color:
-    #7c3aed;
+    #2e7d5a;
 
   font-size: 13px;
 
@@ -829,9 +829,9 @@ function getQuote(provider) {
 }
 
 
-/* =========================================
+/* 
    SERVICES
-========================================= */
+ */
 
 .services-grid {
 
@@ -869,11 +869,11 @@ function getQuote(provider) {
     translateY(-5px);
 
   border-color:
-    #7c3aed;
+    #2e7d5a;
 
   box-shadow:
     0 10px 25px
-    rgba(124, 58, 237, 0.12);
+    rgba(46, 125, 90, 0.12);
 
 }
 
@@ -926,7 +926,7 @@ function getQuote(provider) {
   margin-top: 10px;
 
   color:
-    #2563eb;
+    #0D1B3D;
 
   font-weight: 700;
 
@@ -935,9 +935,9 @@ function getQuote(provider) {
 }
 
 
-/* =========================================
+/* 
    PROVIDERS
-========================================= */
+*/
 
 .providers-grid {
 
@@ -989,7 +989,7 @@ function getQuote(provider) {
   border-radius: 50%;
 
   background:
-    #2563eb;
+    #0D1B3D;
 
   color: white;
 
@@ -1035,7 +1035,7 @@ function getQuote(provider) {
   margin-left: auto;
 
   color:
-    #7c3aed;
+    #2e7d5a;
 
   font-size: 12px;
 
@@ -1085,9 +1085,9 @@ function getQuote(provider) {
 }
 
 
-/* =========================================
+/*
    TABLET
-========================================= */
+*/
 
 @media (max-width: 1000px) {
 
@@ -1102,9 +1102,9 @@ function getQuote(provider) {
 }
 
 
-/* =========================================
+/* 
    MOBILE
-========================================= */
+ */
 
 @media (max-width: 800px) {
 

@@ -1,4 +1,3 @@
-```vue
 <template>
   <aside
     class="sidebar"
@@ -9,16 +8,15 @@
     <div class="sidebar-header">
 
       <div class="logo">
-
-        <div class="logo-icon">
-          🏠
-        </div>
+        
+       <img src="https://i.ibb.co/609Nxhc5/Chat-GPT-Image-Aug-26-2026-02-46-23-PM.png" alt="CampusSwap Logo" class="logo-icon">
 
         <div
           v-if="!isCollapsed"
           class="logo-text"
         >
-          <span>SafeHome</span>
+          <span>Campus</span>
+          <span>Swap</span>
           <strong>ZA</strong>
         </div>
 
@@ -335,14 +333,16 @@ function toggleSidebar() {
 
 .logo-text span {
 
-  color: #1e293b;
+  color: #0D1B3D;
+  color: #2e7d5a;
 
 }
 
 
+
 .logo-text strong {
 
-  color: #7c3aed;
+  color: #462372;
 
 }
 

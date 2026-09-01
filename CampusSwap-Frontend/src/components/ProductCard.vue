@@ -5,10 +5,12 @@ defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['select'])
 </script>
 
 <template>
-  <div class="product-card">
+  <div class="product-card" @click="emit('select', product)">
     <div class="thumb">
       <img :src="product.image" :alt="product.name" />
       <span class="condition-badge" :class="product.conditionClass">

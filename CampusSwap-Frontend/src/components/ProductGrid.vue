@@ -7,6 +7,8 @@ defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['select'])
 </script>
 
 <template>
@@ -15,7 +17,7 @@ defineProps({
     <p class="subtitle">Campus Academic Marketplace</p>
 
     <div class="product-grid" v-if="products.length">
-      <ProductCard v-for="p in products" :key="p.id" :product="p" />
+      <ProductCard v-for="p in products" :key="p.id" :product="p" @select="emit('select', $event)" />
     </div>
     <p v-else class="empty">No products match those filters.</p>
   </section>

@@ -1,19 +1,34 @@
 <script setup>
+defineProps({
+  search: {
+    type: String,
+    default: ''
+  }
+})
+
+const emit = defineEmits(['update:search'])
 </script>
 
 <template>
   <header class="app-header">
-    <div class="brand">
-      <img src="../assets/logo.png" alt="CampusSwap SA" class="logo-badge" />
-    </div>
+
 
     <div class="search-wrap">
-      <input type="text" placeholder="Search textbooks, tech, rooms, tutors..." />
+      <input
+        type="text"
+        placeholder="Search textbooks, tech, rooms, tutors..."
+        :value="search"
+        @input="emit('update:search', $event.target.value)"
+      />
     </div>
 
     <div class="header-icons">
-      <span class="icon">🔔</span>
-      <span class="icon">🛒</span>
+      <span class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      </span>
+      <span class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </span>
       <span class="avatar">MN</span>
     </div>
   </header>
@@ -71,6 +86,17 @@
 
 .icon {
   cursor: pointer;
+  display: inline-flex;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.icon:hover {
+  color: var(--accent-orange);
 }
 
 .avatar {

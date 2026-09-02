@@ -23,7 +23,8 @@ const emit = defineEmits(['select'])
         <span class="price">R{{ product.price }}</span>
       </div>
       <div class="rating">
-        ⭐ {{ product.rating }} ({{ product.sales }} Sales)
+        <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6z"/></svg>
+        {{ product.rating }} ({{ product.sales }} Sales)
       </div>
     </div>
   </div>
@@ -88,7 +89,17 @@ const emit = defineEmits(['select'])
 }
 
 .rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.star-icon {
+  width: 13px;
+  height: 13px;
+  color: var(--accent-orange);
+  flex-shrink: 0;
 }
 </style>

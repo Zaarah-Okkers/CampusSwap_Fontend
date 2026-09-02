@@ -11,9 +11,8 @@ const emit = defineEmits(['update:search'])
 
 <template>
   <header class="app-header">
-
-
     <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input
         type="text"
         placeholder="Search textbooks, tech, rooms, tutors..."
@@ -30,6 +29,7 @@ const emit = defineEmits(['update:search'])
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       </span>
       <span class="avatar">MN</span>
+      <span class="user-name">Myles N.</span>
     </div>
   </header>
 </template>
@@ -41,31 +41,29 @@ const emit = defineEmits(['update:search'])
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 10px 24px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.logo-badge {
-  height: 44px;
-  width: auto;
-  max-width: 200px;
-  object-fit: contain;
+  padding: 14px 24px;
 }
 
 .search-wrap {
   flex: 1;
   max-width: 420px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
 }
 
 .search-wrap input {
   width: 100%;
-  padding: 8px 14px;
+  padding: 8px 14px 8px 36px;
   border-radius: 6px;
   border: none;
   background: rgba(255, 255, 255, 0.12);
@@ -110,5 +108,36 @@ const emit = defineEmits(['update:search'])
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    gap: 10px;
+    padding: 8px 12px;
+    flex-wrap: nowrap;
+  }
+
+  .search-wrap {
+    max-width: none;
+  }
+
+  .search-wrap input {
+    padding: 6px 10px 6px 30px;
+    font-size: 13px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .header-icons {
+    gap: 10px;
+  }
 }
 </style>

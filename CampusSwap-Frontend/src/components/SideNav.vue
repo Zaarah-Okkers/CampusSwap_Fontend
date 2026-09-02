@@ -10,10 +10,18 @@ function toggle() {
 
 <template>
   <div class="side-nav-wrap">
-    <button class="toggle-btn" @click="toggle">☰</button>
     <aside class="side-nav" :class="{ closed: !isOpen }">
       <div class="nav-content">
-        <p class="section-label">MENU</p>
+        <div class="brand-row">
+          <img src="../assets/logo.png" alt="CampusSwap SA" class="brand-logo" />
+          <span class="brand-name">CampusSwap<span class="brand-accent">SA</span></span>
+        </div>
+
+        <div class="menu-row">
+          <button class="toggle-btn" @click="toggle">☰</button>
+          <p class="section-label">MENU</p>
+        </div>
+
         <nav class="nav-links">
           <a href="#">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -70,22 +78,15 @@ function toggle() {
   background: #0d1b38;
 }
 
-.toggle-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 20px 14px;
-  align-self: flex-start;
-}
-
 .side-nav {
-  width: 190px;
-  min-height: 100vh;
-  padding: 20px 16px 20px 0;
+  width: 220px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: 20px 16px;
   transition: width 0.2s ease, padding 0.2s ease, opacity 0.2s ease;
-  overflow: hidden;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .side-nav.closed {
@@ -101,17 +102,59 @@ function toggle() {
   min-height: calc(100vh - 40px);
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  white-space: nowrap;
+}
+
+.brand-logo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+}
+
+.brand-accent {
+  color: var(--accent-orange);
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
 .section-label {
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.4);
-  margin: 0 0 14px 12px;
+  color: rgba(255, 255, 255, 0.819);
+  margin: 0;
   text-transform: uppercase;
 }
 
 .account-label {
-  margin-top: 24px;
+  margin: 24px 0 14px 12px;
 }
 
 .nav-links {
@@ -145,8 +188,10 @@ function toggle() {
 }
 
 .nav-links a.active {
-  color: var(--accent-orange);
+  background: var(--accent-orange);
+  color: var(--navy);
   font-weight: 600;
+  border-radius: 8px;
 }
 
 .nav-divider {

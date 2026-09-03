@@ -1,19 +1,21 @@
 <template>
   <div class="dashboard-page">
 
-    <!-- TOP BAR  -->
+    <!-- TOP BAR -->
     <header class="top-bar">
-      <!-- Left: Hamburger + Logo -->
       <div class="top-left">
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
           <span class="hamburger-icon">&#9776;</span>
         </button>
-        <h2 class="brand">
-          CampusSwap<span class="green-text">SA</span>
-        </h2>
+        
+        <!-- Added Router Link so clicking the logo goes Home -->
+        <router-link to="/" class="brand-link">
+          <h2 class="brand">
+            CampusSwap<span class="green-text">SA</span>
+          </h2>
+        </router-link>
       </div>
 
-      <!-- Center: Search Bar -->
       <div class="top-center">
         <div class="search-wrap">
           <input
@@ -24,17 +26,17 @@
         </div>
       </div>
 
-      <!-- Right: Profile Avatar (initials) -->
-      <div class="top-right" v-if="isLoggedIn">
+      <!-- Added Alert Bell next to Avatar -->
+      <div class="top-right">
+        <div class="notification-bell" @click="alert('You have 3 new notifications!')">
+          <span class="bell-icon">&#128276;</span> <!-- Bell Icon -->
+          <span class="notification-dot"></span> <!-- Red Dot -->
+        </div>
         <span class="avatar">MN</span>
-      </div>
-
-      <div class="top-right" v-else>
-        <span class="avatar-placeholder"></span>
       </div>
     </header>
 
-    <!-- SIDE NAV (Copied from Homepage) -->
+    <!-- SIDE NAV -->
     <div
       class="side-overlay"
       :class="{ 'side-overlay-open': sideNavOpen }"
@@ -46,18 +48,20 @@
         <h3>CampusSwap<span class="green-text">SA</span></h3>
         <button class="close-side-btn" @click="closeSideNav">&times;</button>
       </div>
+      
+      <!-- Navigation Links (Home is ALWAYS visible for everyone) -->
       <ul class="side-nav-links">
         <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
-        <li><router-link to="/login" @click="closeSideNav">Login</router-link></li>
-        <li><router-link to="/academic" @click="closeSideNav">Academic Marketplace</router-link></li>
+        <li><router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">Academic Marketplace</router-link></li>
         <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li>
-        <li><router-link to="/checkout" @click="closeSideNav">Checkout</router-link></li>
+        <li><router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">Checkout</router-link></li>
         <li><router-link to="/dashboard" @click="closeSideNav">Dashboard</router-link></li>
-        <li><router-link to="/contact" @click="closeSideNav">Contact</router-link></li>
+        <li><router-link to="/contact" @click="closeSideNav" v-if="userRole === 'student'">Contact</router-link></li>
       </ul>
-      <div class="side-nav-user" v-if="isLoggedIn">
-        <p>Hi! {{ user.name }}</p>
-        <p class="side-user-uni">{{ user.university }}</p>
+
+      <!-- Logout Button at bottom -->
+      <div class="side-nav-logout">
+        <button class="logout-btn" @click="logout">Logout</button>
       </div>
     </div>
 
@@ -68,31 +72,24 @@
       <div class="greeting-block">
         <h2 class="dashboard-title">Hi, Myles 👋</h2>
         <p class="university-text">University of Cape Town</p>
-
-        <!-- Demo Role Switcher (For Testing ONLY) -->
-        <div class="demo-role-switcher">
-          <label>Demo View:</label>
-          <button :class="{ 'active-btn': userRole === 'student' }" @click="userRole = 'student'">Student Section</button>
-          <button :class="{ 'active-btn': userRole === 'provider' }" @click="userRole = 'provider'">Provider Section</button>
-        </div>
       </div>
 
-      <!-- Profile Stats Card -->
+      <!-- Profile Stats Card (Fixed Layout) -->
       <div class="card">
         <h3 class="card-heading">My Profile</h3>
 
         <div class="stats-grid">
-          <div class="stat-card">
+          <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
             <span class="stat-title">Seller Rating</span>
             <span class="stat-value" style="color: #2e7d5a;">4.9</span>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
             <span class="stat-title">Active Listings</span>
             <span class="stat-value" style="color: #00a6a6;">3</span>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
             <span class="stat-title">Saved Total</span>
             <span class="stat-value" style="color: #f5b941;">R1,200</span>
           </div>
@@ -103,9 +100,8 @@
       <div class="card">
         <h3 class="card-heading">Account Management</h3>
         
-        <!-- STUDENT SECTION -->
-        <div v-if="userRole === 'student'" class="role-section student-section">
-          <h4 class="role-title">Student Section</h4>
+        <!-- Student Links (Full Access) -->
+        <template v-if="userRole === 'student'">
           <div class="menu-item">
             <router-link to="/academic" class="menu-link">Active Orders <span class="arrow">&gt;</span></router-link>
           </div>
@@ -115,43 +111,43 @@
           <div class="menu-item">
             <router-link to="/checkout" class="menu-link">Checkout <span class="arrow">&gt;</span></router-link>
           </div>
-        </div>
+        </template>
 
-        <!-- SERVICE PROVIDER SECTION -->
-        <div v-else class="role-section provider-section">
-          <h4 class="role-title">Service Provider Section</h4>
+        <!-- Provider Links (Restricted) -->
+        <template v-else>
           <div class="menu-item">
-            <router-link to="/safehome" class="menu-link">Manage Bookings <span class="arrow">&gt;</span></router-link>
+            <router-link to="/" class="menu-link">Home Page <span class="arrow">&gt;</span></router-link>
           </div>
           <div class="menu-item">
-            <router-link to="/dashboard" class="menu-link">My Service Listings <span class="arrow">&gt;</span></router-link>
+            <router-link to="/safehome" class="menu-link">SafeHome Bookings <span class="arrow">&gt;</span></router-link>
           </div>
           <div class="menu-item">
-            <router-link to="/contact" class="menu-link">Support Center <span class="arrow">&gt;</span></router-link>
+            <router-link to="/dashboard" class="menu-link">My Dashboard <span class="arrow">&gt;</span></router-link>
           </div>
-        </div>
-      </div>
+        </template>
 
-      <!-- CHANGE PASSWORD CARD -->
-      <div class="card">
-        <h3 class="card-heading">Change Password</h3>
-        
-        <div class="form-group">
-          <label>Current Password</label>
-          <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
+        <!-- Change Password Section (Inside Account Management) -->
+        <div class="password-section">
+          <h4 class="password-title">Change Password</h4>
+          
+          <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
+          </div>
+
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" v-model="newPassword" class="form-input" placeholder="Enter new password" />
+          </div>
+
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
+          </div>
+
+          <button class="btn-save" @click="changePassword">Update Password</button>
         </div>
 
-        <div class="form-group">
-          <label>New Password</label>
-          <input type="password" v-model="newPassword" class="form-input" placeholder="Enter new password" />
-        </div>
-
-        <div class="form-group">
-          <label>Confirm New Password</label>
-          <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
-        </div>
-
-        <button class="btn-primary btn-save" @click="changePassword">Update Password</button>
       </div>
 
     </div>
@@ -163,20 +159,19 @@ export default {
   name: 'DashboardPage',
   data() {
     return {
-      isLoggedIn: true,  // For demo, assume user is logged in on dashboard
       sideNavOpen: false,
-      userRole: 'student', // Toggle between 'student' and 'provider'
-      
-      // Password Data
+      userRole: 'student', // default
       currentPassword: '',
       newPassword: '',
-      confirmPassword: '',
-
-      user: {
-        name: 'Myles N.',
-        university: 'University of Cape Town'
-      }
+      confirmPassword: ''
     };
+  },
+  mounted() {
+    if (this.$route.name === 'provider-dashboard') {
+      this.userRole = 'provider';
+    } else {
+      this.userRole = 'student';
+    }
   },
   methods: {
     toggleSideNav() {
@@ -187,6 +182,9 @@ export default {
       this.sideNavOpen = false;
       document.body.style.overflow = '';
     },
+    logout() {
+      this.$router.push('/login');
+    },
     changePassword() {
       if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
         alert('Please fill in all password fields.');
@@ -196,8 +194,7 @@ export default {
         alert('New passwords do not match.');
         return;
       }
-      // Fake success logic - actual backend to come later
-      alert('Password updated successfully! (This is a demo)');
+      alert('Password updated successfully!');
       this.currentPassword = '';
       this.newPassword = '';
       this.confirmPassword = '';
@@ -207,7 +204,7 @@ export default {
 </script>
 
 <style scoped>
-/* Copied Top Bar & Side Nav Styles from Homepage */
+/* Base layout */
 .dashboard-page {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f8f9fa;
@@ -217,8 +214,7 @@ export default {
   min-height: 100vh;
 }
 
-/* ... [Your Existing Top Bar and Side Nav styles remain exactly the same] ... */
-
+/* Top Bar (Navy - Retained) */
 .top-bar {
   background-color: #0d1b3d;
   padding: 10px 24px;
@@ -256,6 +252,11 @@ export default {
   line-height: 1;
 }
 
+/* Make logo a link */
+.brand-link {
+  text-decoration: none;
+}
+
 .brand {
   color: #fff;
   font-size: 22px;
@@ -283,7 +284,6 @@ export default {
   border-radius: 24px;
   padding: 6px 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .search-wrap:hover,
@@ -300,18 +300,41 @@ export default {
   font-size: 14px;
   padding: 8px 0;
   width: 100%;
-  font-weight: 400;
 }
 
 .search-input::placeholder {
   color: #9ca3af;
-  font-weight: 300;
 }
 
+/* Top Right & Alert Bell */
 .top-right {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  gap: 15px;
+}
+
+.notification-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 24px;
+  color: #fff;
+  transition: color 0.3s ease;
+}
+
+.notification-bell:hover {
+  color: #f5b941;
+}
+
+.notification-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: #ff4d4f;
+  border-radius: 50%;
+  border: 2px solid #0d1b3d;
 }
 
 .avatar {
@@ -327,12 +350,7 @@ export default {
   justify-content: center;
 }
 
-.avatar-placeholder {
-  width: 36px;
-  height: 36px;
-}
-
-/* Side Nav */
+/* Side Nav (Navy - Retained) */
 .side-overlay {
   position: fixed;
   top: 0;
@@ -393,8 +411,6 @@ export default {
   color: #fff;
   font-size: 28px;
   cursor: pointer;
-  padding: 0 4px;
-  line-height: 1;
 }
 
 .close-side-btn:hover {
@@ -430,26 +446,32 @@ export default {
   border-left-color: #f5b941;
 }
 
-.side-nav-user {
+/* Logout Button at bottom (Gold on hover) */
+.side-nav-logout {
   margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: #d1d5db;
 }
 
-.side-nav-user p {
-  margin: 4px 0;
-  font-size: 14px;
+.logout-btn {
+  width: 100%;
+  background: transparent;
+  border: 2px solid #f5b941;
+  color: #f5b941;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.side-user-uni {
-  font-size: 12px;
-  opacity: 0.7;
+.logout-btn:hover {
+  background-color: #f5b941;
+  color: #0d1b3d;
+  transform: translateY(-2px);
 }
 
-/* ============================================
-   DASHBOARD CONTENT STYLES
-   ============================================ */
+/* Dashboard Content */
 .dashboard-container {
   max-width: 650px;
   margin: 0 auto;
@@ -468,106 +490,42 @@ export default {
 }
 
 .university-text {
-  color: #6c4b6a; /* Scholar Purple */
+  color: #6c4b6a;
   font-size: 15px;
   font-weight: 500;
   margin: 0;
 }
 
-/* Demo Role Switcher */
-.demo-role-switcher {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-  background: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px dashed #00a6a6;
-  font-size: 14px;
-}
-
-.demo-role-switcher label {
-  font-weight: bold;
-  color: #0d1b3d;
-}
-
-.demo-role-switcher button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  background: #f0f2f5;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.demo-role-switcher button.active-btn {
-  background: #0d1b3d;
-  color: #fff;
-}
-
 /* Cards */
 .card {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border-top: 3px solid #0d1b3d; /* Navy accent */
 }
 
 .card-heading {
   color: #0d1b3d;
   font-size: 18px;
   margin: 0 0 16px 0;
-  font-weight: 600;
+  font-weight: 700;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #6c4b6a; /* Purple accent */
 }
 
-/* Role Sections */
-.role-section {
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-  background-color: #fcfcfc;
-}
-
-.student-section {
-  border-left: 5px solid #2e7d5a; /* Green */
-}
-
-.provider-section {
-  border-left: 5px solid #00a6a6; /* Teal */
-}
-
-.role-title {
-  margin: 0 0 10px 0;
-  font-size: 16px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.student-section .role-title { color: #2e7d5a; }
-.provider-section .role-title { color: #00a6a6; }
-
-/* Stats Grid */
+/* Stats Grid - FIXED! No more huge vertical bars */
 .stats-grid {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap; 
 }
 
 .stat-card {
-  width: 33.33%;
-  background-color: #f4f6f8;
+  flex: 1 1 150px; /* Grow, shrink, but at least 150px wide */
   padding: 15px;
   border-radius: 12px;
   text-align: center;
-  border-bottom: 2px solid transparent;
-}
-
-.stat-card:hover {
-  border-bottom-color: #f5b941;
 }
 
 .stat-title {
@@ -584,7 +542,7 @@ export default {
   display: block;
 }
 
-/* Account Menu Items */
+/* Menu items */
 .menu-item {
   border-bottom: 1px solid #eeeeee;
   padding: 12px 0;
@@ -623,7 +581,20 @@ export default {
   color: #2e7d5a;
 }
 
-/* Change Password Form Styles */
+/* Change Password */
+.password-section {
+  margin-top: 20px;
+  border-top: 2px dashed #e5e7eb;
+  padding-top: 20px;
+}
+
+.password-title {
+  color: #6c4b6a;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+}
+
 .form-group {
   margin-bottom: 15px;
 }
@@ -652,7 +623,8 @@ export default {
   border-color: #00a6a6;
 }
 
-.btn-primary {
+.btn-save {
+  width: 100%;
   background-color: #f5b941;
   color: #0d1b3d;
   border: none;
@@ -661,55 +633,31 @@ export default {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.25s ease, transform 0.15s ease;
+  transition: background-color 0.25s ease;
 }
 
-.btn-primary:hover {
+.btn-save:hover {
   background-color: #e0a330;
-  transform: translateY(-2px);
 }
 
-.btn-save {
-  width: 100%;
-}
-
-/* Responsive tweaks for dashboard */
+/* Responsive */
 @media (max-width: 768px) {
-  .top-bar {
-    padding: 10px 16px;
-    gap: 10px;
-  }
-
-  .brand {
-    font-size: 18px;
-  }
-
   .top-center {
     order: 3;
     flex-basis: 100%;
     max-width: 100%;
     min-width: 0;
   }
-
   .top-right {
-    display: none;
+    display: flex; 
   }
-
-  .dashboard-container {
-    padding: 20px 15px;
-  }
-
+  
+  /* No more stacking, just smaller gap */
   .stats-grid {
-    flex-direction: column;
+    gap: 8px;
   }
-
   .stat-card {
-    width: 100%;
-  }
-
-  .demo-role-switcher {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 10px;
   }
 }
 </style>

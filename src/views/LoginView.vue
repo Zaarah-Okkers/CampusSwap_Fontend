@@ -118,13 +118,18 @@
           </div>
         </div>
 
+        <div class="form-options">
+          <a href="#" @click.prevent="alert('Password reset link sent!')" class="forgot-link">Forgot Password?
+          </a>
+        </div><br>
+              
         <!-- Submit Button -->
         <button class="btn btn-primary" @click="handleLogin">
           Verify & Enter CampusSwap
         </button>
         
         <p class="new-user">
-          New here? <a href="#" class="create-account-link">Create an account</a>
+          New here? <a href="#" @click.prevent="alert('Registration coming soon!')"class="create-account-link">Create an account</a>
         </p>
 
         <!-- Mobile Footer (Hidden on Desktop) -->
@@ -405,6 +410,11 @@ export default {
   margin-bottom: 8px;
 }
 
+.form-options {
+  text-align: right;
+  margin-bottom: 15px;
+}
+
 .select-wrap,
 .input-wrap {
   position: relative;
@@ -428,6 +438,17 @@ export default {
   font-family: inherit;
   transition: border-color 0.3s ease;
   box-sizing: border-box;
+}
+
+.forgot-link {
+  color: #64748b;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  color: #2e7d5a;
+  text-decoration: underline;
 }
 
 .form-input:focus {

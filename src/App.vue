@@ -55,47 +55,9 @@ const route = useRoute()
 </script>
 
 <style scoped>
-
-.layout-container { 
-  display: flex; 
-  min-height: 100%; 
-}
-
-.sidebar {
-  width: 250px;
-  height: 100%;
-  background-color: #0D1B3D;
-  color: white;
-  position: fixed;
-  padding: 20px;
-}
-
-.side-nav { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 15px; 
-  margin-top: 40px; 
-}
-
-.nav-item {
-  color: #F4F6F8;
-  font-weight: bold;
-  padding: 10px;
-  border-radius: 8px;
-}
-.nav-item:hover { 
-  background-color: rgba(255, 255, 255, 0.1); 
-  color: white; 
-}
-
-.nav-item.router-link-active {
-  background-color: #00A6A6; color: white; 
-}
-
-.main-content { 
-  margin-left: 250px; 
-  flex-grow: 1; 
-  padding: 20px; 
+main-content {
+  min-height: 100vh;
+  width: 100%;
 }
 </style>
 >>>>>>> e2fb2d4 (added my pages)

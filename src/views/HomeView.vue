@@ -1,9 +1,8 @@
 <template>
-  <div class="home-page">
+  <div class="dashboard-page">
 
-    <!--TOP BAR -->
+    <!-- TOP BAR -->
     <header class="top-bar">
-      <!-- Left: Hamburger + Logo -->
       <div class="top-left">
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
           <span class="hamburger-icon">&#9776;</span>
@@ -13,10 +12,8 @@
         </h2>
       </div>
 
-      <!-- Center: Search Bar -->
       <div class="top-center">
         <div class="search-wrap">
-          
           <input
             type="text"
             class="search-input"
@@ -25,17 +22,12 @@
         </div>
       </div>
 
-      <!-- Right: Profile Avatar (initials) -->
-      <div class="top-right" v-if="isLoggedIn">
+      <div class="top-right">
         <span class="avatar">MN</span>
-      </div>
-
-      <div class="top-right" v-else>
-        <span class="avatar-placeholder"></span>
       </div>
     </header>
 
-    <!--SIDE NAV -->
+    <!-- SIDE NAV -->
     <div
       class="side-overlay"
       :class="{ 'side-overlay-open': sideNavOpen }"
@@ -47,1105 +39,584 @@
         <h3>CampusSwap<span class="green-text">SA</span></h3>
         <button class="close-side-btn" @click="closeSideNav">&times;</button>
       </div>
+      
+      <!-- Navigation Links -->
       <ul class="side-nav-links">
         <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
-        <li><router-link to="/login" @click="closeSideNav">Login</router-link></li>
-        <li><router-link to="/academic" @click="closeSideNav">Academic Marketplace</router-link></li>
+        <li><router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">Academic Marketplace</router-link></li>
         <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li>
-        <li><router-link to="/checkout" @click="closeSideNav">Checkout</router-link></li>
+        <li><router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">Checkout</router-link></li>
         <li><router-link to="/dashboard" @click="closeSideNav">Dashboard</router-link></li>
-        <li><router-link to="/contact" @click="closeSideNav">Contact</router-link></li>
+        <li><router-link to="/contact" @click="closeSideNav" v-if="userRole === 'student'">Contact</router-link></li>
       </ul>
-      <div class="side-nav-user" v-if="isLoggedIn">
-        <p>Hi! {{ user.name }}</p>
-        <p class="side-user-uni">{{ user.university }}</p>
+
+      <!-- Logout Button at bottom -->
+      <div class="side-nav-logout">
+        <button class="logout-btn" @click="logout">Logout</button>
       </div>
     </div>
 
-    <!-- HERO SECTION -->
-    <section class="hero full-section">
-      <div class="hero-inner">
-        <!-- Left: Text content -->
-        <div class="hero-text">
-          <p class="hero-tagline">SOUTH AFRICA'S SECURE STUDENT EXCHANGE</p>
-          <h1 class="hero-title">
-            One Campus. Endless Possibilities.<br />All In One Place.
-          </h1>
-          <p class="hero-desc">
-            Connect directly with verified students at your institution.
-            Safely trade, buy, rent books, technology, and book maintenance services.
-          </p>
-          <button class="btn-gold" @click="handleBrowseDeals">
-            Browse Active Campus Deals
-          </button>
-        </div>
-
-        <!-- Right: Image -->
-        <div class="hero-image">
-          <img
-            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop&crop=center"
-            alt="Diverse South African university students"
-            class="hero-img"
-          />
-        </div>
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="dashboard-container">
+      
+      <!-- User Greeting -->
+      <div class="greeting-block">
+        <h2 class="dashboard-title">Hi, Myles 👋</h2>
+        <p class="university-text">University of Cape Town</p>
       </div>
 
-      <!-- Scroll indicator -->
-      <div class="scroll-indicator">
-        <span>Scroll ;)</span>
-        <span class="scroll-arrow">&#8595;</span>
-      </div>
-    </section>
+      <!-- Profile Stats Card -->
+      <div class="card">
+        <h3 class="card-heading">My Profile</h3>
 
-    <!--CORE SERVICES -->
-    <section class="core-services full-section">
-      <h2 class="section-title">Core Services</h2>
-
-      <div class="service-cards">
-
-        <!-- Academic Marketplace -->
-        <div class="service-card">
-          <div class="card-icon">&#128218;</div>
-          <h3>Academic Marketplace</h3>
-          <p>Buy &amp; rent textbooks, tech, and study materials from fellow students.</p>
-          <button class="card-btn" @click="goToAcademic">Browse Academic Marketplace</button>
-        </div>
-
-        <!-- SafeHome -->
-        <div class="service-card">
-          <div class="card-icon">&#128736;</div>
-          <h3>SafeHome</h3>
-          <p>Book background-checked handymen for cleaning, repairs, and many more services.</p>
-          <button class="card-btn" @click="goToSafeHome">Book SafeHome</button>
-        </div>
-      </div>
-
-      <!-- Scroll indicator -->
-      <div class="scroll-indicator scroll-indicator-light">
-        <span>Scroll</span>
-        <span class="scroll-arrow">&#8595;</span>
-      </div>
-    </section>
-
-    <!--TUTORIAL – How CampusSwap Works-->
-    <section class="tutorial-section full-section">
-      <div class="tutorial">
-        <h2 class="tutorial-title">How CampusSwap Works</h2>
-
-        <div class="steps">
-          <!-- Step 1 -->
-          <div class="step">
-            <span class="step-num">1</span>
-            <div class="step-body">
-              <h3>Verify Your Profile</h3>
-              <p>Sign up with your SA university email or work email to ensure a safe environment.</p>
-            </div>
+        <div class="stats-grid">
+          <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
+            <span class="stat-title">Seller Rating</span>
+            <span class="stat-value" style="color: #2e7d5a;">4.9</span>
           </div>
 
-          <!-- Step 2 -->
-          <div class="step">
-            <span class="step-num">2</span>
-            <div class="step-body">
-              <h3>Buy, Sell or Book</h3>
-              <p>List textbooks you no longer need, find rentals or book background-checked campus handymen.</p>
-            </div>
+          <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
+            <span class="stat-title">Active Listings</span>
+            <span class="stat-value" style="color: #00a6a6;">3</span>
           </div>
 
-          <!-- Step 3 -->
-          <div class="step">
-            <span class="step-num">3</span>
-            <div class="step-body">
-              <h3>Secure Escrow</h3>
-              <p>Payments are held securely in escrow until you verify everything is received and correct.</p>
-            </div>
+          <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
+            <span class="stat-title">Saved Total</span>
+            <span class="stat-value" style="color: #f5b941;">R1,200</span>
           </div>
         </div>
+      </div>
 
-        <!-- Conditional actions -->
-        <div class="tutorial-actions" v-if="isLoggedIn">
-          <button class="btn-outline-gold" @click="goToAcademic">Browse Academic Marketplace</button>
-          <button class="btn-outline-green" @click="goToSafeHome">Book SafeHome Repairs</button>
+      <!-- Account Management Card -->
+      <div class="card">
+        <h3 class="card-heading">Account Management</h3>
+        
+        <!-- Student Links (Full Access) -->
+        <template v-if="userRole === 'student'">
+          <div class="menu-item">
+            <router-link to="/academic" class="menu-link">Active Orders <span class="arrow">&gt;</span></router-link>
+          </div>
+          <div class="menu-item">
+            <router-link to="/safehome" class="menu-link">SafeHome Bookings <span class="arrow">&gt;</span></router-link>
+          </div>
+          <div class="menu-item">
+            <router-link to="/checkout" class="menu-link">Checkout <span class="arrow">&gt;</span></router-link>
+          </div>
+        </template>
+
+        <!-- Provider Links (Restricted) -->
+        <template v-else>
+          <div class="menu-item">
+            <router-link to="/" class="menu-link">Home Page <span class="arrow">&gt;</span></router-link>
+          </div>
+          <div class="menu-item">
+            <router-link to="/safehome" class="menu-link">SafeHome Bookings <span class="arrow">&gt;</span></router-link>
+          </div>
+          <div class="menu-item">
+            <router-link to="/dashboard" class="menu-link">My Dashboard <span class="arrow">&gt;</span></router-link>
+          </div>
+        </template>
+
+        <!-- Change Password Section (Inside Account Management) -->
+        <div class="password-section">
+          <h4 class="password-title">Change Password</h4>
+          
+          <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
+          </div>
+
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" v-model="newPassword" class="form-input" placeholder="Enter new password" />
+          </div>
+
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
+          </div>
+
+          <button class="btn-save" @click="changePassword">Update Password</button>
         </div>
-        <div class="tutorial-actions" v-else>
-          <p class="login-prompt purple-bold">
-            &#128274; <a href="#" @click.prevent="toggleLogin">Log in</a> with your university email to access all features.
-          </p>
-        </div>
+
       </div>
 
-      <!-- Scroll indicator -->
-      <div class="scroll-indicator scroll-indicator-light">
-        <span>Scroll</span>
-        <span class="scroll-arrow">&#8595;</span>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer>
-      <div class="footer-brand">
-        <h3 class="footer-logo">CampusSwap<span class="green-text">SA</span></h3>
-        <p>
-          South Africa's trusted, student-only platform for secure peer trading,
-          verified off-campus support services, and educational material exchange.
-        </p>
-      </div>
-
-      <div class="footer-links">
-        <h4>Services</h4>
-        <ul>
-          <li><a href="#">Academic Marketplace</a></li>
-          <li><a href="#">SafeHome Maintenance</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-links">
-        <h4>Trust &amp; Protection</h4>
-        <ul>
-          <li><a href="#">Ozow Escrow Guarantee</a></li>
-          <li><a href="#">EduID Authentication</a></li>
-          <li><a href="#">Safety Zones &amp; Meetups</a></li>
-        </ul>
-      </div>
-    </footer>
-
+    </div>
   </div>
 </template>
 
-
 <script>
-  export default {
-    name: 'HomePage',
-    data() {
-      return {
-        isLoggedIn: false,          // demo toggle
-        sideNavOpen: false,         // side menu state
-        user: {
-          name: 'Myles N.',
-          university: 'University of Cape Town'
-        }
-      };
-    },
-    methods: {
-
-      // -------- Toggle side navigation --------
-      toggleSideNav() {
-        this.sideNavOpen = !this.sideNavOpen;
-        document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
-      },
-
-      // -------- Close side navigation --------
-      closeSideNav() {
-        this.sideNavOpen = false;
-        document.body.style.overflow = '';
-      },
-
-      // -------- Browse Deals (CTA) --------
-      handleBrowseDeals() {
-        if (this.isLoggedIn) {
-          alert('Navigating to Campus Deals...');
-        } else {
-          alert('Please log in with your university email to view deals.');
-        }
-      },
-
-      // -------- Toggle login (demo) --------
-      toggleLogin() {
-        this.isLoggedIn = !this.isLoggedIn;
-      },
-
-      // -------- Navigate to Academic --------
-      goToAcademic() {
-        alert('Navigating to Academic Marketplace...');
-      },
-
-      // -------- Navigate to SafeHome --------
-      goToSafeHome() {
-        alert('Navigating to SafeHome bookings...');
-      }
+export default {
+  name: 'DashboardPage',
+  data() {
+    return {
+      sideNavOpen: false,
+      userRole: 'student', // default
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    };
+  },
+  mounted() {
+    // Determine role based on the route name
+    if (this.$route.name === 'provider-dashboard') {
+      this.userRole = 'provider';
+    } else {
+      this.userRole = 'student';
     }
-  };
+  },
+  methods: {
+    toggleSideNav() {
+      this.sideNavOpen = !this.sideNavOpen;
+      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
+    },
+    closeSideNav() {
+      this.sideNavOpen = false;
+      document.body.style.overflow = '';
+    },
+    logout() {
+      this.$router.push('/login');
+    },
+    changePassword() {
+      if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
+        alert('Please fill in all password fields.');
+        return;
+      }
+      if (this.newPassword !== this.confirmPassword) {
+        alert('New passwords do not match.');
+        return;
+      }
+      alert('Password updated successfully!');
+      this.currentPassword = '';
+      this.newPassword = '';
+      this.confirmPassword = '';
+    }
+  }
+};
 </script>
 
-
 <style scoped>
+/* Base layout */
+.dashboard-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
 
-  .home-page {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-    color: #333;
-    margin: 0;
-    padding: 0;
-  }
+/* Top Bar (Navy - Retained) */
+.top-bar {
+  background-color: #0d1b3d;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  flex-wrap: wrap;
+}
 
-  /* FULL VIEWPORT SECTIONS */
-  .full-section {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    padding: 60px 30px;
-    box-sizing: border-box;
-  }
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
 
-  /* TOP BAR */
-  .top-bar {
-    background-color: #0d1b3d;          /* Deep Navy */
-    padding: 10px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    flex-wrap: wrap;
-  }
+.hamburger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  /* ---- Left: Hamburger + Logo ---- */
-  .top-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-  }
+.hamburger-icon {
+  font-size: 28px;
+  color: #fff;
+  line-height: 1;
+}
 
-  .hamburger-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.brand {
+  color: #fff;
+  font-size: 22px;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
 
-  .hamburger-icon {
-    font-size: 28px;
-    color: #fff;
-    line-height: 1;
-  }
+.brand .green-text,
+.green-text {
+  color: #2e7d5a;
+}
 
-  .brand {
-    color: #fff;
-    font-size: 22px;
-    margin: 0;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
+.top-center {
+  flex: 1;
+  min-width: 160px;
+  max-width: 520px;
+}
 
-  .brand .green-text,
-  .green-text {
-    color: #2e7d5a;                    /* Campus Green */
-  }
+.search-wrap {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
 
-  /* ---- Center: Search Bar ---- */
+.search-wrap:hover,
+.search-wrap:focus-within {
+  background-color: rgba(255, 255, 255, 0.20);
+  border-color: rgba(245, 185, 65, 0.4);
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  padding: 8px 0;
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.avatar {
+  background-color: #f5b941;
+  color: #0d1b3d;
+  font-weight: 700;
+  font-size: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Side Nav (Navy - Retained) */
+.side-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.side-overlay-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.side-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100%;
+  background-color: #0d1b3d;
+  z-index: 300;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  padding: 20px 24px;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-nav-open {
+  transform: translateX(0);
+}
+
+.side-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.side-nav-header h3 {
+  color: #fff;
+  font-size: 20px;
+  margin: 0;
+}
+
+.close-side-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.close-side-btn:hover {
+  color: #f5b941;
+}
+
+.side-nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.side-nav-links li {
+  margin-bottom: 4px;
+}
+
+.side-nav-links li a {
+  display: block;
+  color: #d1d5db;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.side-nav-links li a:hover {
+  background-color: rgba(245, 185, 65, 0.12);
+  color: #f5b941;
+  border-left-color: #f5b941;
+}
+
+/* Logout Button at bottom of side nav (Gold on hover) */
+.side-nav-logout {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+  width: 100%;
+  background: transparent;
+  border: 2px solid #f5b941;
+  color: #f5b941;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #f5b941;
+  color: #0d1b3d;
+  transform: translateY(-2px);
+}
+
+/* Dashboard Content */
+.dashboard-container {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.greeting-block {
+  margin-bottom: 24px;
+}
+
+.dashboard-title {
+  color: #0d1b3d;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.university-text {
+  color: #6c4b6a;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Cards */
+.card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-heading {
+  color: #0d1b3d;
+  font-size: 18px;
+  margin: 0 0 16px 0;
+  font-weight: 700;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #6c4b6a; /* Purple accent */
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-card {
+  width: 33.33%;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat-title {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-weight: bold;
+  font-size: 22px;
+  display: block;
+}
+
+/* Menu items */
+.menu-item {
+  border-bottom: 1px solid #eeeeee;
+  padding: 12px 0;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-link {
+  color: #0d1b3d;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: color 0.25s ease;
+}
+
+.menu-link:hover {
+  color: #2e7d5a;
+}
+
+.menu-link:hover .arrow {
+  transform: translateX(4px);
+}
+
+.arrow {
+  font-weight: bold;
+  color: #9ca3af;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.menu-link:hover .arrow {
+  color: #2e7d5a;
+}
+
+/* Change Password Section  */
+.password-section {
+  margin-top: 20px;
+  border-top: 2px dashed #e5e7eb;
+  padding-top: 20px;
+}
+
+.password-title {
+  color: #6c4b6a;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0d1b3d;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #00a6a6;
+}
+
+.btn-save {
+  width: 100%;
+  background-color: #f5b941;
+  color: #0d1b3d;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.btn-save:hover {
+  background-color: #e0a330;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
   .top-center {
-    flex: 1;
-    min-width: 160px;
-    max-width: 520px;
+    order: 3;
+    flex-basis: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
-
-  .search-wrap {
-    display: flex;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.12);
-    border-radius: 24px;
-    padding: 6px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-  }
-
-  .search-wrap:hover,
-  .search-wrap:focus-within {
-    background-color: rgba(255, 255, 255, 0.20);
-    border-color: rgba(245, 185, 65, 0.4);
-  }
-
-  .search-icon {
-    color: #9ca3af;
-    font-size: 16px;
-    margin-right: 10px;
-  }
-
-  .search-input {
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #fff;
-    font-size: 14px;
-    padding: 8px 0;
-    width: 100%;
-    font-weight: 400;
-  }
-
-  .search-input::placeholder {
-    color: #9ca3af;
-    font-weight: 300;
-  }
-
-  /* ---- Right: Profile Avatar ---- */
   .top-right {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
+    display: none;
   }
-
-  .avatar {
-    background-color: #f5b941;         /* Success Gold */
-    color: #0d1b3d;
-    font-weight: 700;
-    font-size: 14px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: default;
-  }
-
-  .avatar-placeholder {
-    width: 36px;
-    height: 36px;
-  }
-
-  /* SIDE NAV  */
-  .side-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 200;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
-
-  .side-overlay-open {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .side-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 280px;
-    height: 100%;
-    background-color: #0d1b3d;
-    z-index: 300;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    padding: 20px 24px;
-    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.3);
-    overflow-y: auto;
-    display: flex;
+  .stats-grid {
     flex-direction: column;
   }
-
-  .side-nav-open {
-    transform: translateX(0);
-  }
-
-  .side-nav-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 20px;
-  }
-
-  .side-nav-header h3 {
-    color: #fff;
-    font-size: 20px;
-    margin: 0;
-  }
-
-  .close-side-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0 4px;
-    line-height: 1;
-  }
-
-  .close-side-btn:hover {
-    color: #f5b941;
-  }
-
-  .side-nav-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex: 1;
-  }
-
-  .side-nav-links li {
-    margin-bottom: 4px;
-  }
-
-  .side-nav-links li a {
-    display: block;
-    color: #d1d5db;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border-left: 3px solid transparent;
-    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-  }
-
-  /* ----- GOLDEN HOVER for burger menu ----- */
-  .side-nav-links li a:hover {
-    background-color: rgba(245, 185, 65, 0.12);
-    color: #f5b941;
-    border-left-color: #f5b941;
-  }
-
-  .side-nav-user {
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    color: #d1d5db;
-  }
-
-  .side-nav-user p {
-    margin: 4px 0;
-    font-size: 14px;
-  }
-
-  .side-user-uni {
-    font-size: 12px;
-    opacity: 0.7;
-  }
-
-  /* HERO SECTION */
-  .hero {
-    background-color: #0d1b3d;
-    color: #fff;
-  }
-
-  .hero-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 40px;
-    max-width: 1100px;
+  .stat-card {
     width: 100%;
-    margin: 0 auto;
-    flex-wrap: wrap;
   }
-
-  .hero-text {
-    flex: 1 1 50%;
-    min-width: 300px;
-  }
-
-  .hero-tagline {
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 3px;
-    color: #f5b941;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .hero-title {
-    font-size: 40px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 16px;
-    line-height: 1.2;
-  }
-
-  .hero-desc {
-    font-size: 18px;
-    font-weight: 400;
-    color: #d1d5db;
-    max-width: 500px;
-    line-height: 1.6;
-    margin-bottom: 30px;
-  }
-
-  .btn-gold {
-    background-color: #f5b941;
-    color: #0d1b3d;
-    font-size: 16px;
-    font-weight: 700;
-    padding: 14px 36px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.25s ease, transform 0.15s ease;
-  }
-
-  .btn-gold:hover {
-    background-color: #e0a330;
-    transform: translateY(-2px);
-  }
-
-  .btn-gold:active {
-    transform: translateY(0);
-  }
-
-  .hero-image {
-    flex: 1 1 40%;
-    min-width: 280px;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-  }
-
-  .hero-img {
-    width: 100%;
-    height: auto;
-    display: block;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-  }
-
-  /* CORE SERVICES  */
-  .core-services {
-    background-color: #f8f9fa;
-    padding-top: 40px;
-    padding-bottom: 40px;
-  }
-
-  .section-title {
-    color: #0d1b3d;
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 36px;
-    text-align: center;
-  }
-
-  .service-cards {
-    display: flex;
-    gap: 32px;
-    justify-content: center;
-    flex-wrap: wrap;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .service-card {
-    background-color: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 32px 28px 30px;
-    width: 280px;
-    text-align: center;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: background-color 0.35s ease, transform 0.25s ease, box-shadow 0.35s ease;
-  }
-
-  /* ----- Hover → Tech Teal (#00A6A6) ----- */
-  .service-card:hover {
-    background-color: #00a6a6;
-    transform: translateY(-6px);
-    box-shadow: 0 12px 32px rgba(0, 166, 166, 0.25);
-  }
-
-  .service-card:hover h3,
-  .service-card:hover p,
-  .service-card:hover .card-icon {
-    color: #fff;
-  }
-
-  .service-card:hover .card-btn {
-    background-color: #fff;
-    color: #00a6a6;
-    border-color: #fff;
-  }
-
-  .card-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-    display: block;
-    transition: color 0.35s ease;
-  }
-
-  .service-card h3 {
-    color: #0d1b3d;
-    font-size: 20px;
-    margin: 0 0 8px 0;
-    transition: color 0.35s ease;
-  }
-
-  .service-card p {
-    color: #4b5563;
-    font-size: 15px;
-    line-height: 1.5;
-    margin: 0 0 18px 0;
-    transition: color 0.35s ease;
-  }
-
-  .card-btn {
-    background-color: #0d1b3d;
-    color: #fff;
-    border: 2px solid #0d1b3d;
-    border-radius: 30px;
-    padding: 10px 24px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
-    margin-top: auto;
-  }
-
-  .card-btn:hover {
-    transform: scale(1.04);
-    background-color: #f5b941;
-    border-color: #f5b941;
-    color: #0d1b3d;
-  }
-
-  /* TUTORIAL – How CampusSwap Works */
-  .tutorial-section {
-    background-color: #f0f2f5;
-    padding-top: 40px;
-    padding-bottom: 40px;
-  }
-
-  .tutorial {
-    background-color: #fff;
-    border-radius: 16px;
-    padding: 40px 36px 44px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    max-width: 820px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .tutorial-title {
-    color: #0d1b3d;
-    font-size: 28px;
-    text-align: center;
-    font-weight: 700;
-    margin-top: 0;
-    margin-bottom: 32px;
-  }
-
-  .steps {
-    display: flex;
-    flex-direction: column;
-    gap: 26px;
-  }
-
-  .step {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-  }
-
-  .step-num {
-    background-color: #f5b941;
-    color: #0d1b3d;
-    font-weight: 700;
-    font-size: 18px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .step-body h3 {
-    color: #2e7d5a;
-    font-size: 19px;
-    margin: 0 0 4px 0;
-  }
-
-  .step-body p {
-    color: #4b5563;
-    font-size: 15px;
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  .tutorial-actions {
-    margin-top: 36px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: center;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 32px;
-  }
-
-  .btn-outline-gold {
-    background: transparent;
-    border: 2px solid #f5b941;
-    color: #0d1b3d;
-    font-weight: 600;
-    font-size: 15px;
-    padding: 10px 26px;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
-  }
-
-  .btn-outline-gold:hover {
-    background-color: #f5b941;
-    color: #0d1b3d;
-    transform: translateY(-2px);
-  }
-
-  .btn-outline-green {
-    background: transparent;
-    border: 2px solid #2e7d5a;
-    color: #2e7d5a;
-    font-weight: 600;
-    font-size: 15px;
-    padding: 10px 26px;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
-  }
-
-  .btn-outline-green:hover {
-    background-color: #2e7d5a;
-    color: #fff;
-    transform: translateY(-2px);
-  }
-
-  /* ----- Purple + Bold login prompt ----- */
-  .login-prompt.purple-bold {
-    color: #6c4b6a;                    
-    font-weight: 700;
-    font-size: 16px;
-    margin: 0;
-  }
-
-  .login-prompt.purple-bold a {
-    color: #f5b941;
-    font-weight: 700;
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s ease;
-  }
-
-  .login-prompt.purple-bold a:hover {
-    border-bottom-color: #f5b941;
-  }
-
-  /* SCROLL INDICATOR */
-  .scroll-indicator {
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: rgb(60, 2, 107);
-    font-size: 20px;
-    letter-spacing: 2px;
-    opacity: 0.7;
-    font-weight: 300;
-    animation: float-down 2.2s ease-in-out infinite;
-    cursor: default;
-  }
-
-  .scroll-indicator-light {
-    color: rgb(60, 2, 107);
-  }
-
-  .scroll-arrow {
-    font-size: 22px;
-    line-height: 1;
-    margin-top: 2px;
-  }
-
-  @keyframes float-down {
-    0% {
-      transform: translateX(-50%) translateY(0);
-      opacity: 0.5;
-    }
-    50% {
-      transform: translateX(-50%) translateY(8px);
-      opacity: 1;
-    }
-    100% {
-      transform: translateX(-50%) translateY(0);
-      opacity: 0.5;
-    }
-  }
-
-  /* ================================================================
-     FOOTER
-     ================================================================ */
-  footer {
-    background-color: #050c1e;
-    color: #fff;
-    padding: 40px 30px 36px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 30px;
-    border-top: 3px solid #f5b941;
-  }
-
-  .footer-brand {
-    max-width: 340px;
-  }
-
-  .footer-logo {
-    color: #fff;
-    font-size: 22px;
-    margin: 0 0 12px 0;
-  }
-
-  .footer-brand p {
-    color: #9ca3af;
-    font-size: 14px;
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .footer-links h4 {
-    color: #f5b941;
-    margin: 0 0 14px 0;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .footer-links ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .footer-links li {
-    margin-bottom: 10px;
-  }
-
-  .footer-links a {
-    color: #d1d5db;
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.2s ease;
-  }
-
-  .footer-links a:hover {
-    color: #fff;
-  }
-
-  /* ================================================================
-     RESPONSIVE
-     ================================================================ */
-  @media (max-width: 992px) {
-    .hero-title {
-      font-size: 32px;
-    }
-    .hero-desc {
-      font-size: 16px;
-    }
-    .top-center {
-      max-width: 300px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .top-bar {
-      padding: 10px 16px;
-      gap: 10px;
-    }
-
-    .brand {
-      font-size: 18px;
-    }
-
-    .top-center {
-      order: 3;
-      flex-basis: 100%;
-      max-width: 100%;
-      min-width: 0;
-    }
-
-    .search-wrap {
-      padding: 4px 14px;
-    }
-
-    .search-input {
-      font-size: 13px;
-      padding: 6px 0;
-    }
-
-    .top-right {
-      display: none;
-    }
-
-    .hero-inner {
-      flex-direction: column;
-      text-align: center;
-      gap: 30px;
-    }
-
-    .hero-text {
-      flex: 1 1 100%;
-      min-width: 0;
-    }
-
-    .hero-desc {
-      max-width: 100%;
-    }
-
-    .hero-image {
-      flex: 1 1 100%;
-      min-width: 0;
-      width: 100%;
-      max-width: 500px;
-    }
-
-    .hero-title {
-      font-size: 28px;
-    }
-
-    .hero-desc {
-      font-size: 15px;
-    }
-
-    .btn-gold {
-      font-size: 14px;
-      padding: 12px 24px;
-    }
-
-    .full-section {
-      padding: 40px 16px;
-      min-height: 100vh;
-    }
-
-    .core-services {
-      padding: 30px 16px 40px;
-    }
-
-    .section-title {
-      font-size: 24px;
-    }
-
-    .service-cards {
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .service-card {
-      width: 100%;
-      max-width: 360px;
-      padding: 24px 18px 22px;
-    }
-
-    .tutorial-section {
-      padding: 30px 16px 40px;
-    }
-
-    .tutorial {
-      padding: 24px 18px 28px;
-    }
-
-    .tutorial-title {
-      font-size: 22px;
-    }
-
-    .step {
-      gap: 14px;
-    }
-
-    .step-num {
-      width: 38px;
-      height: 38px;
-      font-size: 16px;
-    }
-
-    .step-body h3 {
-      font-size: 17px;
-    }
-
-    .step-body p {
-      font-size: 14px;
-    }
-
-    .tutorial-actions {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .btn-outline-gold,
-    .btn-outline-green {
-      width: 100%;
-      max-width: 260px;
-      text-align: center;
-    }
-
-    .login-prompt.purple-bold {
-      font-size: 14px;
-      text-align: center;
-    }
-
-    footer {
-      flex-direction: column;
-      padding: 30px 18px 24px;
-      gap: 24px;
-    }
-
-    .footer-brand {
-      max-width: 100%;
-    }
-
-    .scroll-indicator {
-      bottom: 16px;
-      font-size: 12px;
-    }
-    .scroll-arrow {
-      font-size: 18px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .hero-title {
-      font-size: 22px;
-    }
-
-    .hero-desc {
-      font-size: 14px;
-    }
-
-    .brand {
-      font-size: 16px;
-    }
-
-    .hamburger-icon {
-      font-size: 24px;
-    }
-
-    .search-input {
-      font-size: 12px;
-    }
-
-    .service-card {
-      max-width: 300px;
-    }
-
-    .side-nav {
-      width: 260px;
-      padding: 16px 18px;
-    }
-  }
+}
 </style>

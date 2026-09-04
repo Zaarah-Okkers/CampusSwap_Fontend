@@ -1,0 +1,58 @@
+/* this will be the main css and where we have our shared elemenst using the same colors  */  
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #F4F6F8;
+  font-family: Arial, sans-serif;
+  color: #1E293B;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Shared Logo */
+.logo-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #0D1B3D;
+}
+.logo-text span {
+  color: #2E7D5A;
+}
+
+/* Shared Buttons */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  width: 100%;
+}
+.btn-primary {
+  background-color: #F5B941;
+  color: #0D1B3D;
+}
+.btn-secondary {
+  background-color: transparent;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+}
+.btn-login {
+  background-color: #00A6A6;
+  color: #FFFFFF;
+  padding: 8px 16px;
+  width: auto;
+}
+
+/* Shared Container */
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+}

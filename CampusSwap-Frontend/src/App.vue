@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import SideNav from './components/SideNav.vue'
@@ -11,12 +11,25 @@ import SellItemModal from './components/SellItemModal.vue'
 import ChatView from './views/ChatView.vue'
 import AdminView from './views/AdminView.vue'
 import BookStore from './views/Bookstore.vue'
+import ToastNotifications from './components/ToastNotifications.vue'
+import Breadcrumb from './components/Breadcrumb.vue'
 
 const route = useRoute()
 const isChatPage = computed(() => route.path.startsWith('/chat'))
 const isAdminPage = computed(() => route.path.startsWith('/admin'))
 const isBookPage = computed(() => route.path.startsWith('/books'))
 const isHomePage = computed(() => route.path === '/')
+
+const toastRef = ref(null)
+
+// Show welcome toast on mount
+onMounted(() => {
+  setTimeout(() => {
+    if (toastRef.value) {
+      toastRef.value.success('👋 Welcome back to CampusSwap!')
+    }
+  }, 500)
+})
 
 const allProducts = ref([
   { id: 1, name: 'HP EliteBook 840 G5', price: 4500, condition: 'Like New', conditionClass: '', rating: 4.8, sales: 12, sellerRating: 4.8, image: 'https://placehold.co/300x200', university: 'University of Cape Town (UCT)', sellerName: 'Thabo M.', description: 'Reliable business laptop in great condition, barely used since I upgraded. Intel Core i5, 8GB RAM, 256GB SSD — more than enough for coding, research, and everyday coursework. Battery still holds a solid full day of charge. Comes with the original charger. No scratches on the screen, light wear on the corners from normal use.' },
@@ -115,11 +128,22 @@ function toggleSave(product) {
     next.add(product.id)
   }
   savedIds.value = next
+  // Show toast notification
+  if (toastRef.value) {
+    if (savedIds.value.has(product.id)) {
+      toastRef.value.success(`💾 "${product.name}" saved to your list!`)
+    } else {
+      toastRef.value.info(`🗑️ "${product.name}" removed from your list.`)
+    }
+  }
 }
 
 function handleApplyFilters(newFilters) {
   filters.value = newFilters
   showFilters.value = false
+  if (toastRef.value) {
+    toastRef.value.success('✅ Filters applied successfully!')
+  }
 }
 
 function updateListingType(type) {
@@ -148,6 +172,9 @@ function addProduct(newItem) {
     description: newItem.description
   })
   showSellModal.value = false
+  if (toastRef.value) {
+    toastRef.value.success(`✅ "${newItem.name}" has been listed successfully!`)
+  }
 }
 
 function submitReview({ id, productRating, sellerRating, reviewerName, comment }) {
@@ -172,22 +199,64 @@ function submitReview({ id, productRating, sellerRating, reviewerName, comment }
   if (selectedProduct.value && selectedProduct.value.id === id) {
     selectedProduct.value = product
   }
+  
+  if (toastRef.value) {
+    toastRef.value.success('⭐ Thank you for your feedback!')
+  }
 }
+
+// Keyboard shortcuts
+onMounted(() => {
+  document.addEventListener('keydown', (e) => {
+    // Ctrl/Cmd + K for search focus
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault()
+      const searchInput = document.querySelector('.search-box input')
+      if (searchInput) {
+        searchInput.focus()
+      }
+    }
+    // Escape to close modals
+    if (e.key === 'Escape') {
+      if (selectedProduct.value) {
+        closeProduct()
+      }
+      if (showSellModal.value) {
+        closeSellModal()
+      }
+      if (showFilters.value) {
+        showFilters.value = false
+      }
+    }
+  })
+})
 </script>
 
 <template>
   <div id="app">
+    <!-- Toast Notifications -->
+    <ToastNotifications ref="toastRef" />
+    
+    <!-- Header -->
     <AppHeader v-model:search="searchQuery" @open-filters="showFilters = true" />
+    
+    <!-- Layout -->
     <div id="layout">
       <div class="main-column">
         <div class="page-body">
-          <!-- Show BookStore when on books page -->
+          <!-- Breadcrumb (show on all pages except home) -->
+          <Breadcrumb v-if="!isHomePage" />
+          
+          <!-- BookStore -->
           <BookStore v-if="isBookPage" />
-          <!-- Show AdminView when on admin page -->
+          
+          <!-- AdminView -->
           <AdminView v-else-if="isAdminPage" />
-          <!-- Show ChatView when on chat page -->
+          
+          <!-- ChatView -->
           <ChatView v-else-if="isChatPage" />
-          <!-- Show ProductGrid for home page -->
+          
+          <!-- ProductGrid (Home) -->
           <ProductGrid
             v-else-if="isHomePage"
             :products="filteredProducts"
@@ -198,12 +267,21 @@ function submitReview({ id, productRating, sellerRating, reviewerName, comment }
             @toggle-save="toggleSave"
             @update:category="updateListingType"
           />
+          
+          <!-- Empty state for unknown routes -->
+          <div v-else class="empty-page glass-panel">
+            <h2>Page Not Found</h2>
+            <p>Sorry, we couldn't find the page you're looking for.</p>
+            <button @click="$router.push('/')" class="go-home-btn">Go Home</button>
+          </div>
         </div>
         <AppFooter v-if="!isChatPage && !isAdminPage && !isBookPage" />
       </div>
 
+      <!-- Bottom Navigation -->
       <SideNav />
 
+      <!-- Filter Sidebar -->
       <FilterSidebar
         v-if="showFilters && !isChatPage && !isAdminPage && !isBookPage"
         :filters="filters"
@@ -211,13 +289,20 @@ function submitReview({ id, productRating, sellerRating, reviewerName, comment }
         @close="showFilters = false"
       />
 
+      <!-- Product Modal -->
       <ProductModal
         v-if="selectedProduct && !isChatPage && !isAdminPage && !isBookPage"
         :product="selectedProduct"
         @close="closeProduct"
         @submit-review="submitReview"
       />
-      <SellItemModal v-if="showSellModal && !isChatPage && !isAdminPage && !isBookPage" @close="closeSellModal" @submit="addProduct" />
+      
+      <!-- Sell Item Modal -->
+      <SellItemModal 
+        v-if="showSellModal && !isChatPage && !isAdminPage && !isBookPage" 
+        @close="closeSellModal" 
+        @submit="addProduct" 
+      />
     </div>
   </div>
 </template>
@@ -241,6 +326,7 @@ html, body {
 body {
   padding-top: 85px !important;
   padding-bottom: 80px !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #app {
@@ -271,7 +357,72 @@ body {
   width: 100%;
 }
 
-/* Full screen responsive - no max-width limits */
+/* Empty Page */
+.empty-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  border-radius: 16px;
+  text-align: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+}
+
+.empty-page h2 {
+  font-size: 24px;
+  color: var(--text);
+  margin: 0 0 8px;
+  font-family: 'Fraunces', serif;
+}
+
+.empty-page p {
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+.go-home-btn {
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: none;
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.go-home-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(232, 181, 77, 0.3);
+}
+
+/* Keyboard shortcut hint */
+.keyboard-hint {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  color: var(--text-faint);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  z-index: 40;
+  border: 1px solid var(--glass-border);
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .keyboard-hint {
+    display: block;
+  }
+}
+
+/* Responsive */
 @media (min-width: 640px) {
   #layout {
     padding: 0 24px;
@@ -293,6 +444,46 @@ body {
 @media (min-width: 1536px) {
   #layout {
     padding: 0 64px;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selection */
+::selection {
+  background: var(--gold-soft);
+  color: var(--text);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
   }
 }
 </style>

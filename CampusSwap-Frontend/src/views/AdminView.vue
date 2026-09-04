@@ -50,18 +50,22 @@ const isAdmin = computed(() => {
 
 // Redirect if not admin
 onMounted(() => {
-  if (!isAdmin.value) {
-    alert('Access denied. Admin privileges required.')
-    router.push('/')
-  }
-  
-  // Update stats
+  // Update stats regardless
   stats.value.totalUsers = userStore.users.length
   stats.value.totalReports = userStore.adminNotifications.length
   stats.value.pendingReports = userStore.adminNotifications.filter(n => !n.read).length
   stats.value.totalListings = listings.value.length
   stats.value.activeUsers = userStore.users.filter(u => u.online).length
   stats.value.totalChats = 4 // Sample data
+  
+  // Only redirect if not admin and not in development mode
+  if (!isAdmin.value) {
+    // Instead of alert, show a message in the UI
+    // and redirect after a moment
+    setTimeout(() => {
+      router.push('/')
+    }, 2000)
+  }
 })
 
 // Toggle listing status
@@ -176,386 +180,620 @@ function exportData() {
   a.click()
   URL.revokeObjectURL(url)
 }
+
+// Get icon for activity type
+function getActivityIcon(type) {
+  const icons = {
+    'listing': '📦',
+    'swap': '🔄',
+    'report': '🚨',
+    'admin': '👑'
+  }
+  return icons[type] || '📋'
+}
 </script>
 
 <template>
   <div class="admin-page">
-    <div class="admin-header">
-      <div class="admin-header-content">
-        <div class="admin-title">
-          <h1>👑 Admin Dashboard</h1>
-          <p>Manage CampusSwap platform, users, listings, and reports</p>
+    <!-- Access Denied Message -->
+    <div v-if="!isAdmin" class="access-denied glass-panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lock-icon">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <h2>Access Denied</h2>
+      <p>Admin privileges required to view this page.</p>
+      <p class="hint">Please switch to an admin account using the user switcher in the header.</p>
+      <button class="go-back-btn" @click="router.push('/')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Go Back Home
+      </button>
+    </div>
+
+    <!-- Admin Content -->
+    <template v-else>
+      <div class="admin-header">
+        <div class="admin-header-content">
+          <div class="admin-title">
+            <h1>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              Admin Dashboard
+            </h1>
+            <p>Manage CampusSwap platform, users, listings, and reports</p>
+          </div>
+          <button class="export-btn" @click="exportData">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export Data
+          </button>
         </div>
-        <button class="export-btn" @click="exportData">
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card glass-panel">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalUsers }}</span>
+            <span class="stat-label">Total Users</span>
+          </div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalListings }}</span>
+            <span class="stat-label">Total Listings</span>
+          </div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalReports }}</span>
+            <span class="stat-label">Total Reports</span>
+          </div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-icon" style="color: var(--gold);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" style="color: var(--gold);">{{ stats.pendingReports }}</span>
+            <span class="stat-label">Pending Reports</span>
+          </div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-icon" style="color: var(--mint);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.activeUsers }}</span>
+            <span class="stat-label">Active Users</span>
+          </div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalChats }}</span>
+            <span class="stat-label">Active Chats</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="admin-tabs">
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'dashboard' }"
+          @click="activeTab = 'dashboard'"
+        >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
           </svg>
-          Export Data
+          Dashboard
+        </button>
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'users' }"
+          @click="activeTab = 'users'"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Users
+        </button>
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'listings' }"
+          @click="activeTab = 'listings'"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+          Listings
+        </button>
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'reports' }"
+          @click="activeTab = 'reports'"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Reports
+          <span class="badge" v-if="stats.pendingReports > 0">{{ stats.pendingReports }}</span>
+        </button>
+        <button 
+          class="tab-btn" 
+          :class="{ active: activeTab === 'activity' }"
+          @click="activeTab = 'activity'"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Activity
         </button>
       </div>
-    </div>
 
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-      <div class="stat-card glass-panel">
-        <div class="stat-icon">👥</div>
-        <div class="stat-info">
-          <span class="stat-value">{{ stats.totalUsers }}</span>
-          <span class="stat-label">Total Users</span>
-        </div>
-      </div>
-      <div class="stat-card glass-panel">
-        <div class="stat-icon">📦</div>
-        <div class="stat-info">
-          <span class="stat-value">{{ stats.totalListings }}</span>
-          <span class="stat-label">Total Listings</span>
-        </div>
-      </div>
-      <div class="stat-card glass-panel">
-        <div class="stat-icon">🚨</div>
-        <div class="stat-info">
-          <span class="stat-value">{{ stats.totalReports }}</span>
-          <span class="stat-label">Total Reports</span>
-        </div>
-      </div>
-      <div class="stat-card glass-panel">
-        <div class="stat-icon">⏳</div>
-        <div class="stat-info">
-          <span class="stat-value" style="color: var(--gold);">{{ stats.pendingReports }}</span>
-          <span class="stat-label">Pending Reports</span>
-        </div>
-      </div>
-      <div class="stat-card glass-panel">
-        <div class="stat-icon">🟢</div>
-        <div class="stat-info">
-          <span class="stat-value">{{ stats.activeUsers }}</span>
-          <span class="stat-label">Active Users</span>
-        </div>
-      </div>
-      <div class="stat-card glass-panel">
-        <div class="stat-icon">💬</div>
-        <div class="stat-info">
-          <span class="stat-value">{{ stats.totalChats }}</span>
-          <span class="stat-label">Active Chats</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="admin-tabs">
-      <button 
-        class="tab-btn" 
-        :class="{ active: activeTab === 'dashboard' }"
-        @click="activeTab = 'dashboard'"
-      >
-        📊 Dashboard
-      </button>
-      <button 
-        class="tab-btn" 
-        :class="{ active: activeTab === 'users' }"
-        @click="activeTab = 'users'"
-      >
-        👥 Users
-      </button>
-      <button 
-        class="tab-btn" 
-        :class="{ active: activeTab === 'listings' }"
-        @click="activeTab = 'listings'"
-      >
-        📦 Listings
-      </button>
-      <button 
-        class="tab-btn" 
-        :class="{ active: activeTab === 'reports' }"
-        @click="activeTab = 'reports'"
-      >
-        🚨 Reports
-        <span class="badge" v-if="stats.pendingReports > 0">{{ stats.pendingReports }}</span>
-      </button>
-      <button 
-        class="tab-btn" 
-        :class="{ active: activeTab === 'activity' }"
-        @click="activeTab = 'activity'"
-      >
-        📋 Activity
-      </button>
-    </div>
-
-    <!-- Dashboard Tab -->
-    <div v-if="activeTab === 'dashboard'" class="tab-content">
-      <div class="dashboard-grid">
-        <!-- Recent Activity -->
-        <div class="dashboard-card glass-panel">
-          <h3>Recent Activity</h3>
-          <div class="activity-list">
-            <div v-for="activity in recentActivity" :key="activity.id" class="activity-item">
-              <div class="activity-icon" :class="activity.type">
-                {{ activity.type === 'listing' ? '📦' : 
-                   activity.type === 'swap' ? '🔄' : 
-                   activity.type === 'report' ? '🚨' : '👑' }}
+      <!-- Dashboard Tab -->
+      <div v-if="activeTab === 'dashboard'" class="tab-content">
+        <div class="dashboard-grid">
+          <!-- Recent Activity -->
+          <div class="dashboard-card glass-panel">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Recent Activity
+            </h3>
+            <div class="activity-list">
+              <div v-for="activity in recentActivity" :key="activity.id" class="activity-item">
+                <div class="activity-icon" :class="activity.type">
+                  {{ getActivityIcon(activity.type) }}
+                </div>
+                <div class="activity-content">
+                  <span class="activity-user">{{ activity.user }}</span>
+                  <span class="activity-action">{{ activity.action }}</span>
+                  <span class="activity-time">{{ activity.time }}</span>
+                </div>
               </div>
-              <div class="activity-content">
-                <span class="activity-user">{{ activity.user }}</span>
-                <span class="activity-action">{{ activity.action }}</span>
-                <span class="activity-time">{{ activity.time }}</span>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="dashboard-card glass-panel">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 22 15 16 17 12 15 8 17 2 15 2 3 8 5 12 3 16 5 22 3"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+                <line x1="8" y1="5" x2="8" y2="17"/>
+                <line x1="16" y1="5" x2="16" y2="17"/>
+              </svg>
+              Quick Actions
+            </h3>
+            <div class="quick-actions">
+              <button class="action-btn" @click="activeTab = 'users'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Manage Users
+              </button>
+              <button class="action-btn" @click="activeTab = 'listings'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                </svg>
+                Manage Listings
+              </button>
+              <button class="action-btn" @click="activeTab = 'reports'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                View Reports
+              </button>
+              <button class="action-btn" @click="exportData">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export Data
+              </button>
+            </div>
+          </div>
+
+          <!-- System Status -->
+          <div class="dashboard-card glass-panel">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+              System Status
+            </h3>
+            <div class="system-status">
+              <div class="status-item">
+                <span class="status-label">Platform Status</span>
+                <span class="status-value online">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                    <circle cx="12" cy="12" r="10"/>
+                  </svg>
+                  Online
+                </span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Last Backup</span>
+                <span class="status-value">Today, 02:00 AM</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Server Load</span>
+                <span class="status-value">23%</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Active Sessions</span>
+                <span class="status-value">{{ stats.activeUsers }}</span>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Quick Actions -->
-        <div class="dashboard-card glass-panel">
-          <h3>Quick Actions</h3>
-          <div class="quick-actions">
-            <button class="action-btn" @click="activeTab = 'users'">
-              <span>👥</span> Manage Users
-            </button>
-            <button class="action-btn" @click="activeTab = 'listings'">
-              <span>📦</span> Manage Listings
-            </button>
-            <button class="action-btn" @click="activeTab = 'reports'">
-              <span>🚨</span> View Reports
-            </button>
-            <button class="action-btn" @click="exportData">
-              <span>📊</span> Export Data
-            </button>
-          </div>
-        </div>
-
-        <!-- System Status -->
-        <div class="dashboard-card glass-panel">
-          <h3>System Status</h3>
-          <div class="system-status">
-            <div class="status-item">
-              <span class="status-label">Platform Status</span>
-              <span class="status-value online">🟢 Online</span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Last Backup</span>
-              <span class="status-value">Today, 02:00 AM</span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Server Load</span>
-              <span class="status-value">23%</span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Active Sessions</span>
-              <span class="status-value">{{ stats.activeUsers }}</span>
+      <!-- Users Tab -->
+      <div v-if="activeTab === 'users'" class="tab-content">
+        <div class="table-container glass-panel">
+          <div class="table-header">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              All Users
+            </h3>
+            <div class="table-actions">
+              <input type="text" placeholder="Search users..." class="search-input" />
+              <button class="filter-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="4" y1="6" x2="20" y2="6"/>
+                  <line x1="8" y1="12" x2="16" y2="12"/>
+                  <line x1="11" y1="18" x2="13" y2="18"/>
+                </svg>
+                Filter
+              </button>
             </div>
           </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>University</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="user in userStore.users" :key="user.id">
+                <td>
+                  <div class="user-cell">
+                    <img :src="user.avatar" :alt="user.name" class="user-avatar" />
+                    <div>
+                      <div class="user-name">{{ user.name }}</div>
+                      <div class="user-email">{{ user.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="role-badge" :style="{ background: getRoleColor(user.role) }">
+                    {{ userStore.getRoleDisplay(user.role) }}
+                  </span>
+                </td>
+                <td>{{ user.university || 'N/A' }}</td>
+                <td>
+                  <span class="status-badge" :class="{ online: user.online }">
+                    <span v-if="user.online" class="online-dot-small"></span>
+                    {{ user.online ? 'Online' : 'Offline' }}
+                  </span>
+                  <span v-if="user.banned" class="status-badge banned">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                    </svg>
+                    Banned
+                  </span>
+                  <span v-if="user.verified" class="status-badge verified">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Verified
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="action-btn small" @click="verifyUser(user.id)" v-if="!user.verified">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      Verify
+                    </button>
+                    <button class="action-btn small danger" @click="banUser(user.id)" v-if="!user.banned">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                      </svg>
+                      Ban
+                    </button>
+                    <button class="action-btn small" @click="router.push(`/chat?userId=${user.name}`)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                      </svg>
+                      Chat
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
 
-    <!-- Users Tab -->
-    <div v-if="activeTab === 'users'" class="tab-content">
-      <div class="table-container glass-panel">
-        <div class="table-header">
-          <h3>👥 All Users</h3>
-          <div class="table-actions">
-            <input type="text" placeholder="Search users..." class="search-input" />
-            <button class="filter-btn">Filter</button>
+      <!-- Listings Tab -->
+      <div v-if="activeTab === 'listings'" class="tab-content">
+        <div class="table-container glass-panel">
+          <div class="table-header">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              </svg>
+              All Listings
+            </h3>
+            <div class="table-actions">
+              <input type="text" placeholder="Search listings..." class="search-input" />
+              <button class="filter-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="4" y1="6" x2="20" y2="6"/>
+                  <line x1="8" y1="12" x2="16" y2="12"/>
+                  <line x1="11" y1="18" x2="13" y2="18"/>
+                </svg>
+                Filter
+              </button>
+            </div>
           </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Seller</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="listing in listings" :key="listing.id">
+                <td>
+                  <div class="listing-cell">
+                    <div class="listing-name">{{ listing.name }}</div>
+                  </div>
+                </td>
+                <td>
+                  <span class="type-badge" :class="listing.type">
+                    <span v-if="listing.type === 'sell'">💰 Sell</span>
+                    <span v-else-if="listing.type === 'rent'">🏠 Rent</span>
+                    <span v-else>🔄 Swap</span>
+                  </span>
+                </td>
+                <td>
+                  {{ listing.type === 'swap' ? 'Swap' : formatCurrency(listing.price) }}
+                </td>
+                <td>{{ listing.seller }}</td>
+                <td>
+                  <span class="status-badge" :style="{ background: getStatusColor(listing.status) }">
+                    {{ listing.status }}
+                  </span>
+                  <span v-if="listing.reported" class="status-badge reported">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="8" x2="12" y2="12"/>
+                      <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    Reported
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="action-btn small" @click="toggleListingStatus(listing)">
+                      {{ listing.status === 'active' ? 'Deactivate' : 'Activate' }}
+                    </button>
+                    <button class="action-btn small danger" @click="deleteListing(listing.id)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      </svg>
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Role</th>
-              <th>University</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="user in userStore.users" :key="user.id">
-              <td>
-                <div class="user-cell">
-                  <img :src="user.avatar" :alt="user.name" class="user-avatar" />
-                  <div>
-                    <div class="user-name">{{ user.name }}</div>
-                    <div class="user-email">{{ user.email }}</div>
+      </div>
+
+      <!-- Reports Tab -->
+      <div v-if="activeTab === 'reports'" class="tab-content">
+        <div class="table-container glass-panel">
+          <div class="table-header">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Reports
+              <span class="badge" v-if="stats.pendingReports > 0">{{ stats.pendingReports }}</span>
+            </h3>
+            <div class="table-actions">
+              <button class="filter-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="4" y1="6" x2="20" y2="6"/>
+                  <line x1="8" y1="12" x2="16" y2="12"/>
+                  <line x1="11" y1="18" x2="13" y2="18"/>
+                </svg>
+                Filter
+              </button>
+            </div>
+          </div>
+          <div v-if="reports.length === 0" class="empty-state">
+            <p>No reports to review</p>
+          </div>
+          <div v-for="report in reports" :key="report.id" class="report-item">
+            <div class="report-header">
+              <div class="report-info">
+                <span class="report-id">#{{ report.id }}</span>
+                <span class="report-status" :style="{ color: getStatusColor(report.status) }">
+                  {{ report.status }}
+                </span>
+              </div>
+              <span class="report-time">{{ new Date(report.timestamp).toLocaleString() }}</span>
+            </div>
+            <div class="report-details">
+              <div class="report-row">
+                <span class="report-label">Reported by:</span>
+                <span class="report-value">{{ report.reporterName }}</span>
+              </div>
+              <div class="report-row">
+                <span class="report-label">Against:</span>
+                <span class="report-value">{{ report.reportedUserName }}</span>
+              </div>
+              <div class="report-row">
+                <span class="report-label">Reason:</span>
+                <span class="report-value">{{ report.reason }}</span>
+              </div>
+              <div class="report-row" v-if="report.details">
+                <span class="report-label">Details:</span>
+                <span class="report-value">{{ report.details }}</span>
+              </div>
+              <div class="report-row" v-if="report.chatMessages && report.chatMessages.length">
+                <span class="report-label">Chat History:</span>
+                <div class="chat-history">
+                  <div v-for="msg in report.chatMessages" :key="msg.id" class="chat-msg">
+                    <span class="msg-sender">{{ msg.sender === 'me' ? 'Reporter' : 'Reported' }}:</span>
+                    <span class="msg-text">{{ msg.text }}</span>
+                    <span class="msg-time">{{ msg.timestamp }}</span>
                   </div>
                 </div>
-              </td>
-              <td>
-                <span class="role-badge" :style="{ background: getRoleColor(user.role) }">
-                  {{ userStore.getRoleDisplay(user.role) }}
-                </span>
-              </td>
-              <td>{{ user.university || 'N/A' }}</td>
-              <td>
-                <span class="status-badge" :class="{ online: user.online }">
-                  {{ user.online ? '🟢 Online' : '⚪ Offline' }}
-                </span>
-                <span v-if="user.banned" class="status-badge banned">🚫 Banned</span>
-                <span v-if="user.verified" class="status-badge verified">✅ Verified</span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button class="action-btn small" @click="verifyUser(user.id)" v-if="!user.verified">Verify</button>
-                  <button class="action-btn small danger" @click="banUser(user.id)" v-if="!user.banned">Ban</button>
-                  <button class="action-btn small" @click="router.push(`/chat?userId=${user.name}`)">Chat</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+            <div class="report-actions">
+              <button class="action-btn small" @click="resolveReport(report.id)" v-if="report.status === 'pending'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Resolve
+              </button>
+              <button class="action-btn small danger" @click="dismissReport(report.id)" v-if="report.status === 'pending'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Dismiss
+              </button>
+              <button class="action-btn small" @click="banUser(report.reportedUserId)" v-if="report.status === 'pending'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                </svg>
+                Ban User
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Listings Tab -->
-    <div v-if="activeTab === 'listings'" class="tab-content">
-      <div class="table-container glass-panel">
-        <div class="table-header">
-          <h3>📦 All Listings</h3>
-          <div class="table-actions">
-            <input type="text" placeholder="Search listings..." class="search-input" />
-            <button class="filter-btn">Filter</button>
+      <!-- Activity Tab -->
+      <div v-if="activeTab === 'activity'" class="tab-content">
+        <div class="table-container glass-panel">
+          <div class="table-header">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Recent Activity
+            </h3>
+            <div class="table-actions">
+              <button class="filter-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="4" y1="6" x2="20" y2="6"/>
+                  <line x1="8" y1="12" x2="16" y2="12"/>
+                  <line x1="11" y1="18" x2="13" y2="18"/>
+                </svg>
+                Filter
+              </button>
+            </div>
           </div>
-        </div>
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Type</th>
-              <th>Price</th>
-              <th>Seller</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="listing in listings" :key="listing.id">
-              <td>
-                <div class="listing-cell">
-                  <div class="listing-name">{{ listing.name }}</div>
+          <div class="activity-feed">
+            <div v-for="activity in recentActivity" :key="activity.id" class="feed-item">
+              <div class="feed-icon" :class="activity.type">
+                {{ getActivityIcon(activity.type) }}
+              </div>
+              <div class="feed-content">
+                <div class="feed-header">
+                  <span class="feed-user">{{ activity.user }}</span>
+                  <span class="feed-time">{{ activity.time }}</span>
                 </div>
-              </td>
-              <td>
-                <span class="type-badge" :class="listing.type">
-                  {{ listing.type === 'sell' ? '💰 Sell' : 
-                     listing.type === 'rent' ? '🏠 Rent' : '🔄 Swap' }}
-                </span>
-              </td>
-              <td>
-                {{ listing.type === 'swap' ? 'Swap' : formatCurrency(listing.price) }}
-              </td>
-              <td>{{ listing.seller }}</td>
-              <td>
-                <span class="status-badge" :style="{ background: getStatusColor(listing.status) }">
-                  {{ listing.status }}
-                </span>
-                <span v-if="listing.reported" class="status-badge reported">🚨 Reported</span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button class="action-btn small" @click="toggleListingStatus(listing)">
-                    {{ listing.status === 'active' ? 'Deactivate' : 'Activate' }}
-                  </button>
-                  <button class="action-btn small danger" @click="deleteListing(listing.id)">Delete</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Reports Tab -->
-    <div v-if="activeTab === 'reports'" class="tab-content">
-      <div class="table-container glass-panel">
-        <div class="table-header">
-          <h3>🚨 Reports <span class="badge" v-if="stats.pendingReports > 0">{{ stats.pendingReports }}</span></h3>
-          <div class="table-actions">
-            <button class="filter-btn">Filter</button>
-          </div>
-        </div>
-        <div v-if="reports.length === 0" class="empty-state">
-          <p>No reports to review</p>
-        </div>
-        <div v-for="report in reports" :key="report.id" class="report-item">
-          <div class="report-header">
-            <div class="report-info">
-              <span class="report-id">#{{ report.id }}</span>
-              <span class="report-status" :style="{ color: getStatusColor(report.status) }">
-                {{ report.status }}
-              </span>
-            </div>
-            <span class="report-time">{{ new Date(report.timestamp).toLocaleString() }}</span>
-          </div>
-          <div class="report-details">
-            <div class="report-row">
-              <span class="report-label">Reported by:</span>
-              <span class="report-value">{{ report.reporterName }}</span>
-            </div>
-            <div class="report-row">
-              <span class="report-label">Against:</span>
-              <span class="report-value">{{ report.reportedUserName }}</span>
-            </div>
-            <div class="report-row">
-              <span class="report-label">Reason:</span>
-              <span class="report-value">{{ report.reason }}</span>
-            </div>
-            <div class="report-row" v-if="report.details">
-              <span class="report-label">Details:</span>
-              <span class="report-value">{{ report.details }}</span>
-            </div>
-            <div class="report-row" v-if="report.chatMessages && report.chatMessages.length">
-              <span class="report-label">Chat History:</span>
-              <div class="chat-history">
-                <div v-for="msg in report.chatMessages" :key="msg.id" class="chat-msg">
-                  <span class="msg-sender">{{ msg.sender === 'me' ? 'Reporter' : 'Reported' }}:</span>
-                  <span class="msg-text">{{ msg.text }}</span>
-                  <span class="msg-time">{{ msg.timestamp }}</span>
-                </div>
+                <span class="feed-action">{{ activity.action }}</span>
               </div>
             </div>
           </div>
-          <div class="report-actions">
-            <button class="action-btn small" @click="resolveReport(report.id)" v-if="report.status === 'pending'">
-              ✅ Resolve
-            </button>
-            <button class="action-btn small danger" @click="dismissReport(report.id)" v-if="report.status === 'pending'">
-              ❌ Dismiss
-            </button>
-            <button class="action-btn small" @click="banUser(report.reportedUserId)" v-if="report.status === 'pending'">
-              🚫 Ban User
-            </button>
-          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Activity Tab -->
-    <div v-if="activeTab === 'activity'" class="tab-content">
-      <div class="table-container glass-panel">
-        <div class="table-header">
-          <h3>📋 Recent Activity</h3>
-          <div class="table-actions">
-            <button class="filter-btn">Filter</button>
-          </div>
-        </div>
-        <div class="activity-feed">
-          <div v-for="activity in recentActivity" :key="activity.id" class="feed-item">
-            <div class="feed-icon" :class="activity.type">
-              {{ activity.type === 'listing' ? '📦' : 
-                 activity.type === 'swap' ? '🔄' : 
-                 activity.type === 'report' ? '🚨' : '👑' }}
-            </div>
-            <div class="feed-content">
-              <div class="feed-header">
-                <span class="feed-user">{{ activity.user }}</span>
-                <span class="feed-time">{{ activity.time }}</span>
-              </div>
-              <span class="feed-action">{{ activity.action }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -565,6 +803,73 @@ function exportData() {
   padding: 20px 0 100px;
 }
 
+/* Access Denied Styles */
+.access-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  border-radius: 24px;
+  text-align: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+.lock-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--coral);
+  margin-bottom: 16px;
+}
+
+.access-denied h2 {
+  font-size: 24px;
+  color: var(--text);
+  margin: 0 0 8px;
+  font-family: 'Fraunces', serif;
+}
+
+.access-denied p {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.access-denied .hint {
+  color: var(--gold);
+  font-size: 13px;
+  margin: 12px 0 20px;
+}
+
+.go-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.go-back-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(232, 181, 77, 0.3);
+}
+
+.go-back-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Admin Header */
 .admin-header {
   margin-bottom: 24px;
 }
@@ -582,6 +887,15 @@ function exportData() {
   color: var(--text);
   margin: 0;
   font-family: 'Fraunces', serif;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--gold);
 }
 
 .admin-title p {
@@ -634,14 +948,19 @@ function exportData() {
 }
 
 .stat-icon {
-  font-size: 28px;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
+  color: var(--text-muted);
+}
+
+.stat-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .stat-info {
@@ -686,6 +1005,11 @@ function exportData() {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.tab-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .tab-btn:hover {
@@ -736,6 +1060,15 @@ function exportData() {
   margin: 0 0 16px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-card h3 svg {
+  width: 20px;
+  height: 20px;
+  color: var(--gold);
 }
 
 /* Activity List */
@@ -814,13 +1147,19 @@ function exportData() {
   transform: scale(1.02);
 }
 
-.action-btn span {
-  font-size: 18px;
+.action-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .action-btn.small {
   padding: 6px 12px;
   font-size: 12px;
+}
+
+.action-btn.small svg {
+  width: 14px;
+  height: 14px;
 }
 
 .action-btn.danger {
@@ -859,9 +1198,18 @@ function exportData() {
   color: var(--text);
   font-weight: 600;
   font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .status-value.online {
+  color: var(--mint);
+}
+
+.status-value.online svg {
+  width: 10px;
+  height: 10px;
   color: var(--mint);
 }
 
@@ -892,6 +1240,12 @@ function exportData() {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.table-header h3 svg {
+  width: 20px;
+  height: 20px;
+  color: var(--gold);
 }
 
 .table-header .badge {
@@ -934,11 +1288,19 @@ function exportData() {
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .filter-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text);
+}
+
+.filter-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .admin-table {
@@ -1009,23 +1371,44 @@ function exportData() {
   font-weight: 600;
   display: inline-block;
   margin-right: 4px;
+  color: white;
 }
 
 .status-badge.online {
   color: var(--mint);
+  background: rgba(74, 222, 128, 0.15);
 }
 
 .status-badge.banned {
   color: var(--coral);
+  background: rgba(255, 133, 119, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .status-badge.verified {
   color: var(--sky);
+  background: rgba(111, 168, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .status-badge.reported {
   color: var(--coral);
   background: rgba(255, 133, 119, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.online-dot-small {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--mint);
+  border-radius: 50%;
 }
 
 .type-badge {
@@ -1244,9 +1627,13 @@ function exportData() {
   }
   
   .stat-icon {
-    font-size: 20px;
     width: 36px;
     height: 36px;
+  }
+  
+  .stat-icon svg {
+    width: 18px;
+    height: 18px;
   }
   
   .dashboard-grid {
@@ -1264,6 +1651,11 @@ function exportData() {
     font-size: 12px;
     padding: 8px 14px;
     white-space: nowrap;
+  }
+  
+  .tab-btn svg {
+    width: 16px;
+    height: 16px;
   }
   
   .table-container {
@@ -1302,6 +1694,15 @@ function exportData() {
   .export-btn {
     width: 100%;
     justify-content: center;
+  }
+  
+  .access-denied {
+    padding: 40px 20px;
+    margin: 20px 0;
+  }
+  
+  .access-denied h2 {
+    font-size: 20px;
   }
 }
 

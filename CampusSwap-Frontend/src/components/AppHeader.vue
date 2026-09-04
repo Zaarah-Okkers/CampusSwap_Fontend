@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/UserStore'
+import ThemeToggle from './ThemeToggle.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -25,7 +26,7 @@ const quickUsers = [
     name: 'Zaarah K.', 
     role: 'student', 
     avatar: 'https://placehold.co/100x100/6C5CE7/FFFFFF?text=Z',
-    emoji: '🎓',
+    icon: 'graduation-cap',
     color: '#6C5CE7'
   },
   { 
@@ -33,7 +34,7 @@ const quickUsers = [
     name: 'Admin User', 
     role: 'admin', 
     avatar: 'https://placehold.co/100x100/FF6B6B/FFFFFF?text=A',
-    emoji: '👑',
+    icon: 'shield',
     color: '#FF6B6B'
   },
   { 
@@ -41,7 +42,7 @@ const quickUsers = [
     name: 'ServicePro SA', 
     role: 'service_provider', 
     avatar: 'https://placehold.co/100x100/6FA8FF/FFFFFF?text=SP',
-    emoji: '🔧',
+    icon: 'wrench',
     color: '#6FA8FF'
   }
 ]
@@ -53,7 +54,7 @@ const currentUserDisplay = computed(() => {
     name: user.name,
     role: user.role,
     avatar: user.avatar,
-    emoji: quickUser?.emoji || '👤',
+    icon: quickUser?.icon || 'user',
     color: quickUser?.color || '#6C5CE7',
     roleDisplay: userStore.getRoleDisplay(user.role)
   }
@@ -77,15 +78,6 @@ function toggleUserDropdown() {
   showUserDropdown.value = !showUserDropdown.value
 }
 
-function getRoleColor(role) {
-  const colors = {
-    'student': '#6C5CE7',
-    'admin': '#FF6B6B',
-    'service_provider': '#6FA8FF'
-  }
-  return colors[role] || '#6C5CE7'
-}
-
 function getRoleDisplay(role) {
   const roles = {
     'student': 'Student',
@@ -93,6 +85,14 @@ function getRoleDisplay(role) {
     'service_provider': 'Service Provider'
   }
   return roles[role] || role
+}
+
+// Icon components
+const IconComponents = {
+  'graduation-cap': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+  'shield': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  'wrench': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+  'user': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
 }
 </script>
 
@@ -102,6 +102,9 @@ function getRoleDisplay(role) {
       <div class="header-row">
         <span class="brand-name">CampusSwap<span class="dot">.</span></span>
         <div class="header-actions">
+          <!-- Theme Toggle -->
+          <ThemeToggle />
+          
           <!-- Admin Notifications -->
           <div class="admin-notif-wrapper" v-if="userStore.currentUser.role === 'admin'">
             <button class="notif-btn" aria-label="Notifications">
@@ -127,7 +130,8 @@ function getRoleDisplay(role) {
               <div class="user-info">
                 <span class="user-name">{{ currentUserDisplay.name }}</span>
                 <span class="user-role" :style="{ color: currentUserDisplay.color }">
-                  {{ currentUserDisplay.emoji }} {{ currentUserDisplay.roleDisplay }}
+                  <span class="role-icon" v-html="IconComponents[currentUserDisplay.icon]"></span>
+                  {{ currentUserDisplay.roleDisplay }}
                 </span>
               </div>
               <svg class="dropdown-arrow" :class="{ open: showUserDropdown }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -138,8 +142,8 @@ function getRoleDisplay(role) {
             <!-- Dropdown -->
             <div v-if="showUserDropdown" class="dropdown-menu glass-panel">
               <div class="dropdown-header">
-                <span class="dropdown-title">🔄 Switch User</span>
-                <span class="dropdown-hint">(Testing)</span>
+                <span class="dropdown-title">Switch User</span>
+                <span class="dropdown-hint">Testing</span>
               </div>
               
               <div 
@@ -155,10 +159,15 @@ function getRoleDisplay(role) {
                 <div class="dropdown-item-info">
                   <span class="dropdown-item-name">{{ user.name }}</span>
                   <span class="dropdown-item-role" :style="{ color: user.color }">
-                    {{ user.emoji }} {{ getRoleDisplay(user.role) }}
+                    <span class="role-icon" v-html="IconComponents[user.icon]"></span>
+                    {{ getRoleDisplay(user.role) }}
                   </span>
                 </div>
-                <span v-if="userStore.currentUser.id === user.id" class="active-badge">✓</span>
+                <span v-if="userStore.currentUser.id === user.id" class="active-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </span>
                 <span v-else class="switch-hint">→</span>
               </div>
             </div>
@@ -178,6 +187,7 @@ function getRoleDisplay(role) {
             type="text"
             placeholder="Search textbooks, tech, rentals..."
           />
+          <span class="keyboard-shortcut">⌘K</span>
         </div>
         <button class="filter-btn" @click="emit('open-filters')" aria-label="Filters">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -282,6 +292,16 @@ function getRoleDisplay(role) {
   color: var(--text-faint);
 }
 
+.keyboard-shortcut {
+  font-size: 10px;
+  color: var(--text-faint);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
 .filter-btn {
   width: 36px;
   height: 36px;
@@ -372,6 +392,20 @@ function getRoleDisplay(role) {
 .user-role {
   font-size: 10px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.role-icon {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+}
+
+.role-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .dropdown-arrow {
@@ -484,12 +518,28 @@ function getRoleDisplay(role) {
 .dropdown-item-role {
   font-size: 11px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dropdown-item-role .role-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .active-badge {
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   color: var(--gold);
-  font-weight: 700;
+}
+
+.active-badge svg {
+  width: 16px;
+  height: 16px;
 }
 
 .switch-hint {
@@ -617,6 +667,10 @@ function getRoleDisplay(role) {
   .dropdown-menu {
     min-width: 200px;
     right: -40px;
+  }
+  
+  .keyboard-shortcut {
+    display: none;
   }
 }
 </style>

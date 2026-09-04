@@ -9,9 +9,14 @@ import ProductModal from './components/ProductModal.vue'
 import AppFooter from './components/AppFooter.vue'
 import SellItemModal from './components/SellItemModal.vue'
 import ChatView from './views/ChatView.vue'
+import AdminView from './views/AdminView.vue'
+import BookStore from './views/Bookstore.vue'
 
 const route = useRoute()
 const isChatPage = computed(() => route.path.startsWith('/chat'))
+const isAdminPage = computed(() => route.path.startsWith('/admin'))
+const isBookPage = computed(() => route.path.startsWith('/books'))
+const isHomePage = computed(() => route.path === '/')
 
 const allProducts = ref([
   { id: 1, name: 'HP EliteBook 840 G5', price: 4500, condition: 'Like New', conditionClass: '', rating: 4.8, sales: 12, sellerRating: 4.8, image: 'https://placehold.co/300x200', university: 'University of Cape Town (UCT)', sellerName: 'Thabo M.', description: 'Reliable business laptop in great condition, barely used since I upgraded. Intel Core i5, 8GB RAM, 256GB SSD — more than enough for coding, research, and everyday coursework. Battery still holds a solid full day of charge. Comes with the original charger. No scratches on the screen, light wear on the corners from normal use.' },
@@ -176,10 +181,15 @@ function submitReview({ id, productRating, sellerRating, reviewerName, comment }
     <div id="layout">
       <div class="main-column">
         <div class="page-body">
-          <!-- Show ChatView when on chat page, else show ProductGrid -->
-          <ChatView v-if="isChatPage" />
+          <!-- Show BookStore when on books page -->
+          <BookStore v-if="isBookPage" />
+          <!-- Show AdminView when on admin page -->
+          <AdminView v-else-if="isAdminPage" />
+          <!-- Show ChatView when on chat page -->
+          <ChatView v-else-if="isChatPage" />
+          <!-- Show ProductGrid for home page -->
           <ProductGrid
-            v-else
+            v-else-if="isHomePage"
             :products="filteredProducts"
             :category="filters.listingType"
             :saved-ids="savedIds"
@@ -189,25 +199,25 @@ function submitReview({ id, productRating, sellerRating, reviewerName, comment }
             @update:category="updateListingType"
           />
         </div>
-        <AppFooter v-if="!isChatPage" />
+        <AppFooter v-if="!isChatPage && !isAdminPage && !isBookPage" />
       </div>
 
       <SideNav />
 
       <FilterSidebar
-        v-if="showFilters && !isChatPage"
+        v-if="showFilters && !isChatPage && !isAdminPage && !isBookPage"
         :filters="filters"
         @apply="handleApplyFilters"
         @close="showFilters = false"
       />
 
       <ProductModal
-        v-if="selectedProduct && !isChatPage"
+        v-if="selectedProduct && !isChatPage && !isAdminPage && !isBookPage"
         :product="selectedProduct"
         @close="closeProduct"
         @submit-review="submitReview"
       />
-      <SellItemModal v-if="showSellModal && !isChatPage" @close="closeSellModal" @submit="addProduct" />
+      <SellItemModal v-if="showSellModal && !isChatPage && !isAdminPage && !isBookPage" @close="closeSellModal" @submit="addProduct" />
     </div>
   </div>
 </template>

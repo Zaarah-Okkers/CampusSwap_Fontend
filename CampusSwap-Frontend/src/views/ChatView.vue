@@ -1,75 +1,132 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '../stores/UserStore'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
-// Sample chat data - in production this would come from an API
-const chats = ref([
-  {
-    id: 1,
-    userId: 1,
-    userName: 'Thabo M.',
-    userAvatar: 'https://placehold.co/100x100/6C5CE7/FFFFFF?text=T',
-    lastMessage: 'Hey, is the HP laptop still available?',
-    timestamp: '2 min ago',
-    unread: true,
-    online: true,
-    messages: [
-      { id: 1, sender: 'other', text: 'Hey, is the HP laptop still available?', timestamp: '2:15 PM' },
-      { id: 2, sender: 'me', text: 'Yes, it\'s still available! Would you like to see more photos?', timestamp: '2:17 PM' },
-      { id: 3, sender: 'other', text: 'Yes please, that would be great.', timestamp: '2:18 PM' }
-    ]
-  },
-  {
-    id: 2,
-    userId: 2,
-    userName: 'Aisha K.',
-    userAvatar: 'https://placehold.co/100x100/E8B54D/FFFFFF?text=A',
-    lastMessage: 'I\'m interested in swapping for your Physics book',
-    timestamp: '1 hour ago',
-    unread: false,
-    online: false,
-    messages: [
-      { id: 1, sender: 'other', text: 'I\'m interested in swapping for your Physics book', timestamp: '1:00 PM' },
-      { id: 2, sender: 'me', text: 'Great! What do you have to swap?', timestamp: '1:05 PM' },
-      { id: 3, sender: 'other', text: 'I have Organic Chemistry textbook', timestamp: '1:06 PM' }
-    ]
-  },
-  {
-    id: 3,
-    userId: 3,
-    userName: 'Liam P.',
-    userAvatar: 'https://placehold.co/100x100/4ADE80/FFFFFF?text=L',
-    lastMessage: 'How long can I rent the bag for?',
-    timestamp: '2 days ago',
-    unread: false,
-    online: true,
-    messages: [
-      { id: 1, sender: 'other', text: 'How long can I rent the bag for?', timestamp: 'Yesterday' },
-      { id: 2, sender: 'me', text: 'Minimum 1 week, maximum 3 months', timestamp: 'Yesterday' }
-    ]
-  }
-])
-
+// Chat data
+const chats = ref([])
 const selectedChatId = ref(null)
 const newMessage = ref('')
 const chatContainer = ref(null)
+const showReportModal = ref(false)
+const reportReason = ref('')
+const reportDetails = ref('')
+const reportingChat = ref(null)
 
-// Get the chat ID from URL params if present
-const chatIdFromRoute = computed(() => {
-  return route.params.id ? parseInt(route.params.id) : null
-})
+// Initialize chats from users
+function initializeChats() {
+  // Create chats with users who have messages
+  const existingChats = [
+    {
+      id: 1,
+      userId: 2,
+      userName: 'Thabo M.',
+      userRole: 'student',
+      userAvatar: 'https://placehold.co/100x100/E8B54D/FFFFFF?text=T',
+      lastMessage: 'Hey, is the HP laptop still available?',
+      timestamp: '2 min ago',
+      unread: true,
+      online: false,
+      messages: [
+        { id: 1, sender: 'other', text: 'Hey, is the HP laptop still available?', timestamp: '2:15 PM' },
+        { id: 2, sender: 'me', text: 'Yes, it\'s still available! Would you like to see more photos?', timestamp: '2:17 PM' },
+        { id: 3, sender: 'other', text: 'Yes please, that would be great.', timestamp: '2:18 PM' }
+      ]
+    },
+    {
+      id: 2,
+      userId: 3,
+      userName: 'Aisha K.',
+      userRole: 'student',
+      userAvatar: 'https://placehold.co/100x100/4ADE80/FFFFFF?text=A',
+      lastMessage: 'I\'m interested in swapping for your Physics book',
+      timestamp: '1 hour ago',
+      unread: false,
+      online: true,
+      messages: [
+        { id: 1, sender: 'other', text: 'I\'m interested in swapping for your Physics book', timestamp: '1:00 PM' },
+        { id: 2, sender: 'me', text: 'Great! What do you have to swap?', timestamp: '1:05 PM' },
+        { id: 3, sender: 'other', text: 'I have Organic Chemistry textbook', timestamp: '1:06 PM' }
+      ]
+    },
+    {
+      id: 3,
+      userId: 4,
+      userName: 'Liam P.',
+      userRole: 'student',
+      userAvatar: 'https://placehold.co/100x100/FF8577/FFFFFF?text=L',
+      lastMessage: 'How long can I rent the bag for?',
+      timestamp: '2 days ago',
+      unread: false,
+      online: false,
+      messages: [
+        { id: 1, sender: 'other', text: 'How long can I rent the bag for?', timestamp: 'Yesterday' },
+        { id: 2, sender: 'me', text: 'Minimum 1 week, maximum 3 months', timestamp: 'Yesterday' }
+      ]
+    },
+    {
+      id: 4,
+      userId: 6,
+      userName: 'ServicePro SA',
+      userRole: 'service_provider',
+      userAvatar: 'https://placehold.co/100x100/6FA8FF/FFFFFF?text=SP',
+      lastMessage: 'Your maintenance request has been received',
+      timestamp: '3 days ago',
+      unread: false,
+      online: false,
+      messages: [
+        { id: 1, sender: 'other', text: 'Your maintenance request has been received', timestamp: '3 days ago' },
+        { id: 2, sender: 'me', text: 'Thank you, when can I expect a technician?', timestamp: '3 days ago' },
+        { id: 3, sender: 'other', text: 'We\'ll send someone within 24 hours', timestamp: '2 days ago' }
+      ]
+    }
+  ]
+  
+  // Check if we have chat data from URL params (for swap)
+  if (route.query.userId && route.query.productName) {
+    const existingChat = existingChats.find(c => c.userName === route.query.userId)
+    if (existingChat) {
+      // Use existing chat
+      chats.value = existingChats
+      selectChat(existingChat.id)
+    } else {
+      // Create new chat from swap
+      const newChat = {
+        id: Date.now(),
+        userId: Date.now() + 1,
+        userName: route.query.userId,
+        userRole: 'student',
+        userAvatar: `https://placehold.co/100x100/6C5CE7/FFFFFF?text=${route.query.userId.charAt(0)}`,
+        lastMessage: `I'm interested in swapping for your ${route.query.productName}`,
+        timestamp: 'Just now',
+        unread: true,
+        online: true,
+        messages: [
+          { 
+            id: 1, 
+            sender: 'me', 
+            text: `I'm interested in swapping for your ${route.query.productName}`, 
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+          }
+        ]
+      }
+      chats.value = [newChat, ...existingChats]
+      selectChat(newChat.id)
+      return
+    }
+  }
+  
+  chats.value = existingChats
+}
 
-// Select chat from route or first chat
+// Get selected chat
 const selectedChat = computed(() => {
   if (selectedChatId.value) {
     return chats.value.find(c => c.id === selectedChatId.value)
-  }
-  if (chatIdFromRoute.value) {
-    selectedChatId.value = chatIdFromRoute.value
-    return chats.value.find(c => c.id === chatIdFromRoute.value)
   }
   if (chats.value.length > 0) {
     selectedChatId.value = chats.value[0].id
@@ -87,6 +144,7 @@ function selectChat(chatId) {
     // Update URL
     router.push(`/chat/${chatId}`)
   }
+  scrollToBottom()
 }
 
 // Send a message
@@ -106,12 +164,22 @@ function sendMessage() {
   
   newMessage.value = ''
   
-  // Scroll to bottom
-  nextTick(() => {
-    if (chatContainer.value) {
-      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
-    }
-  })
+  // Auto-reply from service provider or other user
+  if (selectedChat.value.userRole === 'service_provider' && message.text.includes('hello')) {
+    setTimeout(() => {
+      const reply = {
+        id: Date.now() + 1,
+        sender: 'other',
+        text: 'Hello! How can I help you with our services today?',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+      selectedChat.value.messages.push(reply)
+      selectedChat.value.lastMessage = reply.text
+      scrollToBottom()
+    }, 1500)
+  }
+  
+  scrollToBottom()
 }
 
 // Handle enter key
@@ -122,48 +190,103 @@ function handleKeydown(event) {
   }
 }
 
-// Start a new chat from swap
-function startChatFromSwap(userId, userName, productName) {
-  // Check if chat already exists
-  const existingChat = chats.value.find(c => c.userId === userId)
-  if (existingChat) {
-    selectChat(existingChat.id)
-    return
-  }
-  
-  // Create new chat
-  const newChat = {
-    id: Date.now(),
-    userId: userId,
-    userName: userName,
-    userAvatar: `https://placehold.co/100x100/6C5CE7/FFFFFF?text=${userName.charAt(0)}`,
-    lastMessage: `I'm interested in swapping for your ${productName}`,
-    timestamp: 'Just now',
-    unread: true,
-    online: true,
-    messages: [
-      { 
-        id: 1, 
-        sender: 'me', 
-        text: `I'm interested in swapping for your ${productName}`, 
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-      }
-    ]
-  }
-  
-  chats.value.unshift(newChat)
-  selectChat(newChat.id)
+// Scroll to bottom of messages
+function scrollToBottom() {
+  nextTick(() => {
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+    }
+  })
 }
 
-// Expose function for other components to use
-defineExpose({
-  startChatFromSwap
+// Open report modal
+function openReportModal() {
+  if (!selectedChat.value) return
+  reportingChat.value = selectedChat.value
+  showReportModal.value = true
+}
+
+// Close report modal
+function closeReportModal() {
+  showReportModal.value = false
+  reportReason.value = ''
+  reportDetails.value = ''
+  reportingChat.value = null
+}
+
+// Submit report
+function submitReport() {
+  if (!reportReason.value || !reportingChat.value) return
+  
+  const report = {
+    id: Date.now(),
+    reporterId: userStore.currentUser.id,
+    reporterName: userStore.currentUser.name,
+    reportedUserId: reportingChat.value.userId,
+    reportedUserName: reportingChat.value.userName,
+    reason: reportReason.value,
+    details: reportDetails.value || 'No additional details provided',
+    chatId: reportingChat.value.id,
+    chatMessages: reportingChat.value.messages,
+    timestamp: new Date(),
+    status: 'pending'
+  }
+  
+  // Send report to admin
+  userStore.sendReportToAdmin(report)
+  
+  // Show success message
+  alert('✅ Report submitted successfully! Admin has been notified.')
+  
+  // Close modal
+  closeReportModal()
+}
+
+// Get user role badge
+function getRoleBadge(role) {
+  const badges = {
+    'student': '🎓 Student',
+    'admin': '👑 Admin',
+    'service_provider': '🔧 Service Provider'
+  }
+  return badges[role] || role
+}
+
+// Get user role color
+function getRoleColor(role) {
+  const colors = {
+    'student': 'var(--violet)',
+    'admin': 'var(--coral)',
+    'service_provider': 'var(--sky)'
+  }
+  return colors[role] || 'var(--text)'
+}
+
+// Watch for chat container changes
+watch(selectedChat, () => {
+  scrollToBottom()
 })
 
-// Scroll to bottom on mount
+// Watch for route changes
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    const chat = chats.value.find(c => c.id === parseInt(newId))
+    if (chat) {
+      selectChat(chat.id)
+    }
+  }
+}, { immediate: true })
+
+// Initialize on mount
 onMounted(() => {
-  if (chatContainer.value) {
-    chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+  initializeChats()
+  
+  // Check if we have a chat ID from route
+  if (route.params.id) {
+    const chat = chats.value.find(c => c.id === parseInt(route.params.id))
+    if (chat) {
+      selectChat(chat.id)
+    }
   }
 })
 </script>
@@ -202,7 +325,12 @@ onMounted(() => {
             </div>
             <div class="chat-info">
               <div class="chat-name-row">
-                <span class="chat-name">{{ chat.userName }}</span>
+                <div>
+                  <span class="chat-name">{{ chat.userName }}</span>
+                  <span class="role-badge" :style="{ background: getRoleColor(chat.userRole) }">
+                    {{ getRoleBadge(chat.userRole) }}
+                  </span>
+                </div>
                 <span class="chat-time">{{ chat.timestamp }}</span>
               </div>
               <div class="chat-last-message">
@@ -220,12 +348,25 @@ onMounted(() => {
           <div class="chat-user-info">
             <img :src="selectedChat.userAvatar" :alt="selectedChat.userName" class="chat-user-avatar" />
             <div>
-              <h3>{{ selectedChat.userName }}</h3>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h3>{{ selectedChat.userName }}</h3>
+                <span class="role-badge" :style="{ background: getRoleColor(selectedChat.userRole) }">
+                  {{ getRoleBadge(selectedChat.userRole) }}
+                </span>
+              </div>
               <span class="online-status" :class="{ online: selectedChat.online }">
-                {{ selectedChat.online ? 'Online' : 'Offline' }}
+                {{ selectedChat.online ? '🟢 Online' : '⚪ Offline' }}
               </span>
             </div>
           </div>
+          <button class="report-btn" @click="openReportModal" aria-label="Report user">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Report</span>
+          </button>
         </div>
 
         <div class="messages-container" ref="chatContainer">
@@ -275,6 +416,61 @@ onMounted(() => {
         </svg>
         <h3>No chat selected</h3>
         <p>Choose a conversation from the list</p>
+      </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div v-if="showReportModal" class="modal-overlay" @click.self="closeReportModal">
+      <div class="modal-box glass-panel">
+        <div class="modal-header">
+          <div class="drag-handle"></div>
+          <button class="close-btn" @click="closeReportModal" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <h3>Report User</h3>
+          <p class="report-info">
+            Reporting: <strong>{{ reportingChat?.userName }}</strong>
+            <span class="role-badge" :style="{ background: getRoleColor(reportingChat?.userRole) }" v-if="reportingChat">
+              {{ getRoleBadge(reportingChat.userRole) }}
+            </span>
+          </p>
+          
+          <div class="form-group">
+            <label>Reason for reporting</label>
+            <select v-model="reportReason" class="input">
+              <option value="">Select a reason...</option>
+              <option value="harassment">Harassment or Bullying</option>
+              <option value="spam">Spam or Scam</option>
+              <option value="inappropriate">Inappropriate Content</option>
+              <option value="fraud">Fraud or Misrepresentation</option>
+              <option value="fake">Fake Account</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Additional details (optional)</label>
+            <textarea 
+              v-model="reportDetails" 
+              rows="4" 
+              class="input" 
+              placeholder="Please provide any additional information about this report..."
+            ></textarea>
+          </div>
+          
+          <div class="btn-row">
+            <button class="cancel-btn" @click="closeReportModal">Cancel</button>
+            <button class="submit-btn" @click="submitReport" :disabled="!reportReason">
+              Submit Report
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -417,8 +613,9 @@ onMounted(() => {
 .chat-name-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 4px;
+  gap: 4px;
 }
 
 .chat-name {
@@ -427,9 +624,20 @@ onMounted(() => {
   color: var(--text);
 }
 
+.role-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-block;
+}
+
 .chat-time {
   font-size: 11px;
   color: var(--text-faint);
+  white-space: nowrap;
 }
 
 .chat-last-message {
@@ -503,6 +711,31 @@ onMounted(() => {
 
 .online-status.online {
   color: var(--mint);
+}
+
+.report-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 133, 119, 0.1);
+  border: 1px solid rgba(255, 133, 119, 0.3);
+  color: var(--coral);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.report-btn:hover {
+  background: rgba(255, 133, 119, 0.2);
+  transform: scale(1.05);
+}
+
+.report-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .messages-container {
@@ -668,6 +901,195 @@ onMounted(() => {
   margin: 0;
 }
 
+/* Report Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 20, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fade-in 0.25s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-box {
+  background: var(--ink-elevated);
+  border-radius: 24px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slide-up 0.3s ease;
+  border: 1px solid var(--glass-border);
+}
+
+@keyframes slide-up {
+  from { transform: translateY(30px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  background: var(--ink-elevated);
+  padding: 12px 20px 0;
+  z-index: 2;
+  border-radius: 24px 24px 0 0;
+}
+
+.drag-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--glass-border);
+  margin: 0 auto 6px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(10, 14, 39, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+.close-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.modal-body {
+  padding: 0 24px 24px;
+}
+
+.modal-body h3 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  color: var(--text);
+  font-family: 'Fraunces', serif;
+}
+
+.report-info {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.report-info strong {
+  color: var(--text);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.input {
+  padding: 11px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(232, 181, 77, 0.15);
+}
+
+select.input option {
+  background: var(--ink-elevated);
+  color: var(--text);
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 13px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+.submit-btn {
+  flex: 2;
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  background: var(--coral);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(255, 133, 119, 0.3);
+}
+
+.submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .chat-page {
@@ -711,6 +1133,8 @@ onMounted(() => {
   
   .chat-header {
     padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   
   .messages-container {
@@ -728,6 +1152,32 @@ onMounted(() => {
   .chat-user-avatar {
     width: 32px;
     height: 32px;
+  }
+  
+  .report-btn span {
+    display: none;
+  }
+  
+  .modal-box {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 24px 24px 0 0;
+    bottom: 0;
+    position: absolute;
+    animation: slide-up-mobile 0.3s ease;
+  }
+  
+  @keyframes slide-up-mobile {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  
+  .modal-overlay {
+    align-items: flex-end;
+  }
+  
+  .modal-body {
+    padding: 0 16px 20px;
   }
 }
 

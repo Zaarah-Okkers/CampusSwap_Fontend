@@ -40,9 +40,12 @@
 
 <style scoped>
 .app-footer {
-  background: var(--navy);
-  color: rgba(255, 255, 255, 0.75);
-  padding: 32px 28px 0;
+  display: block;
+  color: var(--text-muted);
+  padding: 40px 0 30px;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 24px;
+  width: 100%;
 }
 
 .footer-main {
@@ -58,20 +61,21 @@
 }
 
 .brand-name {
+  font-family: 'Fraunces', serif;
   font-size: 18px;
-  font-weight: 700;
-  color: white;
+  font-weight: 600;
+  color: var(--text);
   margin: 0 0 10px;
 }
 
 .brand-accent {
-  color: var(--accent-orange);
+  color: var(--gold);
 }
 
 .brand-desc {
   font-size: 13px;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted);
   max-width: 320px;
   margin: 0;
 }
@@ -81,7 +85,7 @@
 }
 
 .col-heading {
-  color: var(--accent-orange);
+  color: var(--gold);
   font-weight: 700;
   font-size: 14px;
   margin: 0 0 14px;
@@ -98,13 +102,38 @@
 }
 
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--glass-border);
   padding: 16px 0;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-faint);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .app-footer {
+    padding: 30px 0 20px;
+  }
+  
+  .footer-main {
+    gap: 30px;
+  }
+  
+  .footer-brand {
+    flex: 1 1 100%;
+  }
+  
+  .footer-col {
+    min-width: 140px;
+  }
+  
+  .footer-bottom {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 </style>

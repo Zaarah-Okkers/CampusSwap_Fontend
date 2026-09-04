@@ -1,208 +1,146 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const isOpen = ref(true)
+const router = useRouter()
+const active = ref('market')
 
-function toggle() {
-  isOpen.value = !isOpen.value
+const tabs = [
+  { key: 'home', label: 'Home', icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10' },
+  { key: 'market', label: 'Market', icon: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0' },
+  { key: 'saved', label: 'Saved', icon: 'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z' },
+  { key: 'messages', label: 'Chats', icon: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z' },
+  { key: 'profile', label: 'Profile', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z' }
+]
+
+function select(key) {
+  active.value = key
+  if (key === 'messages') {
+    router.push('/chat')
+  } else if (key === 'home') {
+    router.push('/')
+  } else if (key === 'market') {
+    router.push('/')
+  }
+  // For saved and profile, just update active state
 }
 </script>
 
 <template>
-  <div class="side-nav-wrap">
-    <aside class="side-nav" :class="{ closed: !isOpen }">
-      <div class="nav-content">
-        <div class="brand-row">
-          <img src="../assets/logo.png" alt="CampusSwap SA" class="brand-logo" />
-          <span class="brand-name">CampusSwap<span class="brand-accent">SA</span></span>
-        </div>
-
-        <div class="menu-row">
-          <button class="toggle-btn" @click="toggle">☰</button>
-          <p class="section-label">MENU</p>
-        </div>
-
-        <nav class="nav-links">
-          <a href="#">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            Dashboard
-          </a>
-          <a href="#" class="active">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            Market
-          </a>
-          <a href="#">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-            Maintenance
-          </a>
-          <a href="#">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Bookings
-          </a>
-          <a href="#">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            Messages
-          </a>
-          <a href="#">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-            Payments
-          </a>
-        </nav>
-
-        <p class="section-label account-label">ACCOUNT</p>
-        <nav class="nav-links">
-          <a href="#">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Profile
-          </a>
-          <a href="#">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            Settings
-          </a>
-        </nav>
-
-        <div class="nav-divider"></div>
-
-        <a href="#" class="logout-link">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Logout
-        </a>
-      </div>
-    </aside>
-  </div>
+  <nav class="bottom-nav glass-panel">
+    <button
+      v-for="tab in tabs"
+      :key="tab.key"
+      class="tab"
+      :class="{ active: active === tab.key }"
+      @click="select(tab.key)"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="tab.icon"/></svg>
+      <span>{{ tab.label }}</span>
+    </button>
+  </nav>
 </template>
 
 <style scoped>
-.side-nav-wrap {
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 20px;
+  z-index: 50;
+  border-radius: 22px;
   display: flex;
-  background: #0d1b38;
+  justify-content: space-around;
+  padding: 8px 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  background: var(--ink-elevated);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  gap: 4px;
 }
 
-.side-nav {
-  width: 220px;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  padding: 20px 16px;
-  transition: width 0.2s ease, padding 0.2s ease, opacity 0.2s ease;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.side-nav.closed {
-  width: 0;
-  padding: 20px 0;
-  opacity: 0;
-}
-
-.nav-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: calc(100vh - 40px);
-}
-
-.brand-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  white-space: nowrap;
-}
-
-.brand-logo {
-  height: 28px;
-  width: auto;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-.brand-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: white;
-}
-
-.brand-accent {
-  color: var(--accent-orange);
-}
-
-.menu-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.toggle-btn {
+.tab {
   background: none;
   border: none;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-}
-
-.section-label {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.819);
-  margin: 0;
-  text-transform: uppercase;
-}
-
-.account-label {
-  margin: 24px 0 14px 12px;
-}
-
-.nav-links {
+  color: var(--text-faint);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.nav-links a,
-.logout-link {
-  display: flex;
   align-items: center;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  font-size: 16px;
-  padding: 12px 14px;
-  border-radius: 6px;
-}
-
-.nav-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.nav-links a:hover,
-.logout-link:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.nav-links a.active {
-  background: var(--accent-orange);
-  color: var(--navy);
+  gap: 3px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 11px;
   font-weight: 600;
-  border-radius: 8px;
+  transition: all 0.2s ease;
+  min-width: 60px;
 }
 
-.nav-divider {
-  flex: 1;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 20px;
-  align-self: stretch;
+.tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.logout-link {
-  margin-top: 8px;
-  color: rgba(255, 255, 255, 0.6);
+.tab svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.2s ease;
+}
+
+.tab:hover svg {
+  transform: scale(1.05);
+}
+
+.tab.active {
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.tab.active svg {
+  stroke: var(--gold);
+}
+
+/* Mobile - smaller nav */
+@media (max-width: 640px) {
+  .bottom-nav {
+    bottom: 12px;
+    padding: 6px 8px;
+    border-radius: 18px;
+    width: calc(100% - 24px);
+    max-width: 500px;
+    gap: 2px;
+  }
+  
+  .tab {
+    padding: 6px 10px;
+    font-size: 10px;
+    min-width: 44px;
+  }
+  
+  .tab svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Desktop - larger nav */
+@media (min-width: 1025px) {
+  .bottom-nav {
+    padding: 10px 20px;
+    gap: 8px;
+    border-radius: 28px;
+  }
+  
+  .tab {
+    padding: 10px 24px;
+    font-size: 13px;
+    min-width: 80px;
+  }
+  
+  .tab svg {
+    width: 24px;
+    height: 24px;
+  }
 }
 </style>

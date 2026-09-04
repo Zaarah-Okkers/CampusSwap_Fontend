@@ -37,13 +37,13 @@ function setRating(val) {
 .star {
   width: v-bind('props.size + "px"');
   height: v-bind('props.size + "px"');
-  color: var(--border-light);
+  color: var(--glass-border);
   cursor: pointer;
   transition: color 0.15s ease;
 }
 
 .star.filled {
-  color: var(--accent-orange);
+  color: var(--gold);
 }
 
 .star-rating.readonly .star {

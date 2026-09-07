@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-page">
+  <div class="home-page">
 
     <!-- TOP BAR -->
     <header class="top-bar">

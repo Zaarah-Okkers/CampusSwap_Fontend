@@ -1,7 +1,7 @@
-<template>
-  <div class="dashboard-page">
+<!-- this is for the service provider dashboard -->
 
-    <!-- TOP BAR -->
+<template>
+  <section class="service_provider-dash"><!-- TOP BAR -->
     <header class="top-bar">
       <div class="top-left">
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
@@ -70,8 +70,8 @@
       
       <!-- User Greeting -->
       <div class="greeting-block">
-        <h2 class="dashboard-title">Hi, Myles 👋</h2>
-        <p class="university-text">University of Cape Town</p>
+        <h2 class="dashboard-title">Hi, Zaarah!</h2>
+        <p class="university-text">Cape Town Express Plumbing</p>
       </div>
 
       <!-- Profile Stats Card (Fixed Layout) -->
@@ -80,18 +80,18 @@
 
         <div class="stats-grid">
           <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
-            <span class="stat-title">Seller Rating</span>
-            <span class="stat-value" style="color: #2e7d5a;">4.9</span>
+            <span class="stat-title">Jobs Completed</span>
+            <span class="stat-value" style="color: #2e7d5a;">24</span>
           </div>
 
           <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
-            <span class="stat-title">Active Listings</span>
-            <span class="stat-value" style="color: #00a6a6;">3</span>
+            <span class="stat-title">Rating</span>
+            <span class="stat-value" style="color: #00a6a6;">3.8</span>
           </div>
 
           <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
-            <span class="stat-title">Saved Total</span>
-            <span class="stat-value" style="color: #f5b941;">R1,200</span>
+            <span class="stat-title">Pending Requests</span>
+            <span class="stat-value" style="color: #f5b941;">3</span>
           </div>
         </div>
       </div>
@@ -100,31 +100,17 @@
       <div class="card">
         <h3 class="card-heading">Account Management</h3>
         
-        <!-- Student Links (Full Access) -->
-        <template v-if="userRole === 'student'">
+      
           <div class="menu-item">
-            <router-link to="/academic" class="menu-link">Active Orders <span class="arrow">&gt;</span></router-link>
+            <router-link to="/safehome" class="menu-link">Available Jobs <span class="arrow">&gt;</span></router-link>
           </div>
-          <div class="menu-item">
-            <router-link to="/safehome" class="menu-link">SafeHome Bookings <span class="arrow">&gt;</span></router-link>
-          </div>
-          <div class="menu-item">
-            <router-link to="/checkout" class="menu-link">Checkout <span class="arrow">&gt;</span></router-link>
-          </div>
-        </template>
 
-        <!-- Provider Links (Restricted) -->
-        <template v-else>
-          <div class="menu-item">
-            <router-link to="/" class="menu-link">Home Page <span class="arrow">&gt;</span></router-link>
-          </div>
-          <div class="menu-item">
-            <router-link to="/safehome" class="menu-link">SafeHome Bookings <span class="arrow">&gt;</span></router-link>
-          </div>
           <div class="menu-item">
             <router-link to="/dashboard" class="menu-link">My Dashboard <span class="arrow">&gt;</span></router-link>
           </div>
-        </template>
+        
+
+        
 
         <!-- Change Password Section (Inside Account Management) -->
         <div class="password-section">
@@ -151,7 +137,8 @@
       </div>
 
     </div>
-  </div>
+  
+  </section>
 </template>
 
 <script>
@@ -160,19 +147,13 @@ export default {
   data() {
     return {
       sideNavOpen: false,
-      userRole: 'student', // default
+      userRole: 'service_provider', 
       currentPassword: '',
       newPassword: '',
       confirmPassword: ''
     };
   },
-  mounted() {
-    if (this.$route.name === 'provider-dashboard') {
-      this.userRole = 'provider';
-    } else {
-      this.userRole = 'student';
-    }
-  },
+  
   methods: {
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
@@ -661,3 +642,6 @@ export default {
   }
 }
 </style>
+
+
+

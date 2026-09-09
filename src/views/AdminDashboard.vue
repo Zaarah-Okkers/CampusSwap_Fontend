@@ -168,19 +168,31 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
 export default {
-  name: 'DashboardPage',
+  name: 'AdminDashboard',
   data() {
     return {
       sideNavOpen: false,
-      userRole: 'admin', 
       currentPassword: '',
       newPassword: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      userRole: 'admin'
     };
   },
-  
+  computed: {
+    formattedDate() {
+      const now = new Date();
+      return now.toLocaleDateString('en-ZA', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+  },
   methods: {
+    // -------- Toggle side navigation --------
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
@@ -189,25 +201,127 @@ export default {
       this.sideNavOpen = false;
       document.body.style.overflow = '';
     },
-    logout() {
-      this.$router.push('/login');
+
+    // -------- Logout with confirmation --------
+    async logout() {
+      const result = await Swal.fire({
+        title: 'Logout?',
+        text: 'Are you sure you want to log out of the admin panel?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, logout',
+        cancelButtonText: 'Cancel',
+      });
+      if (result.isConfirmed) {
+        Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
+        this.$router.push('/login');
+      }
     },
-    changePassword() {
+
+    // -------- Change Password with SweetAlert --------
+    async changePassword() {
+      
       if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
-        alert('Please fill in all password fields.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Incomplete',
+          text: 'Please fill in all password fields.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
+
       if (this.newPassword !== this.confirmPassword) {
-        alert('New passwords do not match.');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Passwords Do Not Match',
+          text: 'New password and confirmation must match.',
+          confirmButtonColor: '#d33',
+        });
         return;
       }
-      alert('Password updated successfully!');
+
+      if (this.newPassword.length < 6) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Password Too Short',
+          text: 'Password must be at least 6 characters long.',
+          confirmButtonColor: '#d33',
+        });
+        return;
+      }
+
+    
+      await Swal.fire({
+        icon: 'success',
+        title: 'Password Updated!',
+        text: 'Your password has been changed successfully.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       this.currentPassword = '';
       this.newPassword = '';
       this.confirmPassword = '';
+    },
+
+    // -------- Quick Actions with SweetAlert --------
+    async manageUsers() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Manage Users',
+        text: 'Navigating to User Management...',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    async viewListings() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'View Listings',
+        text: 'Navigating to All Listings...',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    async viewReports() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'View Reports',
+        text: 'Navigating to Reports Center...',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    async exportData() {
+      const result = await Swal.fire({
+        title: 'Export Data?',
+        text: 'This will export all platform data as a CSV file.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2e7d5a',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Export Now',
+        cancelButtonText: 'Cancel',
+      });
+      if (result.isConfirmed) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Export Started!',
+          text: 'Your data export will be ready in a few moments.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
     }
   }
 };
+
 </script>
 
 <style scoped>

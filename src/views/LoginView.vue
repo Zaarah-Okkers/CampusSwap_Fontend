@@ -339,20 +339,19 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
+
 export default {
   name: 'LoginPage',
   data() {
     return {
-      // Login form data
+      sideNavOpen: false,
       role: 'student',
       email: '',
       password: '',
       selectedInstitution: '',
       
-      // Registration modal
       showRegistration: false,
-      
-      // Registration form data
       regData: {
         role: 'student',
         fullName: '',
@@ -366,10 +365,8 @@ export default {
         agreeTerms: false
       },
 
-      // Store registered users in memory
       registeredUsers: [],
       
-      // Universities list
       universities: {
         'Western Cape': [
           'University of Cape Town (UCT)',
@@ -416,6 +413,16 @@ export default {
     };
   },
   methods: {
+    // ===== SIDE NAV =====
+    toggleSideNav() {
+      this.sideNavOpen = !this.sideNavOpen;
+      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
+    },
+    closeSideNav() {
+      this.sideNavOpen = false;
+      document.body.style.overflow = '';
+    },
+
     // ===== ROLE TEXT HELPERS =====
     getRoleTitle() {
       const titles = {
@@ -470,7 +477,6 @@ export default {
     // ===== REGISTRATION METHODS =====
     openRegistration() {
       this.showRegistration = true;
-      // Reset form
       this.regData = {
         role: 'student',
         fullName: '',
@@ -494,75 +500,141 @@ export default {
     handleFileUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        // Validate file type
         if (!file.type.startsWith('image/')) {
-          alert('Please upload an image file.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid File',
+            text: 'Please upload an image file.',
+            confirmButtonColor: '#d33',
+          });
           return;
         }
-        // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-          alert('File size must be less than 5MB.');
+          Swal.fire({
+            icon: 'error',
+            title: 'File Too Large',
+            text: 'File size must be less than 5MB.',
+            confirmButtonColor: '#d33',
+          });
           return;
         }
         this.regData.idFile = file;
       }
     },
 
-    handleRegistration() {
-      // Validation
+    async handleRegistration() {
+      // ✅ All alerts replaced with SweetAlert2
       if (!this.regData.fullName) {
-        alert('Please enter your full name.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please enter your full name.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
       if (!this.regData.email) {
-        alert('Please enter your email address.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please enter your email address.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
       if (!this.regData.email.includes('@')) {
-        alert('Please enter a valid email address.');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Invalid Email',
+          text: 'Please enter a valid email address.',
+          confirmButtonColor: '#d33',
+        });
         return;
       }
       if (this.regData.role === 'student' && !this.regData.studentNumber) {
-        alert('Please enter your student number.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please enter your student number.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
       if ((this.regData.role === 'student' || this.regData.role === 'admin' || this.regData.role === 'resmanager') && !this.regData.university) {
-        alert('Please select your university.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please select your university.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
       if (this.regData.role === 'provider' && !this.regData.company) {
-        alert('Please select your company.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please enter your company name.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
       if (!this.regData.password) {
-        alert('Please create a password.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please create a password.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
       if (this.regData.password.length < 6) {
-        alert('Password must be at least 6 characters long.');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Password Too Short',
+          text: 'Password must be at least 6 characters long.',
+          confirmButtonColor: '#d33',
+        });
         return;
       }
       if (this.regData.password !== this.regData.confirmPassword) {
-        alert('Passwords do not match.');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Passwords Do Not Match',
+          text: 'Passwords do not match.',
+          confirmButtonColor: '#d33',
+        });
         return;
       }
       if (this.regData.role === 'student' && !this.regData.idFile) {
-        alert('Please upload your student ID image.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Missing ID',
+          text: 'Please upload your student ID image.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
       if (!this.regData.agreeTerms) {
-        alert('Please agree to the Terms of Service and Privacy Policy.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Terms Not Accepted',
+          text: 'Please agree to the Terms of Service and Privacy Policy.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
 
-      // Check if email is already registered
       const existingUser = this.registeredUsers.find(user => user.email === this.regData.email);
       if (existingUser) {
-        alert('This email is already registered. Please login instead.');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Email Already Registered',
+          text: 'This email is already registered. Please login instead.',
+          confirmButtonColor: '#d33',
+        });
         return;
       }
 
-      // Save the user
       const newUser = {
         role: this.regData.role,
         fullName: this.regData.fullName,
@@ -576,39 +648,62 @@ export default {
 
       this.registeredUsers.push(newUser);
       
-      // Success message
       const roleNames = {
         student: 'Student',
         provider: 'Service Provider',
         admin: 'Administrator',
         resmanager: 'Residence Manager'
       };
+
       
-      alert(`✅ Registration successful!\n\nWelcome, ${this.regData.fullName}!\nRole: ${roleNames[this.regData.role]}\nEmail: ${this.regData.email}\n\nYou can now login with your credentials.`);
-      
-      // Auto-fill login form with registered credentials
+      await Swal.fire({
+        icon: 'success',
+        title: 'Registration Successful!',
+        html: `
+          <p><strong>Welcome, ${this.regData.fullName}!</strong></p>
+          <p>Role: ${roleNames[this.regData.role]}<br>
+          Email: ${this.regData.email}</p>
+          <p>You can now login with your credentials.</p>
+        `,
+        confirmButtonColor: '#2e7d5a',
+      });
+
       this.role = this.regData.role;
       this.email = this.regData.email;
       this.password = this.regData.password;
       this.selectedInstitution = this.regData.university || this.regData.company || '';
 
-      // Close registration modal
       this.closeRegistration();
 
-      // Auto-login
-      if (confirm('Would you like to login now?')) {
+      //  Ask if they want to login now
+      const result = await Swal.fire({
+        title: 'Login Now?',
+        text: 'Would you like to login to your new account now?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2e7d5a',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, login',
+        cancelButtonText: 'Later',
+      });
+
+      if (result.isConfirmed) {
         this.handleLogin();
       }
     },
 
     // ===== LOGIN HANDLER =====
-    handleLogin() {
+    async handleLogin() {
       if (!this.email || !this.password || !this.selectedInstitution) {
-        alert('Please fill in all fields.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Incomplete Form',
+          text: 'Please fill in all fields.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
 
-      // Check registered users first
       const registeredUser = this.registeredUsers.find(
         user => user.email === this.email && user.password === this.password
       );
@@ -620,12 +715,17 @@ export default {
           admin: '/admin-dashboard',
           resmanager: '/resmanager-dashboard'
         };
-        alert(`✅ Welcome back, ${registeredUser.fullName}!`);
+        await Swal.fire({
+          icon: 'success',
+          title: 'Welcome Back! ',
+          text: `Welcome back, ${registeredUser.fullName}!`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
         this.$router.push(routes[registeredUser.role] || '/student-dashboard');
         return;
       }
 
-      // Hardcoded test credentials for demo (fallback)
       const credentials = {
         student: { email: 'student@myuct.ac.za', password: 'student123', route: '/student-dashboard' },
         provider: { email: 'provider@work.co.za', password: 'provider123', route: '/provider-dashboard' },
@@ -642,7 +742,13 @@ export default {
           admin: 'Administrator',
           resmanager: 'Residence Manager'
         };
-        alert(`${roleNames[this.role]} logged in successfully!`);
+        await Swal.fire({
+          icon: 'success',
+          title: 'Login Successful! 🎉',
+          text: `${roleNames[this.role]} logged in successfully!`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
         this.$router.push(creds.route);
       } else {
         const roleNames = {
@@ -651,12 +757,22 @@ export default {
           admin: 'Administrator',
           resmanager: 'Residence Manager'
         };
-        alert(`Invalid ${roleNames[this.role]} credentials.\n\nTry:\nEmail: ${creds.email}\nPassword: ${creds.password}`);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Invalid Credentials',
+          html: `
+            <p>Invalid ${roleNames[this.role]} credentials.</p>
+            <p><strong>Try:</strong><br>
+            Email: ${creds.email}<br>
+            Password: ${creds.password}</p>
+          `,
+          confirmButtonColor: '#d33',
+        });
       }
     },
 
     // ===== QUICK TEST LOGIN =====
-    quickLogin(role) {
+    async quickLogin(role) {
       this.role = role;
       const credentials = {
         student: { email: 'student@myuct.ac.za', password: 'student123', institution: 'University of Cape Town (UCT)' },
@@ -668,19 +784,38 @@ export default {
       this.email = creds.email;
       this.password = creds.password;
       this.selectedInstitution = creds.institution;
+      
+      await Swal.fire({
+        icon: 'info',
+        title: 'Quick Login',
+        text: `Logging in as ${role}...`,
+        timer: 800,
+        showConfirmButton: false,
+      });
+      
       this.handleLogin();
     },
 
-    // ===== HIDDEN ADMIN LOGIN =====
-    setAdminLogin() {
+    
+    async setAdminLogin() {
       this.role = 'admin';
       this.email = 'admin@campusswap.co.za';
       this.password = 'admin123';
       this.selectedInstitution = 'University of Cape Town (UCT)';
+      
+      await Swal.fire({
+        icon: 'info',
+        title: 'Admin Login',
+        text: 'Logging in as Administrator...',
+        timer: 800,
+        showConfirmButton: false,
+      });
+      
       this.handleLogin();
     }
   }
 };
+
 </script>
 
 <style scoped>

@@ -154,19 +154,31 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
 </template>
 
 <script>
+import Swal from 'sweetalert2'
+
 export default {
-  name: 'DashboardPage',
+  name: 'StudentDashboard',
   data() {
     return {
       sideNavOpen: false,
-      userRole: 'student', // default
       currentPassword: '',
       newPassword: '',
-      confirmPassword: ''
+      confirmPassword: '',
     };
   },
-  
+  computed: {
+    formattedDate() {
+      const now = new Date();
+      return now.toLocaleDateString('en-ZA', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+  },
   methods: {
+    
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
@@ -175,25 +187,113 @@ export default {
       this.sideNavOpen = false;
       document.body.style.overflow = '';
     },
-    logout() {
-      this.$router.push('/login');
+
+    
+    async logout() {
+      const result = await Swal.fire({
+        title: 'Logout?',
+        text: 'Are you sure you want to log out of your student account?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, logout',
+        cancelButtonText: 'Cancel',
+      });
+      if (result.isConfirmed) {
+        await Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
+        this.$router.push('/login');
+      }
     },
-    changePassword() {
+
+  
+    async changePassword() {
       if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
-        alert('Please fill in all password fields.');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Incomplete',
+          text: 'Please fill in all password fields.',
+          confirmButtonColor: '#f5b941',
+        });
         return;
       }
+
       if (this.newPassword !== this.confirmPassword) {
-        alert('New passwords do not match.');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Passwords Do Not Match',
+          text: 'New password and confirmation must match.',
+          confirmButtonColor: '#d33',
+        });
         return;
       }
-      alert('Password updated successfully!');
+
+      if (this.newPassword.length < 6) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Password Too Short',
+          text: 'Password must be at least 6 characters long.',
+          confirmButtonColor: '#d33',
+        });
+        return;
+      }
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Password Updated!',
+        text: 'Your password has been changed successfully.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       this.currentPassword = '';
       this.newPassword = '';
       this.confirmPassword = '';
+    },
+
+    
+    async viewOrders() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'My Orders',
+        text: 'Navigating to your order history...',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    async manageListings() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Manage Listings',
+        text: 'Navigating to your active listings...',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    async viewWishlist() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Wishlist',
+        text: 'Navigating to your saved items...',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    async messages() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Messages',
+        text: 'Navigating to your inbox...',
+        timer: 1500,
+        showConfirmButton: false,
+      });
     }
   }
 };
+
 </script>
 
 <style scoped>

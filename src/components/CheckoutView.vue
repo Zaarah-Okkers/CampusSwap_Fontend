@@ -119,7 +119,6 @@
       <div v-else-if="activeTab === 'safehome'">
         <h2 class="title">SafeHome Repairs</h2>
         
-        <!-- Updated Banner Color from Orange to Tech Teal -->
         <div class="info-card safehome-banner">
           <span class="icon">🔧</span>
           <p><strong>Student Residence Repairs:</strong> Book verified handymen for plumbing or electrical issues. Funds are held in Escrow until the repair is completed.</p>
@@ -132,7 +131,6 @@
               <h3>{{ handymanBooking.handymanName }}</h3>
               <p class="seller">Specialty: {{ handymanBooking.specialty }}</p>
             </div>
-            <!-- Updated Badge Color from Orange to Blue/Teal -->
             <span class="badge-blue">Repair Pending</span>
           </div>
 
@@ -145,7 +143,6 @@
               <span>Reported Issue:</span>
               <strong>{{ handymanBooking.issueType }} - {{ handymanBooking.description }}</strong>
             </div>
-            <!-- Rating moved to the bottom details section -->
             <div class="detail-row">
               <span>Handyman Rating:</span>
               <strong>★ {{ handymanBooking.rating }}</strong>
@@ -217,6 +214,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
 export default {
   name: 'CheckoutView',
   data() {
@@ -229,6 +228,7 @@ export default {
       selectedMethod: '',
       modalType: '',
       modalAmount: 0,
+      userId: 21,
       cartItems: [
         { id: 1, title: 'Calculus MAM1000W Textbook', seller: 'Thabo M.', condition: 'Good Condition', price: 350.00, image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=150' },
         { id: 2, title: 'Casio FX-991ZA Plus II Calculator', seller: 'Sipho N.', condition: 'Like New', price: 280.00, image: 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e498?w=150' },
@@ -259,10 +259,25 @@ export default {
   },
   methods: {
     goToHome() {
-      alert("Navigating back to CampusSwap Home!");
+      Swal.fire({
+        title: 'Navigating Home',
+        text: 'Returning to CampusSwap Home page...',
+        icon: 'info',
+        timer: 1500,
+        showConfirmButton: false
+      });
     },
     removeItem(id) {
       this.cartItems = this.cartItems.filter(item => item.id !== id);
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Item removed from cart',
+        showConfirmButton: false,
+        timer: 2000
+      });
     },
     resetCart() {
       this.cartItems = [
@@ -270,6 +285,15 @@ export default {
         { id: 2, title: 'Casio FX-991ZA Plus II Calculator', seller: 'Sipho N.', condition: 'Like New', price: 280.00, image: 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e498?w=150' },
         { id: 3, title: 'Lab Coat & Safety Goggles (Size M)', seller: 'Kecia K.', condition: 'Used - Fair', price: 150.00, image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=150' }
       ];
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Sample items reloaded',
+        showConfirmButton: false,
+        timer: 2000
+      });
     },
     simulatePayment(method, type) {
       this.selectedMethod = method;
@@ -309,12 +333,25 @@ export default {
         this.orders.unshift(newOrder);
         this.isProcessing = false;
         this.activeTab = 'orders';
+
+        Swal.fire({
+          title: 'Payment Successful!',
+          text: 'Your funds are held safely in escrow.',
+          icon: 'success',
+          confirmButtonColor: '#10b981'
+        });
       }, 800);
     },
     confirmReceipt(orderId) {
       const order = this.orders.find(o => o.id === orderId);
       if (order) {
         order.status = 'Completed';
+        Swal.fire({
+          title: 'Order Completed',
+          text: 'Escrow funds have been released.',
+          icon: 'success',
+          confirmButtonColor: '#2E7D5A'
+        });
       }
     }
   }
@@ -376,7 +413,7 @@ export default {
 .price { color: #2E7D5A; font-weight: bold; font-size: 1rem; }
 .delete-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #EF4444; }
 
-/* SafeHome Handyman Card (Replaced Orange with Tech Teal/Blue Accent) */
+/* SafeHome Handyman Card */
 .safehome-banner { background: #E6F6F6; color: #007A7A; border-left: 4px solid #00A6A6; }
 .safehome-card { border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; background: #FAFAFA; }
 .safehome-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }

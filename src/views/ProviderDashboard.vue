@@ -52,11 +52,10 @@
       <!-- Navigation Links (Home is ALWAYS visible for everyone) -->
       <ul class="side-nav-links">
         <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
-        <li><router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">Academic Marketplace</router-link></li>
+        <!-- <li><router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">Academic Marketplace</router-link></li>
         <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li>
-        <li><router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">Checkout</router-link></li>
+        <li><router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">Checkout</router-link></li> -->
         <li><router-link to="/dashboard" @click="closeSideNav">Dashboard</router-link></li>
-        <li><router-link to="/contact" @click="closeSideNav" v-if="userRole === 'student'">Contact</router-link></li>
       </ul>
 
       <!-- Logout Button at bottom -->

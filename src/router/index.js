@@ -6,9 +6,10 @@ import StudentDashboard from '../views/StudentDashboard.vue'
 import ProviderDashboard from '../views/ProviderDashboard.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
 import ResManagerDashboard from '../views/ResManagerDash.vue'
-import AcademicView from '../views/AcademicView.vue'
-import SafeHomeView from '../views/SafeHomeView.vue'
-import CheckoutView from '../views/CheckoutView.vue'
+// import AcademicView from '../views/AcademicView.vue'
+// import SafeHomeView from '../views/SafeHomeView.vue'
+// import CheckoutView from '../views/CheckoutView.vue'    
+// will add the correct names after the merge so they can be linked 
 
 const routes = [
   { path: '/', 
@@ -41,20 +42,20 @@ const routes = [
     component: ResManagerDashboard 
   },
 
-  { path: '/academic', 
-    name: 'academic', 
-    component: AcademicView 
-  },
+  // { path: '/academic', 
+  //   name: 'academic', 
+  //   component: AcademicView 
+  // },
 
-  { path: '/safehome', 
-    name: 'safehome', 
-    component: SafeHomeView 
-  },
+  // { path: '/safehome', 
+  //   name: 'safehome', 
+  //   component: SafeHomeView 
+  // },
 
-  { path: '/checkout', 
-    name: 'checkout', 
-    component: CheckoutView 
-  },
+  // { path: '/checkout', 
+  //   name: 'checkout', 
+  //   component: CheckoutView 
+  // },
 ]
 
 const router = createRouter({

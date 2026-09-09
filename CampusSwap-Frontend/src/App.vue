@@ -13,6 +13,7 @@ import AdminView from './views/AdminView.vue'
 import BookStore from './views/Bookstore.vue'
 import ToastNotifications from './components/ToastNotifications.vue'
 import Breadcrumb from './components/Breadcrumb.vue'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const isChatPage = computed(() => route.path.startsWith('/chat'))
@@ -22,12 +23,16 @@ const isHomePage = computed(() => route.path === '/')
 
 const toastRef = ref(null)
 
-// Show welcome toast on mount
+// Show welcome alert on mount
 onMounted(() => {
   setTimeout(() => {
-    if (toastRef.value) {
-      toastRef.value.success('👋 Welcome back to CampusSwap!')
-    }
+    Swal.fire({
+      title: '👋 Welcome back!',
+      text: 'Welcome back to CampusSwap!',
+      icon: 'success',
+      confirmButtonText: 'Let\'s go!',
+      confirmButtonColor: '#e8b54d'
+    })
   }, 500)
 })
 
@@ -87,6 +92,7 @@ const filteredProducts = computed(() => {
   })
 
   const sorted = [...list]
+
   switch (filters.value.sortBy) {
     case 'price-asc':
       sorted.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity))
@@ -101,6 +107,7 @@ const filteredProducts = computed(() => {
       sorted.sort((a, b) => b.rating - a.rating)
       break
   }
+
   return sorted
 })
 
@@ -122,28 +129,40 @@ function closeSellModal() {
 
 function toggleSave(product) {
   const next = new Set(savedIds.value)
+
   if (next.has(product.id)) {
     next.delete(product.id)
+
+    Swal.fire({
+      title: 'Removed',
+      text: `"${product.name}" was removed from your saved list.`,
+      icon: 'info',
+      confirmButtonColor: '#e8b54d'
+    })
   } else {
     next.add(product.id)
+
+    Swal.fire({
+      title: 'Saved!',
+      text: `"${product.name}" was added to your saved list.`,
+      icon: 'success',
+      confirmButtonColor: '#e8b54d'
+    })
   }
+
   savedIds.value = next
-  // Show toast notification
-  if (toastRef.value) {
-    if (savedIds.value.has(product.id)) {
-      toastRef.value.success(`💾 "${product.name}" saved to your list!`)
-    } else {
-      toastRef.value.info(`🗑️ "${product.name}" removed from your list.`)
-    }
-  }
 }
 
 function handleApplyFilters(newFilters) {
   filters.value = newFilters
   showFilters.value = false
-  if (toastRef.value) {
-    toastRef.value.success('✅ Filters applied successfully!')
-  }
+
+  Swal.fire({
+    title: 'Filters Applied!',
+    text: 'Your product filters have been updated.',
+    icon: 'success',
+    confirmButtonColor: '#e8b54d'
+  })
 }
 
 function updateListingType(type) {
@@ -154,6 +173,7 @@ function addProduct(newItem) {
   const conditionClassMap = {
     'Fair Condition': 'fair'
   }
+
   allProducts.value.unshift({
     id: Date.now(),
     listingType: newItem.listingType,
@@ -171,22 +191,37 @@ function addProduct(newItem) {
     sellerName: newItem.sellerName,
     description: newItem.description
   })
+
   showSellModal.value = false
-  if (toastRef.value) {
-    toastRef.value.success(`✅ "${newItem.name}" has been listed successfully!`)
-  }
+
+  Swal.fire({
+    title: 'Listing Created!',
+    text: `"${newItem.name}" has been listed successfully.`,
+    icon: 'success',
+    confirmButtonText: 'Great!',
+    confirmButtonColor: '#e8b54d'
+  })
 }
 
 function submitReview({ id, productRating, sellerRating, reviewerName, comment }) {
   const product = allProducts.value.find(p => p.id === id)
+
   if (!product) return
 
   if (!product.reviews) product.reviews = []
-  product.reviews.unshift({ reviewerName, productRating, sellerRating, comment })
+
+  product.reviews.unshift({
+    reviewerName,
+    productRating,
+    sellerRating,
+    comment
+  })
 
   if (productRating > 0) {
     const newSales = product.sales + 1
-    product.rating = Number((((product.rating * product.sales) + productRating) / newSales).toFixed(1))
+    product.rating = Number(
+      (((product.rating * product.sales) + productRating) / newSales).toFixed(1)
+    )
     product.sales = newSales
   }
 
@@ -199,10 +234,13 @@ function submitReview({ id, productRating, sellerRating, reviewerName, comment }
   if (selectedProduct.value && selectedProduct.value.id === id) {
     selectedProduct.value = product
   }
-  
-  if (toastRef.value) {
-    toastRef.value.success('⭐ Thank you for your feedback!')
-  }
+
+  Swal.fire({
+    title: 'Thank You! ⭐',
+    text: 'Your feedback has been submitted successfully.',
+    icon: 'success',
+    confirmButtonColor: '#e8b54d'
+  })
 }
 
 // Keyboard shortcuts
@@ -211,19 +249,24 @@ onMounted(() => {
     // Ctrl/Cmd + K for search focus
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault()
+
       const searchInput = document.querySelector('.search-box input')
+
       if (searchInput) {
         searchInput.focus()
       }
     }
+
     // Escape to close modals
     if (e.key === 'Escape') {
       if (selectedProduct.value) {
         closeProduct()
       }
+
       if (showSellModal.value) {
         closeSellModal()
       }
+
       if (showFilters.value) {
         showFilters.value = false
       }
@@ -236,27 +279,30 @@ onMounted(() => {
   <div id="app">
     <!-- Toast Notifications -->
     <ToastNotifications ref="toastRef" />
-    
+
     <!-- Header -->
-    <AppHeader v-model:search="searchQuery" @open-filters="showFilters = true" />
-    
+    <AppHeader
+      v-model:search="searchQuery"
+      @open-filters="showFilters = true"
+    />
+
     <!-- Layout -->
     <div id="layout">
       <div class="main-column">
         <div class="page-body">
-          <!-- Breadcrumb (show on all pages except home) -->
+          <!-- Breadcrumb -->
           <Breadcrumb v-if="!isHomePage" />
-          
+
           <!-- BookStore -->
           <BookStore v-if="isBookPage" />
-          
+
           <!-- AdminView -->
           <AdminView v-else-if="isAdminPage" />
-          
+
           <!-- ChatView -->
           <ChatView v-else-if="isChatPage" />
-          
-          <!-- ProductGrid (Home) -->
+
+          <!-- ProductGrid -->
           <ProductGrid
             v-else-if="isHomePage"
             :products="filteredProducts"
@@ -267,14 +313,17 @@ onMounted(() => {
             @toggle-save="toggleSave"
             @update:category="updateListingType"
           />
-          
-          <!-- Empty state for unknown routes -->
+
+          <!-- Empty state -->
           <div v-else class="empty-page glass-panel">
             <h2>Page Not Found</h2>
             <p>Sorry, we couldn't find the page you're looking for.</p>
-            <button @click="$router.push('/')" class="go-home-btn">Go Home</button>
+            <button @click="$router.push('/')" class="go-home-btn">
+              Go Home
+            </button>
           </div>
         </div>
+
         <AppFooter v-if="!isChatPage && !isAdminPage && !isBookPage" />
       </div>
 
@@ -296,12 +345,12 @@ onMounted(() => {
         @close="closeProduct"
         @submit-review="submitReview"
       />
-      
+
       <!-- Sell Item Modal -->
-      <SellItemModal 
-        v-if="showSellModal && !isChatPage && !isAdminPage && !isBookPage" 
-        @close="closeSellModal" 
-        @submit="addProduct" 
+      <SellItemModal
+        v-if="showSellModal && !isChatPage && !isAdminPage && !isBookPage"
+        @close="closeSellModal"
+        @submit="addProduct"
       />
     </div>
   </div>
@@ -314,7 +363,8 @@ onMounted(() => {
   padding: 0;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   min-height: 100vh;

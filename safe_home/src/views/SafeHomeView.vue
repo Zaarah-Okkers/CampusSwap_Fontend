@@ -1,4 +1,5 @@
 <template>
+
   <div class="app-layout" :style="{ '--sidebar-w': sidebarWidth }">
 
     <!-- Sidebar -->
@@ -6,10 +7,12 @@
 
     <!-- Main Application -->
     <main class="main-content">
+
       <div class="safehome-page">
 
         <!-- TOP BAR -->
         <div class="top-bar">
+
           <div class="profile-pic" title="My Profile">
             <img
               v-if="profileImage"
@@ -21,10 +24,12 @@
               {{ userInitial }}
             </span>
           </div>
+
         </div>
 
         <!-- HERO -->
         <section class="hero">
+
           <div class="hero-content">
 
             <span class="badge">
@@ -46,11 +51,13 @@
             <div class="search-card">
 
               <div class="input-group">
+
                 <label>
                   What service do you need?
                 </label>
 
                 <select v-model="selectedServiceId">
+
                   <option :value="null">
                     Select a service
                   </option>
@@ -62,10 +69,13 @@
                   >
                     {{ service.name }}
                   </option>
+
                 </select>
+
               </div>
 
               <div class="input-group">
+
                 <label>
                   Residence
                 </label>
@@ -75,9 +85,11 @@
                   type="text"
                   placeholder="Enter residence name"
                 />
+
               </div>
 
               <div class="input-group">
+
                 <label>
                   Room number
                 </label>
@@ -87,6 +99,7 @@
                   type="text"
                   placeholder="e.g. Room 204"
                 />
+
               </div>
 
               <button
@@ -97,11 +110,14 @@
               </button>
 
             </div>
+
           </div>
+
         </section>
 
         <!-- EMERGENCY SERVICES -->
         <section class="emergency-section">
+
           <div class="emergency-card">
 
             <div class="emergency-text">
@@ -131,6 +147,7 @@
                 </span>
 
               </div>
+
             </div>
 
             <button
@@ -141,6 +158,7 @@
             </button>
 
           </div>
+
         </section>
 
         <!-- SERVICES -->
@@ -190,6 +208,7 @@
             </div>
 
           </div>
+
         </section>
 
         <!-- PROVIDERS -->
@@ -218,11 +237,9 @@
 
             <p>
               Providers available for
-
               <strong>
                 {{ selectedService?.name || 'your service' }}
               </strong>
-
               {{ residenceName ? `at ${residenceName}` : '' }}.
             </p>
 
@@ -337,6 +354,7 @@
             </div>
 
           </div>
+
         </section>
 
         <!-- CUSTOMER REVIEWS -->
@@ -367,12 +385,14 @@
             >
 
               <div class="review-stars">
+
                 <span
                   v-for="n in review.stars"
                   :key="n"
                 >
                   ⭐
                 </span>
+
               </div>
 
               <p class="review-quote">
@@ -402,16 +422,23 @@
             </div>
 
           </div>
+
         </section>
 
       </div>
+
     </main>
+
   </div>
+
 </template>
 
 <script setup>
+
 import { ref, reactive, computed } from 'vue'
 import Sidebar from '@/components/icons/sidebar.vue'
+import Swal from 'sweetalert2'
+
 
 /* =========================================================
    LAYOUT / SIDEBAR SYNC
@@ -420,11 +447,13 @@ import Sidebar from '@/components/icons/sidebar.vue'
 const sidebarRef = ref(null)
 
 const sidebarWidth = computed(() => {
+
   if (!sidebarRef.value) return '250px'
 
   return sidebarRef.value.isCollapsed
     ? '72px'
     : '250px'
+
 })
 
 
@@ -445,13 +474,9 @@ const userInitial = computed(() =>
 ========================================================= */
 
 const selectedServiceId = ref(null)
-
 const residenceName = ref('')
-
 const roomNumber = ref('')
-
 const showProviders = ref(false)
-
 const isEmergencyMode = ref(false)
 
 
@@ -515,9 +540,11 @@ const services = [
 ========================================================= */
 
 const selectedService = computed(() => {
+
   return services.find(
     service => service.id === selectedServiceId.value
   ) || null
+
 })
 
 
@@ -526,6 +553,7 @@ const selectedService = computed(() => {
 ========================================================= */
 
 const emergencyServices = [
+
   {
     name: 'Emergency Plumbing',
     serviceName: 'Plumbing',
@@ -553,6 +581,7 @@ const emergencyServices = [
     serviceTypeId: 5,
     icon: '🛡️'
   }
+
 ]
 
 
@@ -562,6 +591,7 @@ const emergencyServices = [
 ========================================================= */
 
 const providers = ref([
+
   {
     id: 8,
     full_name: 'Cape Town Express Plumbing',
@@ -621,6 +651,7 @@ const providers = ref([
     service_area: 'Cape Town',
     is_verified: true
   }
+
 ])
 
 
@@ -629,6 +660,7 @@ const providers = ref([
 ========================================================= */
 
 const reviews = [
+
   {
     name: 'Sarah M.',
     service: 'Plumbing',
@@ -652,6 +684,7 @@ const reviews = [
     quote:
       'Booking was simple and the cleaner did a fantastic job. Will definitely use SafeHome again.'
   }
+
 ]
 
 
@@ -661,16 +694,23 @@ const reviews = [
 ========================================================= */
 
 const quoteForms = reactive(
+
   Object.fromEntries(
+
     providers.value.map(provider => [
+
       provider.id,
+
       {
         description: '',
         photo: null,
         photoPreview: null
       }
+
     ])
+
   )
+
 )
 
 
@@ -681,13 +721,27 @@ const quoteForms = reactive(
 function findProviders() {
 
   if (!selectedServiceId.value) {
-    alert('Please select a service.')
+
+    Swal.fire({
+      title: 'Select a service',
+      text: 'Please choose a service before finding providers.',
+      icon: 'warning',
+      confirmButtonText: 'Okay'
+    })
+
     return
   }
 
   isEmergencyMode.value = false
-
   showProviders.value = true
+
+  Swal.fire({
+    title: 'Providers Found!',
+    text: `We found providers for ${selectedService.value.name}.`,
+    icon: 'success',
+    confirmButtonText: 'View Providers'
+  })
+
 }
 
 
@@ -698,10 +752,9 @@ function findProviders() {
 function selectService(service) {
 
   selectedServiceId.value = service.id
-
   isEmergencyMode.value = false
-
   showProviders.value = true
+
 }
 
 
@@ -712,10 +765,9 @@ function selectService(service) {
 function selectEmergencyService(service) {
 
   selectedServiceId.value = service.serviceTypeId
-
   isEmergencyMode.value = true
-
   showProviders.value = true
+
 }
 
 
@@ -728,11 +780,21 @@ function findEmergencyHelp() {
   isEmergencyMode.value = true
 
   if (!selectedServiceId.value) {
+
     selectedServiceId.value =
       emergencyServices[0].serviceTypeId
+
   }
 
   showProviders.value = true
+
+  Swal.fire({
+    title: '🚨 Emergency Help',
+    text: 'Emergency providers are now being shown.',
+    icon: 'warning',
+    confirmButtonText: 'View Providers'
+  })
+
 }
 
 
@@ -747,7 +809,16 @@ function handlePhotoUpload(providerId, event) {
   if (!file) return
 
   if (!file.type.startsWith('image/')) {
-    alert('Please upload an image file.')
+
+    Swal.fire({
+      title: 'Invalid file',
+      text: 'Please upload an image file.',
+      icon: 'error',
+      confirmButtonText: 'Okay'
+    })
+
+    event.target.value = ''
+
     return
   }
 
@@ -756,10 +827,22 @@ function handlePhotoUpload(providerId, event) {
   const reader = new FileReader()
 
   reader.onload = (e) => {
-    quoteForms[providerId].photoPreview = e.target.result
+
+    quoteForms[providerId].photoPreview =
+      e.target.result
+
+    Swal.fire({
+      title: 'Photo Added!',
+      text: 'Your problem photo has been attached successfully.',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    })
+
   }
 
   reader.readAsDataURL(file)
+
 }
 
 
@@ -769,9 +852,32 @@ function handlePhotoUpload(providerId, event) {
 
 function removePhoto(providerId) {
 
-  quoteForms[providerId].photo = null
+  Swal.fire({
+    title: 'Remove photo?',
+    text: 'Are you sure you want to remove this photo?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, remove it',
+    cancelButtonText: 'Keep photo'
+  }).then((result) => {
 
-  quoteForms[providerId].photoPreview = null
+    if (result.isConfirmed) {
+
+      quoteForms[providerId].photo = null
+      quoteForms[providerId].photoPreview = null
+
+      Swal.fire({
+        title: 'Removed!',
+        text: 'The photo has been removed.',
+        icon: 'success',
+        timer: 1200,
+        showConfirmButton: false
+      })
+
+    }
+
+  })
+
 }
 
 
@@ -787,37 +893,63 @@ function getQuote(provider) {
     `Quote request sent to ${provider.full_name}`
 
   if (selectedService.value) {
+
     message +=
       `\n\nService: ${selectedService.value.name}`
+
   }
 
   if (residenceName.value.trim()) {
+
     message +=
       `\nResidence: ${residenceName.value.trim()}`
+
   }
 
   if (roomNumber.value.trim()) {
+
     message +=
       `\nRoom: ${roomNumber.value.trim()}`
+
   }
 
   if (form.description.trim()) {
+
     message +=
       `\n\nProblem: ${form.description.trim()}`
+
   }
 
   if (form.photo) {
+
     message +=
       `\n📷 Photo attached: ${form.photo.name}`
+
   }
 
   if (isEmergencyMode.value) {
+
     message +=
       `\n\n🚨 Priority: EMERGENCY`
+
   }
 
-  alert(message)
+  Swal.fire({
+
+    title: isEmergencyMode.value
+      ? '🚨 Emergency Quote Requested!'
+      : 'Quote Requested!',
+
+    text: message,
+
+    icon: 'success',
+
+    confirmButtonText: 'Okay'
+
+  })
+
 }
+
 </script>
 
 <style scoped>
@@ -827,26 +959,37 @@ function getQuote(provider) {
 ========================================================= */
 
 .app-layout {
+
   width: 100%;
   min-height: 100vh;
   background: #f8fafc;
+
 }
 
 .main-content {
+
   width: calc(100% - var(--sidebar-w, 250px));
+
   margin-left: var(--sidebar-w, 250px);
+
   min-height: 100vh;
 
   transition:
     margin-left 0.25s ease,
     width 0.25s ease;
+
 }
 
 .safehome-page {
+
   width: 100%;
+
   min-height: 100vh;
+
   background: #f8fafc;
+
   color: #1e293b;
+
 }
 
 
@@ -855,31 +998,43 @@ function getQuote(provider) {
 ========================================================= */
 
 .top-bar {
+
   width: 100%;
+
   box-sizing: border-box;
+
   padding: 16px 40px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: flex-start;
 
   background: #f8fafc;
+
 }
 
 .profile-pic {
+
   width: 42px;
+
   height: 42px;
 
   border-radius: 50%;
+
   overflow: hidden;
 
   display: grid;
+
   place-items: center;
 
   background: #0D1B3D;
+
   color: white;
 
   font-weight: 800;
+
   font-size: 16px;
 
   cursor: pointer;
@@ -889,12 +1044,17 @@ function getQuote(provider) {
   box-shadow:
     0 2px 8px
     rgba(15, 23, 42, 0.12);
+
 }
 
 .profile-pic img {
+
   width: 100%;
+
   height: 100%;
+
   object-fit: cover;
+
 }
 
 
@@ -903,6 +1063,7 @@ function getQuote(provider) {
 ========================================================= */
 
 .hero {
+
   width: 100%;
 
   background:
@@ -916,16 +1077,23 @@ function getQuote(provider) {
     60px 40px 100px;
 
   color: white;
+
   box-sizing: border-box;
+
 }
 
 .hero-content {
+
   width: 100%;
+
   max-width: 1200px;
+
   margin: auto;
+
 }
 
 .badge {
+
   display: inline-block;
 
   padding: 8px 14px;
@@ -938,9 +1106,11 @@ function getQuote(provider) {
   font-size: 14px;
 
   margin-bottom: 20px;
+
 }
 
 .hero h1 {
+
   font-size:
     clamp(42px, 6vw, 70px);
 
@@ -949,13 +1119,17 @@ function getQuote(provider) {
   margin: 0;
 
   font-weight: 800;
+
 }
 
 .hero h1 span {
+
   color: #ddd6fe;
+
 }
 
 .hero p {
+
   max-width: 650px;
 
   font-size: 18px;
@@ -966,6 +1140,7 @@ function getQuote(provider) {
     25px 0 35px;
 
   opacity: 0.9;
+
 }
 
 
@@ -974,7 +1149,9 @@ function getQuote(provider) {
 ========================================================= */
 
 .search-card {
+
   width: 100%;
+
   box-sizing: border-box;
 
   background: white;
@@ -997,22 +1174,32 @@ function getQuote(provider) {
     rgba(15, 23, 42, 0.2);
 
   color: #1e293b;
+
 }
 
 .input-group {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 8px;
+
 }
 
 .input-group label {
+
   font-size: 13px;
+
   font-weight: 700;
+
 }
 
 .input-group input,
 .input-group select {
+
   width: 100%;
+
   box-sizing: border-box;
 
   height: 48px;
@@ -1028,14 +1215,17 @@ function getQuote(provider) {
   font-size: 15px;
 
   background: #f8fafc;
+
 }
 
 .input-group input:focus,
 .input-group select:focus {
+
   outline: none;
 
   border-color:
     #00a6a6;
+
 }
 
 
@@ -1045,6 +1235,7 @@ function getQuote(provider) {
 
 .search-btn,
 .provider-footer button {
+
   border: none;
 
   background:
@@ -1062,12 +1253,15 @@ function getQuote(provider) {
   cursor: pointer;
 
   transition: 0.2s ease;
+
 }
 
 .search-btn:hover,
 .provider-footer button:hover {
+
   background:
     #00a6a6;
+
 }
 
 
@@ -1076,7 +1270,9 @@ function getQuote(provider) {
 ========================================================= */
 
 .emergency-section {
+
   width: 100%;
+
   max-width: 1200px;
 
   box-sizing: border-box;
@@ -1088,9 +1284,11 @@ function getQuote(provider) {
   position: relative;
 
   z-index: 2;
+
 }
 
 .emergency-card {
+
   width: 100%;
 
   box-sizing: border-box;
@@ -1121,14 +1319,19 @@ function getQuote(provider) {
   box-shadow:
     0 20px 40px
     rgba(220, 38, 38, 0.25);
+
 }
 
 .emergency-text {
+
   flex: 1;
+
   min-width: 260px;
+
 }
 
 .emergency-badge {
+
   display: inline-block;
 
   padding: 6px 12px;
@@ -1145,14 +1348,19 @@ function getQuote(provider) {
   letter-spacing: 1px;
 
   margin-bottom: 12px;
+
 }
 
 .emergency-text h2 {
+
   font-size: 26px;
+
   margin: 0 0 8px;
+
 }
 
 .emergency-text p {
+
   margin: 0 0 16px;
 
   opacity: 0.95;
@@ -1160,15 +1368,21 @@ function getQuote(provider) {
   line-height: 1.6;
 
   max-width: 480px;
+
 }
 
 .emergency-tags {
+
   display: flex;
+
   flex-wrap: wrap;
+
   gap: 10px;
+
 }
 
 .emergency-tag {
+
   padding: 8px 14px;
 
   border-radius: 50px;
@@ -1185,14 +1399,19 @@ function getQuote(provider) {
   transition: 0.2s ease;
 
   white-space: nowrap;
+
 }
 
 .emergency-tag:hover {
+
   background: white;
+
   color: #b91c1c;
+
 }
 
 .emergency-btn {
+
   border: none;
 
   background: white;
@@ -1212,11 +1431,15 @@ function getQuote(provider) {
   white-space: nowrap;
 
   transition: 0.2s ease;
+
 }
 
 .emergency-btn:hover {
+
   background: #0D1B3D;
+
   color: white;
+
 }
 
 
@@ -1227,6 +1450,7 @@ function getQuote(provider) {
 .services-section,
 .providers-section,
 .reviews-section {
+
   width: 100%;
 
   max-width: 1200px;
@@ -1237,13 +1461,17 @@ function getQuote(provider) {
 
   padding:
     80px 40px;
+
 }
 
 .section-heading {
+
   margin-bottom: 40px;
+
 }
 
 .section-heading > span {
+
   color:
     #2e7d5a;
 
@@ -1252,18 +1480,23 @@ function getQuote(provider) {
   font-weight: 800;
 
   letter-spacing: 1.5px;
+
 }
 
 .section-heading h2 {
+
   font-size: 36px;
 
   margin:
     8px 0;
+
 }
 
 .section-heading p {
+
   color:
     #64748b;
+
 }
 
 
@@ -1272,15 +1505,18 @@ function getQuote(provider) {
 ========================================================= */
 
 .services-grid {
+
   display: grid;
 
   grid-template-columns:
     repeat(3, 1fr);
 
   gap: 20px;
+
 }
 
 .service-card {
+
   background: white;
 
   padding: 28px;
@@ -1293,9 +1529,11 @@ function getQuote(provider) {
   cursor: pointer;
 
   transition: 0.2s ease;
+
 }
 
 .service-card:hover {
+
   transform:
     translateY(-5px);
 
@@ -1308,24 +1546,32 @@ function getQuote(provider) {
   box-shadow:
     0 10px 25px
     rgba(0, 166, 166, 0.25);
+
 }
 
 .service-card:hover h3,
 .service-card:hover p,
 .service-card:hover .view-service {
+
   color: white;
+
 }
 
 .service-card:hover .service-icon {
+
   background:
     rgba(255, 255, 255, 0.2);
+
 }
 
 .service-icon {
+
   width: 52px;
+
   height: 52px;
 
   display: grid;
+
   place-items: center;
 
   background:
@@ -1336,22 +1582,28 @@ function getQuote(provider) {
   font-size: 25px;
 
   margin-bottom: 18px;
+
 }
 
 .service-card h3 {
+
   margin-bottom: 8px;
+
 }
 
 .service-card p {
+
   color:
     #64748b;
 
   line-height: 1.6;
 
   font-size: 14px;
+
 }
 
 .view-service {
+
   display: inline-block;
 
   margin-top: 10px;
@@ -1362,6 +1614,7 @@ function getQuote(provider) {
   font-weight: 700;
 
   font-size: 14px;
+
 }
 
 
@@ -1370,15 +1623,18 @@ function getQuote(provider) {
 ========================================================= */
 
 .providers-grid {
+
   display: grid;
 
   grid-template-columns:
     repeat(3, 1fr);
 
   gap: 20px;
+
 }
 
 .provider-card {
+
   background: white;
 
   padding: 24px;
@@ -1387,21 +1643,27 @@ function getQuote(provider) {
 
   border:
     1px solid #e2e8f0;
+
 }
 
 .provider-top {
+
   display: flex;
 
   align-items: center;
 
   gap: 12px;
+
 }
 
 .provider-avatar {
+
   width: 50px;
+
   height: 50px;
 
   display: grid;
+
   place-items: center;
 
   border-radius: 50%;
@@ -1414,27 +1676,37 @@ function getQuote(provider) {
   font-weight: 800;
 
   font-size: 18px;
+
 }
 
 .provider-info {
+
   min-width: 0;
+
 }
 
 .provider-top h3 {
+
   margin:
     0 0 4px;
+
 }
 
 .rating {
+
   font-size: 14px;
+
 }
 
 .rating span {
+
   color:
     #94a3b8;
+
 }
 
 .verified {
+
   margin-left: auto;
 
   color:
@@ -1445,9 +1717,11 @@ function getQuote(provider) {
   font-weight: 700;
 
   white-space: nowrap;
+
 }
 
 .provider-bio {
+
   color:
     #64748b;
 
@@ -1457,6 +1731,7 @@ function getQuote(provider) {
 
   margin:
     20px 0;
+
 }
 
 
@@ -1465,6 +1740,7 @@ function getQuote(provider) {
 ========================================================= */
 
 .problem-details {
+
   display: flex;
 
   flex-direction: column;
@@ -1481,17 +1757,21 @@ function getQuote(provider) {
     1px dashed #e2e8f0;
 
   border-radius: 12px;
+
 }
 
 .problem-label {
+
   font-size: 12px;
 
   font-weight: 700;
 
   color: #1e293b;
+
 }
 
 .problem-textarea {
+
   width: 100%;
 
   box-sizing: border-box;
@@ -1514,24 +1794,30 @@ function getQuote(provider) {
   background: white;
 
   color: #1e293b;
+
 }
 
 .problem-textarea:focus {
+
   outline: none;
 
   border-color:
     #00a6a6;
+
 }
 
 .photo-row {
+
   display: flex;
 
   align-items: center;
 
   gap: 12px;
+
 }
 
 .photo-upload {
+
   display: inline-flex;
 
   align-items: center;
@@ -1556,18 +1842,23 @@ function getQuote(provider) {
   cursor: pointer;
 
   transition: 0.2s ease;
+
 }
 
 .photo-upload:hover {
+
   border-color:
     #00a6a6;
 
   color:
     #00a6a6;
+
 }
 
 .photo-preview {
+
   width: 42px;
+
   height: 42px;
 
   border-radius: 8px;
@@ -1578,9 +1869,11 @@ function getQuote(provider) {
     1px solid #e2e8f0;
 
   cursor: pointer;
+
 }
 
 .provider-footer {
+
   display: flex;
 
   justify-content:
@@ -1589,13 +1882,16 @@ function getQuote(provider) {
   align-items: center;
 
   gap: 10px;
+
 }
 
 .experience {
+
   color:
     #64748b;
 
   font-size: 13px;
+
 }
 
 
@@ -1604,15 +1900,18 @@ function getQuote(provider) {
 ========================================================= */
 
 .reviews-grid {
+
   display: grid;
 
   grid-template-columns:
     repeat(3, 1fr);
 
   gap: 20px;
+
 }
 
 .review-card {
+
   background: white;
 
   padding: 26px;
@@ -1627,15 +1926,19 @@ function getQuote(provider) {
   flex-direction: column;
 
   gap: 14px;
+
 }
 
 .review-stars {
+
   font-size: 15px;
 
   letter-spacing: 2px;
+
 }
 
 .review-quote {
+
   color:
     #334155;
 
@@ -1646,23 +1949,29 @@ function getQuote(provider) {
   font-style: italic;
 
   flex: 1;
+
 }
 
 .review-author {
+
   display: flex;
 
   align-items: center;
 
   gap: 12px;
+
 }
 
 .review-avatar {
+
   width: 38px;
+
   height: 38px;
 
   flex-shrink: 0;
 
   display: grid;
+
   place-items: center;
 
   border-radius: 50%;
@@ -1676,19 +1985,24 @@ function getQuote(provider) {
   font-weight: 800;
 
   font-size: 14px;
+
 }
 
 .review-author strong {
+
   display: block;
 
   font-size: 14px;
+
 }
 
 .review-service {
+
   color:
     #94a3b8;
 
   font-size: 12px;
+
 }
 
 
@@ -1701,18 +2015,25 @@ function getQuote(provider) {
   .services-grid,
   .providers-grid,
   .reviews-grid {
+
     grid-template-columns:
       repeat(2, 1fr);
+
   }
 
   .search-card {
+
     grid-template-columns:
       1fr 1fr;
+
   }
 
   .search-btn {
+
     width: 100%;
+
   }
+
 }
 
 
@@ -1723,63 +2044,86 @@ function getQuote(provider) {
 @media (max-width: 800px) {
 
   /* Sidebar becomes an overlay */
+
   .main-content {
+
     width: 100%;
+
     margin-left: 0;
+
   }
 
   .top-bar {
+
     padding:
       14px 20px;
+
   }
 
   .hero {
+
     padding:
       50px 20px 70px;
+
   }
 
   .emergency-section {
+
     padding:
       0 20px;
 
     margin-top:
       -40px;
+
   }
 
   .emergency-card {
+
     padding: 26px;
 
     flex-direction: column;
 
     align-items: flex-start;
+
   }
 
   .emergency-btn {
+
     width: 100%;
+
   }
 
   .services-section,
   .providers-section,
   .reviews-section {
+
     padding:
       60px 20px;
+
   }
 
   .search-card {
+
     grid-template-columns:
       1fr;
+
   }
 
   .services-grid,
   .providers-grid,
   .reviews-grid {
+
     grid-template-columns:
       1fr;
+
   }
 
   .hero h1 {
+
     font-size: 44px;
+
   }
+
 }
 
 
@@ -1790,16 +2134,23 @@ function getQuote(provider) {
 @media (max-width: 500px) {
 
   .hero h1 {
+
     font-size: 38px;
+
   }
 
   .hero p {
+
     font-size: 16px;
+
   }
 
   .section-heading h2 {
+
     font-size: 28px;
+
   }
+
 }
 
 </style>

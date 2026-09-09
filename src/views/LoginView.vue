@@ -164,7 +164,7 @@
           </a>
         </p>
 
-        <!-- Quick Test Buttons -->
+        <!-- Quick Test Buttons at the buttom -->
         <div class="quick-test-section">
           <p style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">Quick Test Login:</p>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">

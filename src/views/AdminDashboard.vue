@@ -56,17 +56,17 @@
         <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
 
         <!-- Academic Marketplace: Students & Admins ONLY -->
-        <li v-if="userRole === 'student' || userRole === 'admin'">
+        <!-- <li v-if="userRole === 'student' || userRole === 'admin'">
           <router-link to="/academic" @click="closeSideNav">Academic Marketplace</router-link>
-        </li>
+        </li> -->
 
         <!-- SafeHome: Visible to EVERYONE -->
-        <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li>
+        <!-- <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li> -->
 
         <!-- Checkout: Students, Admins & Res Managers ONLY (NOT Providers) -->
-        <li v-if="userRole === 'student' || userRole === 'admin' || userRole === 'resmanager'">
+        <!-- <li v-if="userRole === 'student' || userRole === 'admin' || userRole === 'resmanager'">
           <router-link to="/checkout" @click="closeSideNav">Checkout</router-link>
-        </li>
+        </li> -->
 
         <!-- Dashboard: Visible to EVERYONE -->
         <li><router-link to="/dashboard" @click="closeSideNav">Dashboard</router-link></li>

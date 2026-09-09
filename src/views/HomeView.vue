@@ -50,9 +50,9 @@
       <ul class="side-nav-links">
         <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
         <li><router-link to="/login" @click="closeSideNav">Login</router-link></li>
-        <li><router-link to="/academic" @click="closeSideNav">Academic</router-link></li>
+        <!-- <li><router-link to="/academic" @click="closeSideNav">Academic</router-link></li>
         <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li>
-        <li><router-link to="/checkout" @click="closeSideNav">Checkout</router-link></li>
+        <li><router-link to="/checkout" @click="closeSideNav">Checkout</router-link></li> -->
         <li><router-link to="/student-dashboard" @click="closeSideNav">Dashboard</router-link></li>
       </ul>
       <div class="side-nav-user" v-if="isLoggedIn">

@@ -1,31 +1,13 @@
+<!--  made some changes here added my work inside anela template,script and style incase there are problems -->
+
+
 <template>
-<<<<<<< HEAD
   <div id="app">
     <CheckoutView />
   </div>
-</template>
 
-<script>
-import CheckoutView from './components/CheckoutView.vue';
 
-export default {
-  name: 'App',
-  components: {
-    CheckoutView
-  }
-};
-</script>
 
-<style>
-/* Reset base margins */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
-}
-</style>
-=======
   <!-- Sidebar shows on all pages except Login -->
   <div v-if="route.path !== '/login'" class="layout-container">
     <aside class="sidebar">
@@ -49,15 +31,40 @@ body {
   <router-view v-else />
 </template>
 
-<script setup>
+
+
+<script>
+import CheckoutView from './components/CheckoutView.vue';
+
+export default {
+  name: 'App',
+  components: {
+    CheckoutView
+  }
+};
+
 import { useRoute } from 'vue-router'
 const route = useRoute()
 </script>
 
-<style scoped>
+
+
+<style>
+/* Reset base margins */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
 main-content {
   min-height: 100vh;
   width: 100%;
 }
 </style>
->>>>>>> e2fb2d4 (added my pages)
+  
+
+
+
+

@@ -1,9 +1,7 @@
 <template>
   <div class="home-page">
 
-    <!-- ================================================================
-    TOP BAR: Logo | Search | Profile
-    ================================================================ -->
+    <!--TOP BAR-->
     <header class="top-bar">
       <div class="top-left">
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
@@ -234,51 +232,109 @@
 </template>
 
 <script>
-  export default {
-    name: 'HomePage',
-    data() {
-      return {
-        isLoggedIn: false,
-        sideNavOpen: false,
-        user: {
-          name: 'Myles N.',
-          university: 'University of Cape Town'
-        }
-      };
-    },
-    methods: {
-      toggleSideNav() {
-        this.sideNavOpen = !this.sideNavOpen;
-        document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
-      },
-      closeSideNav() {
-        this.sideNavOpen = false;
-        document.body.style.overflow = '';
-      },
-      handleBrowseDeals() {
-        if (this.isLoggedIn) {
-          alert('Navigating to Campus Deals...');
-        } else {
-          alert('Please log in with your university email to view deals.');
-        }
-      },
-      toggleLogin() {
-        this.isLoggedIn = !this.isLoggedIn;
-      },
-      goToAcademic() {
-        alert('Navigating to Academic Marketplace...');
-      },
-      goToSafeHome() {
-        alert('Navigating to SafeHome bookings...');
+import Swal from 'sweetalert2'
+
+export default {
+  name: 'HomePage',
+  data() {
+    return {
+      isLoggedIn: false,
+      sideNavOpen: false,
+      user: {
+        name: 'Myles N.',
+        university: 'University of Cape Town'
       }
+    };
+  },
+  methods: {
+    toggleSideNav() {
+      this.sideNavOpen = !this.sideNavOpen;
+      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
+    },
+    closeSideNav() {
+      this.sideNavOpen = false;
+      document.body.style.overflow = '';
+    },
+
+    
+    async handleBrowseDeals() {
+      if (this.isLoggedIn) {
+        await Swal.fire({
+          icon: 'info',
+          title: 'Navigating...',
+          text: 'You are being redirected to Campus Deals.',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        
+      } else {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Login Required',
+          text: 'Please log in with your university email to view deals.',
+          confirmButtonColor: '#f5b941',
+        });
+      }
+    },
+
+    //  3. Toggle login with a confirmation 
+    async toggleLogin() {
+      if (this.isLoggedIn) {
+        // If they are about to log out, ask for confirmation
+        const result = await Swal.fire({
+          title: 'Logout?',
+          text: 'Are you sure you want to log out?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, logout',
+          cancelButtonText: 'Cancel',
+        });
+        if (result.isConfirmed) {
+          this.isLoggedIn = false;
+          Swal.fire('Logged Out', 'You have been logged out.', 'success');
+        }
+      } else {
+        // If logging in, just toggle (or you could show a success message)
+        this.isLoggedIn = true;
+        Swal.fire({
+          icon: 'success',
+          title: 'Welcome!',
+          text: 'You are now logged in.',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+    },
+
+    // -------- 4. Academic and SafeHome buttons --------
+    async goToAcademic() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Academic Marketplace',
+        text: 'Navigating to browse textbooks, tech, and study materials.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    async goToSafeHome() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'SafeHome',
+        text: 'Navigating to book handyman services.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
     }
-  };
+  }
+}; 
+
 </script>
 
 <style scoped>
-  /* ================================================================
-     GLOBAL RESET
-     ================================================================ */
+  
   .home-page {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
@@ -287,9 +343,7 @@
     padding: 0px;
   }
 
-  /* ================================================================
-     FULL VIEWPORT SECTIONS
-     ================================================================ */
+  /* FULL VIEWPORT SECTIONS*/
   .full-section {
     min-height: 100vh;
     display: flex;
@@ -301,9 +355,7 @@
     box-sizing: border-box;
   }
 
-  /* ================================================================
-     TOP BAR
-     ================================================================ */
+  /* TOP BAR */
   .top-bar {
     background-color: #0d1b3d;
     padding: 10px 24px;
@@ -424,9 +476,7 @@
     height: 36px;
   }
 
-  /* ================================================================
-     SIDE NAV
-     ================================================================ */
+  /*  SIDE NAV */
   .side-overlay {
     position: fixed;
     top: 0px;

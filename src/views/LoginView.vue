@@ -10,14 +10,28 @@
 
 <template>
   <div class="login-page">
-    <!-- Left side (Desktop only) -->
+
+    
     <div class="login-left">
+
       <div class="logo-area">
-        <h2 class="logo-text">CampusSwap<span class="green-text">SA</span></h2>
+
+        <h2 class="logo-text">
+          CampusSwap
+
+          <span class="green-text">
+            SA
+          </span>
+        </h2>
+
       </div>
 
       <h1 class="hero-title">
-        One Campus. <span class="gold-text">Endless Possibilities.</span> All in One Place.
+        One Campus. 
+
+        <span class="gold-text">
+          Endless Possibilities.
+        </span> All in One Place.
       </h1>
 
       <p class="hero-desc">
@@ -26,31 +40,61 @@
       </p>
 
       <!-- Trust badges -->
+
       <div class="trust-badges">
+
         <div class="badge">
-          <span class="badge-icon">&#128737;</span> EduID Verified
+
+          <span class="badge-icon">
+            &#128737;
+          </span> EduID Verified
+
         </div>
+
         <div class="badge">
-          <span class="badge-icon">&#128274;</span> Ozow Secure Escrow
+
+          <span class="badge-icon">
+            &#128274;
+          </span> Ozow Secure Escrow
+
         </div>
       </div>
     </div>
 
-    <!-- Right side (Form) -->
+    <!-- Right side - Form -->
     <div class="login-right">
       <div class="form-wrapper">
         
         <!-- Mobile Logo Header -->
         <div class="mobile-logo-header">
+
           <div class="mobile-logo-circle">
-            <span class="mobile-user-icon">&#128100;</span>
+
+            <span class="mobile-user-icon">
+              &#128100;
+            </span>
+
           </div>
-          <h2 class="mobile-brand">CampusSwap<span class="green-text">SA</span></h2>
-          <p class="mobile-tagline">ONE CAMPUS. ENDLESS POSSIBILITIES.</p>
+
+          <h2 class="mobile-brand">
+            
+            CampusSwap
+
+            <span class="green-text">
+              SA
+            </span>
+
+          </h2>
+
+          <p class="mobile-tagline">
+            ONE CAMPUS. ENDLESS POSSIBILITIES.
+          </p>
+
         </div>
 
         <!-- Role Toggle - 4 BUTTONS -->
         <div class="role-toggle">
+
           <button 
             :class="{ 'role-btn-active': role === 'student' }" 
             class="role-btn" 
@@ -58,6 +102,7 @@
           >
             Student
           </button>
+
           <button 
             :class="{ 'role-btn-active': role === 'provider' }" 
             class="role-btn" 
@@ -65,6 +110,7 @@
           >
             Provider
           </button>
+
           <button 
             :class="{ 'role-btn-active': role === 'admin' }" 
             class="role-btn" 
@@ -72,6 +118,7 @@
           >
             Admin
           </button>
+
           <button 
             :class="{ 'role-btn-active': role === 'resmanager' }" 
             class="role-btn" 
@@ -79,45 +126,84 @@
           >
             Res Mgr
           </button>
+
         </div>
 
         <h2 class="form-title">
           {{ getRoleTitle() }}
         </h2>
+
         <p class="form-subtitle">
           {{ getRoleSubtitle() }}
         </p>
 
         <!-- Institution Selection -->
+
         <div class="form-group">
-          <label>{{ getInstitutionLabel() }}</label>
+
+          <label>
+            {{ getInstitutionLabel() }}
+          </label>
+
           <div class="select-wrap">
-            <span class="input-icon">&#127963;</span>
+
+            <span class="input-icon">
+              &#127963;
+            </span>
+
             <select v-model="selectedInstitution" class="form-input">
-              <option value="" disabled>-- Select --</option>
+              <option value="" disabled>
+                Select your institution
+              </option>
               
               <!-- Students, Admins, Res Managers see universities -->
-              <template v-if="role === 'student' || role === 'admin' || role === 'resmanager'">
+              <template 
+              v-if="role === 'student' || role === 'admin' || role === 'resmanager'">
+
                 <optgroup v-for="(unis, province) in universities" :key="province" :label="province">
-                  <option v-for="uni in unis" :key="uni" :value="uni">{{ uni }}</option>
+                  <option v-for="uni in unis" :key="uni" :value="uni">
+                    {{ uni }}
+                  </option>
+
                 </optgroup>
               </template>
               
               <!-- Providers see companies -->
               <template v-else>
-                <option value="Cape Town Express Plumbing">Cape Town Express Plumbing</option>
-                <option value="Sipho Electrical Solutions">Sipho Electrical Solutions</option>
-                <option value="Campus Handy Helpers">Campus Handy Helpers</option>
-                <option value="QuickFix Appliance Repair">QuickFix Appliance Repair</option>
-                <option value="Dorm Assembly & Carpentry">Dorm Assembly & Carpentry</option>
+
+                <option value="Cape Town Express Plumbing">
+                  Cape Town Express Plumbing
+                </option>
+
+                <option value="Sipho Electrical Solutions">
+                  Sipho Electrical Solutions
+                </option>
+
+                <option value="Campus Handy Helpers">
+                  Campus Handy Helpers
+                </option>
+
+                <option value="QuickFix Appliance Repair">
+                  QuickFix Appliance Repair
+                </option>
+
+                <option value="Dorm Assembly & Carpentry">
+                  Dorm Assembly & Carpentry
+                </option>
+
               </template>
             </select>
           </div>
         </div>
 
         <!-- Email -->
+
         <div class="form-group">
-          <label>{{ getEmailLabel() }}</label>
+
+          <label>
+            {{ getEmailLabel() }}
+          </label>
+
           <div class="input-wrap">
             <input 
               v-model="email" 
@@ -130,7 +216,11 @@
 
         <!-- Password -->
         <div class="form-group">
-          <label>Password</label>
+
+          <label>
+            Password
+          </label>
+
           <div class="input-wrap">
             <input 
               v-model="password" 
@@ -142,10 +232,14 @@
         </div>
 
         <div class="form-options">
-          <a href="#" @click.prevent="alert('Password reset link sent!')" class="forgot-link">Forgot Password?</a>
+
+          <a href="#" @click.prevent="alert('Password reset link sent!')" class="forgot-link">
+            Forgot Password?
+          </a>
         </div>
               
         <!-- Submit Button -->
+
         <button class="btn btn-primary" @click="handleLogin">
           Verify & Enter CampusSwap
         </button>
@@ -158,14 +252,17 @@
         </p>
 
         <!-- Hidden Admin Login Link -->
+
         <p class="admin-link">
+
           <a href="#" @click.prevent="setAdminLogin" class="hidden-admin-link">
-            🔒 Admin Login
+            Admin Login
           </a>
         </p>
 
         <!-- Quick Test Buttons at the buttom -->
         <div class="quick-test-section">
+
           <p style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">Quick Test Login:</p>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
             <button @click="quickLogin('student')" class="quick-btn student-btn">🎓 Student</button>
@@ -177,24 +274,43 @@
 
         <!-- Mobile Footer -->
         <div class="mobile-footer">
-          <p>&#128274; Ozow Escrow Protected &bull; Secured by EduID</p>
+          <p>
+            &#128274; 
+            Ozow Escrow Protected 
+            &bull; 
+            Secured by EduID
+          </p>
         </div>
 
       </div>
     </div>
 
-    <!-- ===== REGISTRATION MODAL ===== -->
+    <!-- REGISTRATION MODAL  -->
+
     <div v-if="showRegistration" class="modal-overlay" @click="closeRegistration">
+
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h2>Create Your Account</h2>
-          <button class="modal-close-btn" @click="closeRegistration">&times;</button>
+
+          <h2>
+            Create Your Account
+          </h2>
+
+          <button class="modal-close-btn" @click="closeRegistration">
+            &times;
+          </button>
         </div>
 
         <div class="modal-body">
+
           <!-- Role Selection -->
+
           <div class="form-group">
-            <label>I am a:</label>
+
+            <label>
+              I am a:
+            </label>
+
             <div class="registration-role-toggle">
               <button 
                 :class="{ 'reg-role-active': regData.role === 'student' }" 
@@ -203,6 +319,7 @@
               >
                 Student
               </button>
+
               <button 
                 :class="{ 'reg-role-active': regData.role === 'provider' }" 
                 class="reg-role-btn" 
@@ -210,6 +327,7 @@
               >
                 Provider
               </button>
+
               <button 
                 :class="{ 'reg-role-active': regData.role === 'admin' }" 
                 class="reg-role-btn" 
@@ -217,80 +335,156 @@
               >
                 Admin
               </button>
+
               <button 
                 :class="{ 'reg-role-active': regData.role === 'resmanager' }" 
                 class="reg-role-btn" 
                 @click="regData.role = 'resmanager'"
               >
-                Res Mgr
+                Res Manager
               </button>
+
             </div>
           </div>
 
           <!-- Full Name -->
           <div class="form-group">
-            <label>Full Name</label>
+
+            <label>
+              Full Name
+            </label>
+
             <input v-model="regData.fullName" type="text" class="form-input" placeholder="Enter your full name" />
           </div>
 
           <!-- Email -->
           <div class="form-group">
-            <label>Email Address</label>
+
+            <label>
+              Email Address
+            </label>
+
             <input v-model="regData.email" type="email" class="form-input" placeholder="your.email@example.com" />
           </div>
 
           <!-- Student Number (for students) -->
+
           <div v-if="regData.role === 'student'" class="form-group">
-            <label>Student Number</label>
+            <label>
+              Student Number
+            </label>
+
             <input v-model="regData.studentNumber" type="text" class="form-input" placeholder="e.g., ST1001" />
           </div>
 
           <!-- University Selection -->
+
           <div v-if="regData.role === 'student' || regData.role === 'admin' || regData.role === 'resmanager'" class="form-group">
-            <label>University</label>
+            <label>
+              University
+            </label>
+
             <div class="select-wrap">
-              <span class="input-icon">&#127963;</span>
+
+              <span class="input-icon">
+                &#127963;
+              </span>
+
               <select v-model="regData.university" class="form-input">
-                <option value="" disabled>-- Select Your University --</option>
+
+                <option value="" disabled>
+                  -- Select Your University --
+                </option>
+
                 <optgroup v-for="(unis, province) in universities" :key="province" :label="province">
-                  <option v-for="uni in unis" :key="uni" :value="uni">{{ uni }}</option>
+
+                  <option v-for="uni in unis" :key="uni" :value="uni">
+                    {{ uni }}
+                  </option>
+
                 </optgroup>
               </select>
             </div>
           </div>
 
           <!-- Company Selection (for providers) -->
+
           <div v-if="regData.role === 'provider'" class="form-group">
-            <label>Company / Organization</label>
+
+            <label>
+              Company / Organization
+            </label>
+
             <div class="select-wrap">
-              <span class="input-icon">&#128188;</span>
+
+              <span class="input-icon">
+                &#128188;
+              </span>
+
               <select v-model="regData.company" class="form-input">
-                <option value="" disabled>-- Select Your Company --</option>
-                <option value="Cape Town Express Plumbing">Cape Town Express Plumbing</option>
-                <option value="Sipho Electrical Solutions">Sipho Electrical Solutions</option>
-                <option value="Campus Handy Helpers">Campus Handy Helpers</option>
-                <option value="QuickFix Appliance Repair">QuickFix Appliance Repair</option>
-                <option value="Dorm Assembly & Carpentry">Dorm Assembly & Carpentry</option>
-                <option value="Other">Other</option>
+
+                <option value="" disabled>
+                  -- Select Your Company --
+                </option>
+
+                <option value="Cape Town Express Plumbing">
+                  Cape Town Express Plumbing
+                </option>
+
+                <option value="Sipho Electrical Solutions">
+                  Sipho Electrical Solutions
+                </option>
+
+                <option value="Campus Handy Helpers">
+                  Campus Handy Helpers
+                </option>
+
+
+                <option value="QuickFix Appliance Repair">
+                  QuickFix Appliance Repair
+                </option>
+
+                <option value="Dorm Assembly & Carpentry">
+                  Dorm Assembly & Carpentry
+                </option>
+
+                <option value="Other">
+                  And other...
+                </option>
+
               </select>
             </div>
           </div>
 
           <!-- Password -->
+
           <div class="form-group">
-            <label>Password</label>
+
+            <label>
+              Password
+            </label>
+            
             <input v-model="regData.password" type="password" class="form-input" placeholder="Create a strong password (min 6 chars)" />
           </div>
 
           <!-- Confirm Password -->
+
           <div class="form-group">
-            <label>Confirm Password</label>
+
+            <label>
+              Confirm Password
+            </label>
+
             <input v-model="regData.confirmPassword" type="password" class="form-input" placeholder="Re-enter your password" />
           </div>
 
           <!-- Student ID Upload (for students only) -->
+
           <div v-if="regData.role === 'student'" class="form-group">
-            <label>Upload Student ID</label>
+            <label>
+              Upload Student ID
+            </label>
+
             <div class="file-upload-wrapper">
               <input 
                 type="file" 
@@ -299,29 +493,54 @@
                 class="file-input" 
                 id="student-id-upload"
               />
+
               <label for="student-id-upload" class="file-upload-label">
-                <span v-if="!regData.idFile">📄 Choose Student ID Image</span>
-                <span v-else>✅ {{ regData.idFile.name }}</span>
+
+                <span v-if="!regData.idFile">
+                  📄 Choose Student ID Image
+                </span>
+
+                <span v-else>
+                  ✅ {{ regData.idFile.name }}
+                </span>
+
               </label>
-              <p class="file-hint">Upload a photo of your student ID card for verification</p>
+              <p class="file-hint">
+                Upload a photo of your student ID card for verification
+              </p>
+
             </div>
           </div>
 
           <!-- Verified Badge Preview -->
+
           <div v-if="regData.role === 'student' && regData.idFile" class="verified-badge-preview">
-            <span class="verified-badge">✅ Verified Student</span>
-            <p class="verified-text">Your ID will be verified by an admin</p>
+
+            <span class="verified-badge">
+              Verified Student
+            </span>
+
+            <p class="verified-text">
+              Your ID will be verified by an admin
+            </p>
           </div>
 
           <!-- Terms -->
           <div class="form-group terms-group">
+
             <label>
               <input type="checkbox" v-model="regData.agreeTerms" />
-              I agree to the <a href="#" @click.prevent="alert('Terms and conditions coming soon!')">Terms of Service</a> and <a href="#" @click.prevent="alert('Privacy policy coming soon!')">Privacy Policy</a>
+              I agree to the 
+              <a href="#" @click.prevent="alert('Terms and conditions coming soon!')">
+                Terms of Service
+              </a> and 
+              <a href="#" @click.prevent="alert('Privacy policy coming soon!')">Privacy Policy
+              </a>
             </label>
           </div>
 
           <!-- Register Button -->
+           
           <button class="btn btn-primary" @click="handleRegistration" :disabled="!regData.agreeTerms">
             Create Account
           </button>

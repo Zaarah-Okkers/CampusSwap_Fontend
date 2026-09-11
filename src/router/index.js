@@ -1,15 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+// lerato's pages 
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import StudentDashboard from '../views/StudentDashboard.vue'   
 import ProviderDashboard from '../views/ProviderDashboard.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
-import ResManagerDashboard from '../views/ResManagerDashboard.vue'
-// import AcademicView from '../views/AcademicView.vue'
-// import SafeHomeView from '../views/SafeHomeView.vue'
-// import CheckoutView from '../views/CheckoutView.vue'    
-// will add the correct names after the merge so they can be linked 
+import ResManagerDashboard from '../views/ResManagerDashboard.vue' 
+
+// Anela's pages 
+import CheckoutView from '../components/CheckoutView.vue' 
+ 
 
 const routes = [
   { path: '/', 
@@ -52,10 +53,10 @@ const routes = [
   //   component: SafeHomeView 
   // },
 
-  // { path: '/checkout', 
-  //   name: 'checkout', 
-  //   component: CheckoutView 
-  // },
+  { path: '/checkout', 
+    name: 'checkout', 
+    component: CheckoutView 
+  },
 ]
 
 const router = createRouter({

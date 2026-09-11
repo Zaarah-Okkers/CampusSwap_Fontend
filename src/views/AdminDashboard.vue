@@ -2,22 +2,33 @@
 
 <template>
   <section class="admin-dash">
+
     <!-- TOP BAR -->
     <header class="top-bar">
+
       <div class="top-left">
+
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
-          <span class="hamburger-icon">&#9776;</span>
+
+          <span class="hamburger-icon">
+            &#9776;
+          </span>
+
         </button>
         
-        <!-- Added Router Link so clicking the logo goes Home -->
+        <!-- Added Router Link so clicking the logo goes Home   - CHECK WHTHER IF IYT WORSK AND NOT REMOVE IT -->
+
         <router-link to="/" class="brand-link">
+
           <h2 class="brand">
             CampusSwap<span class="green-text">SA</span>
           </h2>
+
         </router-link>
       </div>
 
       <div class="top-center">
+
         <div class="search-wrap">
           <input
             type="text"
@@ -29,11 +40,23 @@
 
       <!-- Added Alert Bell next to Avatar -->
       <div class="top-right">
+
         <div class="notification-bell" @click="alert('You have 3 new notifications!')">
-          <span class="bell-icon">&#128276;</span> <!-- Bell Icon -->
-          <span class="notification-dot"></span> <!-- Red Dot -->
+
+          <span class="bell-icon">
+            &#128276;
+          </span>
+
+          <span class="notification-dot">
+
+          </span>
+          
         </div>
-        <span class="avatar">MN</span>
+
+        <span class="avatar">
+          MN
+        </span>
+
       </div>
     </header>
 
@@ -45,119 +68,246 @@
     ></div>
 
     <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
+
       <div class="side-nav-header">
-        <h3>CampusSwap<span class="green-text">SA</span></h3>
-        <button class="close-side-btn" @click="closeSideNav">&times;</button>
+
+        <h3>
+          CampusSwap<span class="green-text">SA</span>
+        </h3>
+
+        <button class="close-side-btn" @click="closeSideNav">&times;
+        </button>
+
       </div>
       
-      <!-- Navigation Links (Home is ALWAYS visible for everyone) -->
+      <!-- Navigation links -->
+
       <ul class="side-nav-links">
         
-        <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
+        <li>
+          <router-link to="/" @click="closeSideNav">
+          Home
+        </router-link>
+      </li>
 
         <!-- Academic Marketplace: Students & Admins ONLY -->
+
         <!-- <li v-if="userRole === 'student' || userRole === 'admin'">
-          <router-link to="/academic" @click="closeSideNav">Academic Marketplace</router-link>
+          <router-link to="/academic" @click="closeSideNav">
+            Academic Marketplace
+          </router-link>
         </li> -->
 
         <!-- SafeHome: Visible to EVERYONE -->
-        <!-- <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li> -->
 
-        <!-- Checkout: Students, Admins & Res Managers ONLY (NOT Providers) -->
-        <!-- <li v-if="userRole === 'student' || userRole === 'admin' || userRole === 'resmanager'">
-          <router-link to="/checkout" @click="closeSideNav">Checkout</router-link>
+        <!-- <li>
+          <router-link to="/safehome" @click="closeSideNav">
+            SafeHome
+          </router-link>
         </li> -->
 
+        <!-- Checkout: Students, Admins & Res Managers ONLY (NOT Providers) -->
+
+        <li v-if="userRole === 'student' || userRole === 'admin' || userRole === 'resmanager'">
+          <router-link to="/checkout" @click="closeSideNav">
+            Checkout
+          </router-link>
+        </li>
+
+        
         <!-- Dashboard: Visible to EVERYONE -->
-        <li><router-link to="/dashboard" @click="closeSideNav">Dashboard</router-link></li>
+        <li>
+          <router-link to="/dashboard" @click="closeSideNav">
+            Dashboard
+          </router-link>
+        </li>
 
             
 
       </ul>
 
       <!-- Logout Button at bottom -->
+
       <div class="side-nav-logout">
-        <button class="logout-btn" @click="logout">Logout</button>
+        <button class="logout-btn" @click="logout">
+          Logout
+        </button>
       </div>
+
     </div>
 
     <!-- MAIN DASHBOARD CONTENT -->
     <div class="dashboard-container">
       
+
       <!-- User Greeting -->
+
       <div class="greeting-block">
-        <h2 class="dashboard-title">Hi, Admin</h2>
-        <p class="university-text">Platform Administrator</p>
+
+        <h2 class="dashboard-title">
+          Hi, Admin
+        </h2>
+
+        <p class="university-text">
+          Platform Administrator
+        </p>
+
       </div>
 
-      <!-- Profile Stats Card (Fixed Layout) -->
+
+      <!-- Profile cards -->
+
       <div class="card">
-        <h3 class="card-heading">My Profile</h3>
+
+        <h3 class="card-heading">
+          My Profile
+        </h3>
+
 
         <div class="stats-grid">
-          <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
-            <span class="stat-title">Total Users</span>
-            <span class="stat-value" style="color: #2e7d5a;">4.9</span>
+
+          <div class="stat-card-one">
+
+            <span class="stat-title-one">
+              Total Users
+            </span>
+
+            <span class="stat-value-one">
+              4.9
+            </span>
+
           </div>
 
-          <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
-            <span class="stat-title">Total Listings</span>
-            <span class="stat-value" style="color: #00a6a6;">3</span>
+
+          <div class="stat-card-two">
+
+            <span class="stat-title-two">
+              Total Listings
+            </span>
+
+            <span class="stat-value-two">
+              3
+            </span>
+            
           </div>
 
-          <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
-            <span class="stat-title">Reports Pending</span>
-            <span class="stat-value" style="color: #f5b941;">R1,200</span>
+
+          <div class="stat-card-three">
+
+            <span class="stat-title-three">
+              Reports Pending
+            </span>
+
+            <span class="stat-value-three">
+              R1,200
+            </span>
+
           </div>
         </div>
       </div>
 
+
       <!-- Account Management Card -->
+
       <div class="card">
-        <h3 class="card-heading">Account Management</h3>
+
+        <h3 class="card-heading">
+          Account Management
+        </h3>
 
         <div class="menu-item">
           <router-link to="/admin/users" class="menu-link">
-            Manage Users <span class="arrow">&gt;</span>
+            
+            Manage Users 
+
+            <span class="arrow">
+              &gt;
+            </span>
+
           </router-link>
         </div>
 
         <div class="menu-item">
-          <router-link to="/admin/listings" class="menu-link">Manage Listings <span class="arrow">&gt;</span></router-link>
+          <router-link to="/admin/listings" class="menu-link">
+
+            Manage Listings 
+
+            <span class="arrow">
+              &gt;
+            </span>
+
+          </router-link>
         </div>
 
         <div class="menu-item">
+
           <router-link to="/admin/reports" class="menu-link">
-            Reports & Analytics <span class="arrow">&gt;</span>
+            
+            Reports & Analytics 
+
+            <span class="arrow">
+              &gt;
+            </span>
+
           </router-link>
         </div>
 
         <div class="menu-item">
-          <router-link to="/checkout" class="menu-link">Checkout <span class="arrow">&gt;</span></router-link>
+          
+          <router-link to="/checkout" class="menu-link">
+            
+            Checkout 
+
+            <span class="arrow">
+              &gt;
+            </span>
+
+          </router-link>
         </div>
 
 
+        <!-- Change Password Section -->
 
-        <!-- Change Password Section (Inside Account Management) -->
         <div class="password-section">
-          <h4 class="password-title">Change Password</h4>
+
+          <h4 class="password-title">
+            Change Password
+          </h4>
           
           <div class="form-group">
-            <label>Current Password</label>
-            <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
+
+            <label>
+              Current Password
+            </label>
+
+            <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password"/>
+
           </div>
 
           <div class="form-group">
-            <label>New Password</label>
+
+            <label>
+              New Password
+            </label>
+
             <input type="password" v-model="newPassword" class="form-input" placeholder="Enter new password" />
+
           </div>
 
           <div class="form-group">
-            <label>Confirm New Password</label>
+
+            <label>
+              Confirm New Password
+            </label>
+
             <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
+
           </div>
 
-          <button class="btn-save" @click="changePassword">Update Password</button>
+          <button class="btn-save" @click="changePassword">
+            Update Password
+          </button>
+
         </div>
 
       </div>
@@ -169,7 +319,9 @@
 
 <script>
 import Swal from 'sweetalert2'
+
 export default {
+
   name: 'AdminDashboard',
   data() {
     return {
@@ -180,6 +332,7 @@ export default {
       userRole: 'admin'
     };
   },
+
   computed: {
     formattedDate() {
       const now = new Date();
@@ -191,12 +344,14 @@ export default {
       });
     }
   },
+
   methods: {
     // -------- Toggle side navigation --------
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
     },
+
     closeSideNav() {
       this.sideNavOpen = false;
       document.body.style.overflow = '';
@@ -214,6 +369,7 @@ export default {
         confirmButtonText: 'Yes, logout',
         cancelButtonText: 'Cancel',
       });
+
       if (result.isConfirmed) {
         Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
         this.$router.push('/login');
@@ -228,7 +384,7 @@ export default {
           icon: 'warning',
           title: 'Incomplete',
           text: 'Please fill in all password fields.',
-          confirmButtonColor: '#f5b941',
+          confirmButtonColor: 'red',
         });
         return;
       }
@@ -238,7 +394,7 @@ export default {
           icon: 'error',
           title: 'Passwords Do Not Match',
           text: 'New password and confirmation must match.',
-          confirmButtonColor: '#d33',
+          confirmButtonColor: 'green',
         });
         return;
       }
@@ -248,7 +404,7 @@ export default {
           icon: 'error',
           title: 'Password Too Short',
           text: 'Password must be at least 6 characters long.',
-          confirmButtonColor: '#d33',
+          confirmButtonColor: 'orange',
         });
         return;
       }
@@ -299,16 +455,18 @@ export default {
     },
 
     async exportData() {
+
       const result = await Swal.fire({
         title: 'Export Data?',
         text: 'This will export all platform data as a CSV file.',
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#2e7d5a',
-        cancelButtonColor: '#6b7280',
+        confirmButtonColor: 'green',
+        cancelButtonColor: 'red',
         confirmButtonText: 'Export Now',
         cancelButtonText: 'Cancel',
       });
+
       if (result.isConfirmed) {
         await Swal.fire({
           icon: 'success',
@@ -335,7 +493,7 @@ export default {
   min-height: 100vh;
 }
 
-/* Top Bar (Navy - Retained) */
+/* Top Bar */
 .top-bar {
   background-color: #0d1b3d;
   padding: 10px 24px;
@@ -471,7 +629,7 @@ export default {
   justify-content: center;
 }
 
-/* Side Nav (Navy - Retained) */
+/* Side Nav */
 .side-overlay {
   position: fixed;
   top: 0;
@@ -635,18 +793,41 @@ export default {
   border-bottom: 2px solid #6c4b6a; /* Purple accent */
 }
 
-/* Stats Grid - FIXED! No more huge vertical bars */
+/* Stats Grid */
 .stats-grid {
   display: flex;
   gap: 12px;
   flex-wrap: wrap; 
 }
 
-.stat-card {
-  flex: 1 1 150px; /* Grow, shrink, but at least 150px wide */
+.stat-card-one {
+  flex: 1 1 150px; 
   padding: 15px;
   border-radius: 12px;
   text-align: center;
+  background-color: #f0fdf4; 
+  border-bottom: 3px solid #2e7d5a;
+
+}
+.stat-card-two {
+  flex: 1 1 150px; 
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  background-color: #f0fdfa; 
+  border-bottom: 3px solid #00a6a6;
+  
+
+}
+.stat-card-three {
+  flex: 1 1 150px; 
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  background-color: #fffbeb; 
+  border-bottom: 3px solid #f5b941;
+  
+
 }
 
 .stat-title {
@@ -657,11 +838,29 @@ export default {
   font-weight: 500;
 }
 
-.stat-value {
+.stat-value-one {
   font-weight: bold;
   font-size: 22px;
   display: block;
+  color: #2e7d5a;
+  
 }
+.stat-value-two {
+  font-weight: bold;
+  font-size: 22px;
+  display: block;
+  color: #00a6a6;
+  
+}
+.stat-value-three {
+  font-weight: bold;
+  font-size: 22px;
+  display: block;
+  color: #f5b941;
+  
+}
+
+
 
 /* Menu items */
 .menu-item {
@@ -777,7 +976,13 @@ export default {
   .stats-grid {
     gap: 8px;
   }
-  .stat-card {
+  .stat-card-one {
+    padding: 10px;
+  }
+  .stat-card-two {
+    padding: 10px;
+  }
+  .stat-card-three {
     padding: 10px;
   }
 }

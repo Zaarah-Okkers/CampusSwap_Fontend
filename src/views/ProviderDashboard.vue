@@ -1,23 +1,39 @@
 <!-- this is for the service provider dashboard -->
 
 <template>
-  <section class="service_provider-dash"><!-- TOP BAR -->
+  <!-- TOP BAR -->
+
+  <section class="service_provider-dash">
+
     <header class="top-bar">
+
       <div class="top-left">
+
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
-          <span class="hamburger-icon">&#9776;</span>
+
+          <span class="hamburger-icon">
+            &#9776;
+          </span>
+
         </button>
         
-        <!-- Added Router Link so clicking the logo goes Home -->
-        <router-link to="/" class="brand-link">
+       
+        
           <h2 class="brand">
-            CampusSwap<span class="green-text">SA</span>
+            CampusSwap
+
+            <span class="green-text">
+              SA
+            </span>
+
           </h2>
-        </router-link>
+        
       </div>
 
       <div class="top-center">
+
         <div class="search-wrap">
+
           <input
             type="text"
             class="search-input"
@@ -27,12 +43,25 @@
       </div>
 
       <!-- Added Alert Bell next to Avatar -->
+
       <div class="top-right">
+
         <div class="notification-bell" @click="alert('You have 3 new notifications!')">
-          <span class="bell-icon">&#128276;</span> <!-- Bell Icon -->
-          <span class="notification-dot"></span> <!-- Red Dot -->
+
+          <span class="bell-icon">
+            &#128276;
+          </span>
+
+          <span class="notification-dot">
+
+          </span> 
+
         </div>
-        <span class="avatar">MN</span>
+
+        <span class="avatar">
+          MN
+        </span>
+
       </div>
     </header>
 
@@ -44,53 +73,127 @@
     ></div>
 
     <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
+
       <div class="side-nav-header">
-        <h3>CampusSwap<span class="green-text">SA</span></h3>
-        <button class="close-side-btn" @click="closeSideNav">&times;</button>
+
+        <h3>
+          CampusSwap
+          
+          <span class="green-text">
+            SA
+          </span>
+        </h3>
+
+        <button class="close-side-btn" @click="closeSideNav">
+          &times;
+        </button>
+
       </div>
       
-      <!-- Navigation Links (Home is ALWAYS visible for everyone) -->
+      <!-- Navigation Links (Home is visible for everyone) -->
+
       <ul class="side-nav-links">
-        <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
-        <!-- <li><router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">Academic Marketplace</router-link></li>
-        <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li>
-        <li><router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">Checkout</router-link></li> -->
-        <li><router-link to="/dashboard" @click="closeSideNav">Dashboard</router-link></li>
+
+        <li>
+          <router-link to="/" @click="closeSideNav">
+            Home
+          </router-link>
+        </li>
+
+        <!-- <li>
+          <router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">
+            Academic Marketplace
+          </router-link>
+        </li>
+
+        <li>
+          <router-link to="/safehome" @click="closeSideNav">
+            SafeHome
+          </router-link>
+        </li> -->
+
+        <li>
+          <router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">
+            Checkout
+          </router-link>
+        </li> 
+
+        <li>
+          <router-link to="/dashboard" @click="closeSideNav">
+            Dashboard
+          </router-link>
+        </li>
+
       </ul>
 
       <!-- Logout Button at bottom -->
       <div class="side-nav-logout">
-        <button class="logout-btn" @click="logout">Logout</button>
+
+        <button class="logout-btn" @click="logout">
+          Logout
+        </button>
+
       </div>
     </div>
 
     <!-- MAIN DASHBOARD CONTENT -->
+
     <div class="dashboard-container">
       
       <!-- User Greeting -->
       <div class="greeting-block">
-        <h2 class="dashboard-title">Hi, Zaarah!</h2>
-        <p class="university-text">Cape Town Express Plumbing</p>
+
+        <h2 class="dashboard-title">
+          Hi, Zaarah!
+        </h2>
+
+        <p class="university-text">
+          Cape Town Express Plumbing
+        </p>
+
       </div>
 
-      <!-- Profile Stats Card (Fixed Layout) -->
+      <!-- Profile Stats Card  -->
+
       <div class="card">
-        <h3 class="card-heading">My Profile</h3>
+
+        <h3 class="card-heading">
+          My Profile
+        </h3>
 
         <div class="stats-grid">
+
           <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
-            <span class="stat-title">Jobs Completed</span>
-            <span class="stat-value" style="color: #2e7d5a;">24</span>
+
+            <span class="stat-title">
+              Jobs Completed
+            </span>
+
+            <span class="stat-value" style="color: #2e7d5a;">
+              24
+            </span>
           </div>
 
           <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
-            <span class="stat-title">Rating</span>
-            <span class="stat-value" style="color: #00a6a6;">3.8</span>
+
+            <span class="stat-title">
+              Rating
+            </span>
+
+            <span class="stat-value" style="color: #00a6a6;">
+              3.8
+            </span>
           </div>
 
           <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
-            <span class="stat-title">Pending Requests</span>
-            <span class="stat-value" style="color: #f5b941;">3</span>
+
+            <span class="stat-title">
+              Pending Requests
+            </span>
+            
+            <span class="stat-value" style="color: #f5b941;">
+              3
+            </span>
           </div>
         </div>
       </div>
@@ -101,36 +204,68 @@
         
       
           <div class="menu-item">
-            <router-link to="/safehome" class="menu-link">Available Jobs <span class="arrow">&gt;</span></router-link>
+
+            <router-link to="/safehome" class="menu-link">
+              Available Jobs 
+              
+              <span class="arrow">
+                &gt;
+              </span>
+
+            </router-link>
+
           </div>
 
           <div class="menu-item">
-            <router-link to="/dashboard" class="menu-link">My Dashboard <span class="arrow">&gt;</span></router-link>
+
+            <router-link to="/dashboard" class="menu-link">
+              My Dashboard 
+
+              <span class="arrow">
+                &gt;
+              </span>
+            </router-link>
           </div>
         
 
         
 
-        <!-- Change Password Section (Inside Account Management) -->
+        <!-- Change Password Section -->
         <div class="password-section">
-          <h4 class="password-title">Change Password</h4>
+
+          <h4 class="password-title">
+            Change Password
+          </h4>
           
           <div class="form-group">
-            <label>Current Password</label>
+
+            <label>
+              Current Password
+            </label>
+
             <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
           </div>
 
           <div class="form-group">
-            <label>New Password</label>
+            <label>
+              New Password
+            </label>
+
             <input type="password" v-model="newPassword" class="form-input" placeholder="Enter new password" />
           </div>
 
           <div class="form-group">
-            <label>Confirm New Password</label>
+            <label>
+              Confirm New Password
+            </label>
+
             <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
           </div>
 
-          <button class="btn-save" @click="changePassword">Update Password</button>
+          <button class="btn-save" @click="changePassword">
+            Update Password
+          </button>
+          
         </div>
 
       </div>

@@ -3,18 +3,35 @@
 
     <!--TOP BAR-->
     <header class="top-bar">
+
       <div class="top-left">
+
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
-          <span class="hamburger-icon">&#9776;</span>
+
+          <span class="hamburger-icon">
+            &#9776;
+          </span>
+
         </button>
+
         <h2 class="brand">
-          CampusSwap<span class="green-text">SA</span>
+          CampusSwap
+
+          <span class="green-text">
+            SA
+          </span>
+
         </h2>
       </div>
 
       <div class="top-center">
+
         <div class="search-wrap">
-          <span class="search-icon">&#128269;</span>
+
+          <span class="search-icon">
+            &#128269;
+          </span>
+
           <input
             type="text"
             class="search-input"
@@ -24,16 +41,22 @@
       </div>
 
       <div class="top-right" v-if="isLoggedIn">
-        <span class="avatar">MN</span>
+
+        <span class="avatar">
+          MN
+        </span>
+
       </div>
+
       <div class="top-right" v-else>
-        <span class="avatar-placeholder"></span>
+        <span class="avatar-placeholder">
+
+        </span>
+
       </div>
     </header>
 
-    <!-- ================================================================
-    SIDE NAV (slide-out)
-    ================================================================ -->
+    <!-- SIDE NAV -->
     <div
       class="side-overlay"
       :class="{ 'side-overlay-open': sideNavOpen }"
@@ -41,42 +64,105 @@
     ></div>
 
     <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
+
       <div class="side-nav-header">
-        <h3>CampusSwap<span class="green-text">SA</span></h3>
-        <button class="close-side-btn" @click="closeSideNav">&times;</button>
+
+        <h3>
+          CampusSwap
+
+          <span class="green-text">
+            SA
+          </span>
+
+        </h3>
+
+        <button class="close-side-btn" @click="closeSideNav">
+          &times;
+        </button>
+
       </div>
+
       <ul class="side-nav-links">
-        <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
-        <li><router-link to="/login" @click="closeSideNav">Login</router-link></li>
-        <!-- <li><router-link to="/academic" @click="closeSideNav">Academic</router-link></li>
-        <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li>
-        <li><router-link to="/checkout" @click="closeSideNav">Checkout</router-link></li> -->
-        <li><router-link to="/student-dashboard" @click="closeSideNav">Dashboard</router-link></li>
+
+        <li>
+          <router-link to="/" @click="closeSideNav">
+            Home
+          </router-link>
+        </li>
+
+        <li>
+          <router-link to="/login" @click="closeSideNav">
+            Login
+          </router-link>
+        </li>
+
+        <!-- <li>
+          <router-link to="/academic" @click="closeSideNav">
+            Academic
+          </router-link>
+        </li>
+
+        <li>
+          <router-link to="/safehome" @click="closeSideNav">
+            SafeHome
+          </router-link>
+        </li> -->
+
+        <li>
+          <router-link to="/checkout" @click="closeSideNav">
+            Checkout
+          </router-link>
+        </li>
+
+        <li>
+          <router-link to="/student-dashboard" @click="closeSideNav">
+            Dashboard
+          </router-link>
+        </li>
+
       </ul>
+
+
       <div class="side-nav-user" v-if="isLoggedIn">
-        <p>Hi! {{ user.name }}</p>
-        <p class="side-user-uni">{{ user.university }}</p>
+
+        <p
+        >Hi! {{ user.name }}
+        </p>
+
+        <p class="side-user-uni">
+          {{ user.university }}
+        </p>
+
       </div>
     </div>
 
-    <!-- ================================================================
-    HERO SECTION
-    ================================================================ -->
+    <!-- HERO SECTION -->
+
     <section class="hero full-section">
+
       <div class="hero-inner">
+
         <div class="hero-text">
-          <p class="hero-tagline">SOUTH AFRICA'S SECURE STUDENT EXCHANGE</p>
+
+          <p class="hero-tagline">
+            SOUTH AFRICA'S SECURE STUDENT EXCHANGE
+          </p>
+
           <h1 class="hero-title">
             One Campus. Endless Possibilities.<br />All In One Place.
           </h1>
+
           <p class="hero-desc">
             Connect directly with verified students at your institution.
             Safely trade, buy, rent books, technology, and book maintenance services.
           </p>
+
           <button class="btn-gold" @click="handleBrowseDeals">
             Browse Active Campus Deals
           </button>
-        </div>
+
+        </div> 
+
         <div class="hero-image">
           <img
             src="https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop&crop=center"
@@ -85,146 +171,375 @@
           />
         </div>
       </div>
+
       <div class="scroll-indicator">
-        <span>Scroll</span>
-        <span class="scroll-arrow">&#8595;</span>
+        <span>
+          Scroll
+        </span>
+
+        <span class="scroll-arrow">
+          &#8595;
+        </span>
+
       </div>
     </section>
 
-    <!-- ================================================================
-    CORE SERVICES
-    ================================================================ -->
+    <!-- CORE SERVICES -->
+
     <section class="core-services full-section">
-      <h2 class="section-title">Core Student Services</h2>
+
+
+      <h2 class="section-title">
+        Core Student Services
+      </h2>
+
       <div class="service-cards">
-        <div class="service-card">
-          <div class="card-icon">&#128218;</div>
-          <h3>Academic Marketplace</h3>
-          <p>Buy &amp; rent textbooks, tech, and study materials from fellow students.</p>
-          <button class="card-btn" @click="goToAcademic">Browse Marketplace</button>
-        </div>
-        <div class="service-card">
-          <div class="card-icon">&#128736;</div>
-          <h3>SafeHome</h3>
-          <p>Book background-checked handymen for cleaning, repairs, and many more services.</p>
-          <button class="card-btn" @click="goToSafeHome">Book SafeHome</button>
-        </div>
-      </div>
-      <div class="scroll-indicator scroll-indicator-light">
-        <span>Scroll</span>
-        <span class="scroll-arrow">&#8595;</span>
-      </div>
-    </section>
 
-    <!-- ================================================================
-    TUTORIAL – How CampusSwap Works
-    ================================================================ -->
-    <section class="tutorial-section full-section">
-      <div class="tutorial">
-        <h2 class="tutorial-title">How CampusSwap Works</h2>
-        <div class="steps">
-          <div class="step">
-            <span class="step-num">1</span>
-            <div class="step-body">
-              <h3>Verify Your Profile</h3>
-              <p>Sign up with your SA university email or work email to ensure a safe environment.</p>
-            </div>
+        <div class="service-card">
+
+          <div class="card-icon">
+            &#128218;
           </div>
-          <div class="step">
-            <span class="step-num">2</span>
-            <div class="step-body">
-              <h3>Buy, Sell or Book</h3>
-              <p>List textbooks you no longer need, find rentals or book background-checked campus handymen.</p>
-            </div>
-          </div>
-          <div class="step">
-            <span class="step-num">3</span>
-            <div class="step-body">
-              <h3>Secure Escrow</h3>
-              <p>Payments are held securely in escrow until you verify everything is received and correct.</p>
-            </div>
-          </div>
-        </div>
-        <div class="tutorial-actions" v-if="isLoggedIn">
-          <button class="btn-outline-gold" @click="goToAcademic">Browse Academic Marketplace</button>
-          <button class="btn-outline-green" @click="goToSafeHome">Book SafeHome Repairs</button>
-        </div>
-        <div class="tutorial-actions" v-else>
-          <p class="login-prompt purple-bold">
-            &#128274; <a href="#" @click.prevent="toggleLogin">Log in</a> with your university email to access all features.
+
+          <h3>
+            Academic Marketplace
+          </h3>
+
+          <p>
+            Buy &amp; rent textbooks, tech, and study materials from fellow students.
           </p>
+
+          <button class="card-btn" @click="goToAcademic">
+            Browse Marketplace
+          </button>
+
         </div>
+
+        <div class="service-card">
+
+          <div class="card-icon">
+            &#128736;
+          </div>
+
+          <h3>
+            SafeHome
+          </h3>
+
+          <p>
+            Book background-checked handymen for cleaning, repairs, and many more services.
+          </p>
+
+          <button class="card-btn" @click="goToSafeHome">
+            Book SafeHome
+          </button>
+
+        </div>
+
       </div>
+
       <div class="scroll-indicator scroll-indicator-light">
-        <span>Scroll</span>
-        <span class="scroll-arrow">&#8595;</span>
+        <span>
+          Scroll
+        </span>
+
+        <span class="scroll-arrow">
+          &#8595;
+        </span>
+
       </div>
     </section>
 
-    <!-- ================================================================
-    FEATURED NEAR YOU
-    ================================================================ -->
+    <!-- TUTORIAL – How CampusSwap Works -->
+
+    <section class="tutorial-section full-section">
+
+      <div class="tutorial">
+
+        <h2 class="tutorial-title">
+          How CampusSwap Works
+        </h2>
+
+        <div class="steps">
+
+          <div class="step">
+
+            <span class="step-num">
+              1
+            </span>
+
+            <div class="step-body">
+
+              <h3>
+                Verify Your Profile
+              </h3>
+
+              <p>
+                Sign up with your SA university email or work email to ensure a safe environment.
+              </p>
+
+            </div>
+          </div>
+
+          <div class="step">
+
+            <span class="step-num">
+              2
+            </span>
+
+            <div class="step-body">
+
+              <h3>
+                Buy, Sell or Book
+              </h3>
+
+              <p>
+                List textbooks you no longer need, find rentals or book background-checked campus handymen.
+              </p>
+
+            </div>
+          </div>
+
+          <div class="step">
+
+            <span class="step-num">
+              3
+            </span>
+
+            <div class="step-body">
+
+              <h3>
+                Secure Escrow
+              </h3>
+
+              <p>
+                Payments are held securely in escrow until you verify everything is received and correct.
+              </p>
+
+            </div>
+          </div>
+        </div>
+
+
+        <div class="tutorial-actions" v-if="isLoggedIn">
+
+          <button class="btn-outline-gold" @click="goToAcademic">
+            Browse Academic Marketplace
+          </button>
+
+          <button class="btn-outline-green" @click="goToSafeHome">
+            Book SafeHome Repairs
+          </button>
+
+        </div>
+
+        <div class="tutorial-actions" v-else>
+
+          <p class="login-prompt purple-bold">
+            
+            &#128274; 
+            <a href="#" @click.prevent="toggleLogin">
+              Log in
+            </a> 
+            with your university email to access all features.
+          </p>
+
+        </div>
+      </div>
+
+      <div class="scroll-indicator scroll-indicator-light">
+        
+        <span>
+          Scroll
+        </span>
+
+        <span class="scroll-arrow">
+          &#8595;
+        </span>
+
+      </div>
+    </section>
+
+    <!--FEATURED NEAR YOU -->
+
     <section class="featured-section full-section">
+
       <div class="featured-inner">
-        <h2 class="section-title">Featured Near You</h2>
+
+        <h2 class="section-title">
+          Featured Near You
+        </h2>
+
         <div class="featured-grid">
+
           <div class="featured-item">
-            <div class="item-image">📱</div>
-            <h4>HP EliteBook 840 G5</h4>
-            <p class="item-price">R4,500</p>
-            <span class="item-badge">Used Like New</span>
+
+            <div class="item-image">
+              📱
+            </div>
+
+            <h4>
+              HP EliteBook 840 G5
+            </h4>
+
+            <p class="item-price">
+              R4,500
+            </p>
+
+            <span class="item-badge">
+              Used Like New
+            </span>
+
           </div>
+
           <div class="featured-item">
-            <div class="item-image">📘</div>
-            <h4>Calculus MAM1000W Guide</h4>
-            <p class="item-price">R350</p>
-            <span class="item-badge">UCT Guide</span>
+
+            <div class="item-image">
+              📘
+            </div>
+
+            <h4>
+              Calculus MAM1000W Guide
+            </h4>
+
+            <p class="item-price">
+              R350
+            </p>
+
+            <span class="item-badge">
+              UCT Guide
+            </span>
+
           </div>
+
           <div class="featured-item">
-            <div class="item-image">🧮</div>
-            <h4>TI-Plus Graphing Calc</h4>
-            <p class="item-price">R1,200</p>
-            <span class="item-badge">ACT Rewards</span>
+
+            <div class="item-image">
+              🧮
+            </div>
+
+            <h4>
+              TI-Plus Graphing Calc
+            </h4>
+
+            <p class="item-price">
+              R1,200
+            </p>
+
+            <span class="item-badge">
+              ACT Rewards
+            </span>
+
           </div>
+
           <div class="featured-item">
-            <div class="item-image">🎧</div>
-            <h4>Sony ANC Headphones</h4>
-            <p class="item-price">R1,800</p>
-            <span class="item-badge">Use Now</span>
+
+            <div class="item-image">
+              🎧
+            </div>
+
+            <h4>
+              Sony ANC Headphones
+            </h4>
+
+            <p class="item-price">
+              R1,800
+            </p>
+
+            <span class="item-badge">
+              Use Now
+            </span>
+
           </div>
         </div>
       </div>
+
       <div class="scroll-indicator scroll-indicator-light">
-        <span>Scroll</span>
-        <span class="scroll-arrow">&#8595;</span>
+
+        <span>
+          Scroll
+        </span>
+
+        <span class="scroll-arrow">
+          &#8595;
+        </span>
+
       </div>
     </section>
 
-    <!-- ================================================================
-    FOOTER
-    ================================================================ -->
+    <!-- FOOTER -->
     <footer>
+
       <div class="footer-brand">
-        <h3 class="footer-logo">CampusSwap<span class="green-text">SA</span></h3>
+
+        <h3 class="footer-logo">
+          CampusSwap
+          
+          <span class="green-text">
+            SA
+          </span>
+        </h3>
+         
         <p>
           South Africa's trusted, student-only platform for secure peer trading,
           verified off-campus support services, and educational material exchange.
         </p>
+
       </div>
+
+
       <div class="footer-links">
-        <h4>Services</h4>
+
+        <h4>
+          Services
+        </h4>
+
         <ul>
-          <li><a href="#">Academic Marketplace</a></li>
-          <li><a href="#">SafeHome Maintenance</a></li>
+
+          <li>
+            <a href="#">
+              Academic Marketplace
+            </a>
+          </li>
+
+          <li>
+            <a href="#">
+              SafeHome Maintenance
+            </a>
+          </li>
+
         </ul>
+
       </div>
+
+
       <div class="footer-links">
-        <h4>Trust &amp; Protection</h4>
+
+        <h4>
+          Trust &amp; Protection
+        </h4>
+
         <ul>
-          <li><a href="#">Ozow Escrow Guarantee</a></li>
-          <li><a href="#">EduID Authentication</a></li>
-          <li><a href="#">Safety Zones &amp; Meetups</a></li>
+
+          <li>
+            <a href="#">
+              Ozow Escrow Guarantee
+            </a>
+          </li>
+
+          <li>
+            <a href="#">
+              EduID Authentication
+            </a>
+          </li>
+
+          <li>
+            <a href="#">
+              Safety Zones &amp; Meetups
+            </a>
+          </li>
+
         </ul>
+
       </div>
     </footer>
 
@@ -235,6 +550,7 @@
 import Swal from 'sweetalert2'
 
 export default {
+  
   name: 'HomePage',
   data() {
     return {

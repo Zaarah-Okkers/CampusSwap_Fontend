@@ -1,8 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import ChatView from '../views/ChatView.vue'
-import AdminView from '../views/AdminView.vue'
-import BookStore from '../views/Bookstore.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,22 +12,54 @@ const router = createRouter({
     {
       path: '/chat',
       name: 'chat',
-      component: ChatView,
-    },
-    {
-      path: '/chat/:id',
-      name: 'chat-detail',
-      component: ChatView,
-    },
-    {
-      path: '/admin',
-      name: 'admin',
-      component: AdminView,
+      component: () => import('../views/ChatView.vue'),
     },
     {
       path: '/books',
       name: 'books',
-      component: BookStore,
+      component: () => import('../views/Bookstore.vue'),
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/AdminLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'admin-dashboard',
+          component: () => import('../views/admin/AdminDashboard.vue'),
+        },
+        {
+          path: 'dashboard',
+          name: 'admin-dashboard',
+          component: () => import('../views/admin/AdminDashboard.vue'),
+        },
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: () => import('../views/admin/AdminUsers.vue'),
+        },
+        {
+          path: 'premium',
+          name: 'admin-premium',
+          component: () => import('../views/admin/AdminPremium.vue'),
+        },
+        {
+          path: 'advertise',
+          name: 'admin-advertise',
+          component: () => import('../views/admin/AdminAdvertise.vue'),
+        },
+        {
+          path: 'promote',
+          name: 'admin-promote',
+          component: () => import('../views/admin/AdminPromote.vue'),
+        },
+      ],
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: HomeView,
     },
   ],
 })

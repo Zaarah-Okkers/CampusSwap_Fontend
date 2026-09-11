@@ -209,9 +209,9 @@
             Buy &amp; rent textbooks, tech, and study materials from fellow students.
           </p>
 
-          <button class="card-btn" @click="goToAcademic">
+          <!-- <button class="card-btn" @click="goToAcademic">
             Browse Marketplace
-          </button>
+          </button> -->
 
         </div>
 
@@ -229,9 +229,9 @@
             Book background-checked handymen for cleaning, repairs, and many more services.
           </p>
 
-          <button class="card-btn" @click="goToSafeHome">
+          <!-- <button class="card-btn" @click="goToSafeHome">
             Book SafeHome
-          </button>
+          </button> -->
 
         </div>
 
@@ -322,13 +322,13 @@
 
         <div class="tutorial-actions" v-if="isLoggedIn">
 
-          <button class="btn-outline-gold" @click="goToAcademic">
+          <!-- <button class="btn-outline-gold" @click="goToAcademic">
             Browse Academic Marketplace
           </button>
 
           <button class="btn-outline-green" @click="goToSafeHome">
             Book SafeHome Repairs
-          </button>
+          </button> -->
 
         </div>
 

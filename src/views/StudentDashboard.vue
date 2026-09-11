@@ -230,14 +230,14 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
           
           <div class="menu-item">
 
-            <router-link to="/safehome" class="menu-link">
+            <!-- <router-link to="/safehome" class="menu-link">
               SafeHome Bookings 
 
               <span class="arrow">
                 &gt;
               </span>
             
-            </router-link>
+            </router-link> -->
           </div>
 
           <div class="menu-item">
@@ -308,9 +308,11 @@ export default {
   data() {
     return {
       sideNavOpen: false,
+      userRole: 'student',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
+      
     };
   },
   computed: {

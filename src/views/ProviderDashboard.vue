@@ -119,7 +119,7 @@
         </li> 
 
         <li>
-          <router-link to="/dashboard" @click="closeSideNav">
+          <router-link to="/provider-dashboard" @click="closeSideNav">
             Dashboard
           </router-link>
         </li>
@@ -205,14 +205,14 @@
       
           <div class="menu-item">
 
-            <router-link to="/safehome" class="menu-link">
-              Available Jobs 
+            <!-- <router-link to="/safehome" class="menu-link">
+              Available Jobs  
               
               <span class="arrow">
                 &gt;
               </span>
 
-            </router-link>
+            </router-link> -->
 
           </div>
 
@@ -283,6 +283,7 @@ export default {
   data() {
     return {
       sideNavOpen: false,
+      userRole: 'service provider',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',

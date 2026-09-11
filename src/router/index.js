@@ -43,16 +43,10 @@ const routes = [
     component: ResManagerDashboard 
   },
 
-  // { path: '/academic', 
-  //   name: 'academic', 
-  //   component: AcademicView 
-  // },
+  //  will have the academic  page here 
 
-  // { path: '/safehome', 
-  //   name: 'safehome', 
-  //   component: SafeHomeView 
-  // },
-
+  //  will have the safehome page here
+  
   { path: '/checkout', 
     name: 'checkout', 
     component: CheckoutView 

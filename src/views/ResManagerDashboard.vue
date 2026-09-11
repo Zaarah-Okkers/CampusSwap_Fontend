@@ -98,7 +98,7 @@
         </li> 
 
         <li>
-          <router-link to="/dashboard" @click="closeSideNav">
+          <router-link to="/resmanager-dashboard" @click="closeSideNav">
             Dashboard
           </router-link>
         </li>
@@ -188,13 +188,13 @@
 
         <div class="menu-item">
 
-          <router-link to="/safehome" class="menu-link">
-            Track Repairs 
+          <!-- < <router-link to="/safehome" class="menu-link">
+            Track Repairs  
 
             <span class="arrow">
               &gt;
             </span>
-          </router-link>
+          </router-link> -->
         </div>
 
         <div class="menu-item">
@@ -271,6 +271,7 @@ export default {
   data() {
     return {
       sideNavOpen: false,
+      userRole: ' res manager',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',

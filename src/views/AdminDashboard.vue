@@ -98,13 +98,9 @@
           </router-link>
         </li> -->
 
-        <!-- SafeHome: Visible to EVERYONE -->
+        <!-- SafeHome: Visible to EVERYONE  will be here-->
 
-        <!-- <li>
-          <router-link to="/safehome" @click="closeSideNav">
-            SafeHome
-          </router-link>
-        </li> -->
+        
 
         <!-- Checkout: Students, Admins & Res Managers ONLY (NOT Providers) -->
 
@@ -117,7 +113,7 @@
         
         <!-- Dashboard: Visible to EVERYONE -->
         <li>
-          <router-link to="/dashboard" @click="closeSideNav">
+          <router-link to="/admin-dashboard" @click="closeSideNav">
             Dashboard
           </router-link>
         </li>

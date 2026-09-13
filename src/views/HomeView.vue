@@ -100,13 +100,13 @@
           <router-link to="/academic" @click="closeSideNav">
             Academic
           </router-link>
-        </li>
+        </li> -->
 
         <li>
           <router-link to="/safehome" @click="closeSideNav">
             SafeHome
           </router-link>
-        </li> -->
+        </li>
 
         <li>
           <router-link to="/checkout" @click="closeSideNav">
@@ -229,9 +229,9 @@
             Book background-checked handymen for cleaning, repairs, and many more services.
           </p>
 
-          <!-- <button class="card-btn" @click="goToSafeHome">
+          <button class="card-btn" @click="goToSafeHome">
             Book SafeHome
-          </button> -->
+          </button>
 
         </div>
 
@@ -324,11 +324,11 @@
 
           <!-- <button class="btn-outline-gold" @click="goToAcademic">
             Browse Academic Marketplace
-          </button>
+          </button> -->
 
           <button class="btn-outline-green" @click="goToSafeHome">
             Book SafeHome Repairs
-          </button> -->
+          </button> 
 
         </div>
 

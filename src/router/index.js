@@ -8,8 +8,12 @@ import ProviderDashboard from '../views/ProviderDashboard.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
 import ResManagerDashboard from '../views/ResManagerDashboard.vue' 
 
-// Anela's pages 
+// Anela's page
 import CheckoutView from '../components/CheckoutView.vue' 
+
+//  Siwaphiwe's page
+import SafeHomeView from '../views/SafeHomeView.vue'
+
  
 
 const routes = [
@@ -45,8 +49,12 @@ const routes = [
 
   //  will have the academic  page here 
 
-  //  will have the safehome page here
-  
+  //  will have the safehome page here - i did
+  { path: '/safehome', 
+    name: 'Safehome', 
+    component: SafeHomeView 
+  },
+
   { path: '/checkout', 
     name: 'checkout', 
     component: CheckoutView 

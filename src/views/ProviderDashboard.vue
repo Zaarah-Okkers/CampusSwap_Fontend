@@ -104,13 +104,13 @@
           <router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">
             Academic Marketplace
           </router-link>
-        </li>
+        </li> -->
 
         <li>
           <router-link to="/safehome" @click="closeSideNav">
             SafeHome
           </router-link>
-        </li> -->
+        </li> 
 
         <li>
           <router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">
@@ -205,14 +205,14 @@
       
           <div class="menu-item">
 
-            <!-- <router-link to="/safehome" class="menu-link">
+            <router-link to="/safehome" class="menu-link">
               Available Jobs  
               
               <span class="arrow">
                 &gt;
               </span>
 
-            </router-link> -->
+            </router-link>
 
           </div>
 

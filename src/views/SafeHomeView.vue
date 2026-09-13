@@ -436,7 +436,7 @@
 <script setup>
 
 import { ref, reactive, computed } from 'vue'
-import Sidebar from '@/components/icons/sidebar.vue'
+// import Sidebar from '@/components/icons/sidebar.vue'  - also i can seem to find this file in your branch so i commnented it out for now as it is causing errors. 
 import Swal from 'sweetalert2'
 
 

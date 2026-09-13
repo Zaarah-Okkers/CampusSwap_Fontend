@@ -110,13 +110,13 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
           <router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">
             Academic Marketplace
           </router-link>
-        </li>
+        </li> -->
 
         <li>
           <router-link to="/safehome" @click="closeSideNav">
             SafeHome
           </router-link>
-        </li>-->
+        </li>
 
         <li>
           <router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">
@@ -230,14 +230,14 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
           
           <div class="menu-item">
 
-            <!-- <router-link to="/safehome" class="menu-link">
+            <router-link to="/safehome" class="menu-link">
               SafeHome Bookings 
 
               <span class="arrow">
                 &gt;
               </span>
             
-            </router-link> -->
+            </router-link>
           </div>
 
           <div class="menu-item">

@@ -99,8 +99,11 @@
         </li> -->
 
         <!-- SafeHome: Visible to EVERYONE  will be here-->
-
-        
+        <li>
+          <router-link to="/safehome" @click="closeSideNav">
+            SafeHome
+          </router-link>
+        </li>
 
         <!-- Checkout: Students, Admins & Res Managers ONLY (NOT Providers) -->
 

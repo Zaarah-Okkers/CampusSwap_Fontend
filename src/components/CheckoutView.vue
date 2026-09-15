@@ -1,28 +1,28 @@
 <template>
   <div class="checkout-wrapper">
-    <div class="checkout-container">
+    <div class="checkout-card">
       
-      <!-- Back to Home Button -->
-      <button @click="goToHome" class="back-home-btn">
-        ← Back to CampusSwap Home
+      <!-- Back Button triggering custom emit -->
+      <button type="button" class="btn-back" @click="handleBack">
+        ← Back to Home
       </button>
 
       <!-- Navigation Tabs -->
-      <div class="tab-navigation">
+      <div class="nav-tabs">
         <button 
-          :class="['tab-btn', activeTab === 'cart' ? 'active' : '']" 
+          :class="['tab-btn', { active: activeTab === 'cart' }]" 
           @click="activeTab = 'cart'"
         >
           🛒 Cart ({{ cartItems.length }})
         </button>
         <button 
-          :class="['tab-btn', activeTab === 'safehome' ? 'active' : '']" 
-          @click="activeTab = 'safehome'"
+          :class="['tab-btn', { active: activeTab === 'repairs' }]" 
+          @click="activeTab = 'repairs'"
         >
           🛠️ SafeHome (Repairs)
         </button>
         <button 
-          :class="['tab-btn', activeTab === 'orders' ? 'active' : '']" 
+          :class="['tab-btn', { active: activeTab === 'orders' }]" 
           @click="activeTab = 'orders'"
         >
           📦 My Orders ({{ orders.length }})
@@ -30,182 +30,103 @@
       </div>
 
       <!-- TAB 1: MARKETPLACE CART -->
-      <div v-if="activeTab === 'cart'">
+      <div v-if="activeTab === 'cart'" class="tab-body">
         <h2 class="title">Marketplace Cart</h2>
 
-        <div v-if="cartItems.length > 0" class="cart-items-list">
-          <div v-for="item in cartItems" :key="item.id" class="cart-card">
-            <img :src="item.image" :alt="item.title" class="product-img" />
-            <div class="product-info">
-              <h3>{{ item.title }}</h3>
-              <p class="seller">Seller: {{ item.seller }} • {{ item.condition }}</p>
-              <span class="price">R{{ item.price.toFixed(2) }}</span>
-            </div>
-            <button @click="removeItem(item.id)" class="delete-btn" title="Remove item">🗑️</button>
-          </div>
-        </div>
-
-        <div v-else class="empty-cart">
+        <div v-if="cartItems.length === 0" class="empty-box">
           <p>Your shopping cart is empty.</p>
-          <button @click="resetCart" class="reset-btn">Reload Sample Items</button>
         </div>
 
-        <!-- Campus Pickup Selector -->
-        <div class="info-card pickup-card">
-          <span class="icon">📍</span>
-          <div class="pickup-select-group">
-            <label for="pickup-zone"><strong>Secure On-Campus Pickup Zone</strong></label>
-            <select id="pickup-zone" v-model="selectedPickupZone" class="pickup-dropdown">
-              <optgroup label="Western Cape">
-                <option value="UCT - Chancellor's Hall Safe Zone">UCT - Chancellor's Hall Safe Zone</option>
-                <option value="CPUT - Bellville Library Safe Spot">CPUT - Bellville Library Safe Spot</option>
-                <option value="UWC - Student Centre Exchange Area">UWC - Student Centre Exchange Area</option>
-                <option value="SU - Neelsie Student Centre Safe Zone">SU - Neelsie Student Centre Safe Zone</option>
-              </optgroup>
-              <optgroup label="Gauteng">
-                <option value="Wits - Great Hall Entrance">Wits - Great Hall Entrance</option>
-                <option value="UJ - APK Student Centre">UJ - APK Student Centre</option>
-                <option value="UP - Hatfield Campus Centre">UP - Hatfield Campus Centre</option>
-                <option value="TUT - Pretoria Campus Main Gate">TUT - Pretoria Campus Main Gate</option>
-              </optgroup>
-              <optgroup label="KwaZulu-Natal">
-                <option value="UKZN - Howard College Student Union">UKZN - Howard College Student Union</option>
-                <option value="DUT - Steve Biko Campus Library">DUT - Steve Biko Campus Library</option>
-              </optgroup>
-              <optgroup label="Eastern Cape">
-                <option value="Rhodes - Kaaba Dining Hall Safe Spot">Rhodes - Kaaba Dining Hall Safe Spot</option>
-                <option value="NMU - Ocean Sciences Campus">NMU - Ocean Sciences Campus</option>
-              </optgroup>
-              <optgroup label="Free State">
-                <option value="UFS - Bloemfontein Student Centre">UFS - Bloemfontein Student Centre</option>
-                <option value="CUT - Main Campus Gate">CUT - Main Campus Gate</option>
-              </optgroup>
+        <div v-else class="cart-content">
+          <div v-for="item in cartItems" :key="item.id" class="item-card">
+            <div class="item-info">
+              <h4>{{ item.title || item.name }}</h4>
+              <p class="price">R{{ Number(item.price).toFixed(2) }}</p>
+            </div>
+            <button class="btn-remove" @click="removeItem(item.id)">&times;</button>
+          </div>
+
+          <!-- Dynamic Pickup Zone fetched from Database -->
+          <div class="pickup-box">
+            <label>📍 Secure On-Campus Pickup Zone</label>
+            <select v-model="selectedCampus" class="select-input">
+              <option v-for="uni in universities" :key="uni.id" :value="uni.name">
+                {{ uni.name }} ({{ uni.province }})
+              </option>
             </select>
           </div>
-        </div>
 
-        <!-- Escrow Banner -->
-        <div class="info-card escrow-card">
-          <span class="icon">🛡️</span>
-          <p><strong>Escrow Protection Active:</strong> Funds are held safely by CampusSwap until you verify you received the items.</p>
-        </div>
-
-        <!-- Order Totals -->
-        <div class="summary">
-          <div class="summary-row">
-            <span>Subtotal</span>
-            <span>R{{ subtotal.toFixed(2) }}</span>
+          <!-- Escrow Protection Banner -->
+          <div class="escrow-banner">
+            🛡️ <strong>Escrow Protection Active:</strong> Funds are held safely by CampusSwap SA until you verify receipt.
           </div>
-          <div class="summary-row">
-            <span>Platform Escrow Fee</span>
-            <span>R{{ activeEscrowFee.toFixed(2) }}</span>
-          </div>
-          <div class="summary-row total-row">
-            <span>Total Payable</span>
-            <span class="total-price">R{{ totalPayable.toFixed(2) }}</span>
+
+          <!-- Summary Breakdown -->
+          <div class="summary-box">
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span>R{{ subtotal.toFixed(2) }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Platform Escrow Fee</span>
+              <span>R{{ escrowFee.toFixed(2) }}</span>
+            </div>
+            <hr class="divider" />
+            <div class="summary-row total">
+              <span>Total Payable</span>
+              <span class="total-price">R{{ totalPayable.toFixed(2) }}</span>
+            </div>
+
+            <button class="btn-pay ozow" @click="handlePayment('Ozow Instant EFT')">
+              Pay with Ozow Instant EFT
+            </button>
+            <button class="btn-pay payfast" @click="handlePayment('PayFast')">
+              Pay with PayFast
+            </button>
           </div>
         </div>
-
-        <button @click="simulatePayment('Ozow Instant EFT', 'Marketplace Item')" class="pay-btn primary-btn" :disabled="cartItems.length === 0 || isProcessing">
-          {{ isProcessing ? 'Processing...' : 'Pay with Ozow Instant EFT' }}
-        </button>
-
-        <button @click="simulatePayment('PayFast', 'Marketplace Item')" class="pay-btn secondary-btn" :disabled="cartItems.length === 0 || isProcessing">
-          {{ isProcessing ? 'Processing...' : 'Pay with PayFast' }}
-        </button>
       </div>
 
-      <!-- TAB 2: SAFEHOME REPAIR REQUEST & HANDYMAN ESCROW -->
-      <div v-else-if="activeTab === 'safehome'">
+      <!-- TAB 2: SAFEHOME REPAIRS (DB Integration) -->
+      <div v-if="activeTab === 'repairs'" class="tab-body">
         <h2 class="title">SafeHome Repairs</h2>
         
-        <div class="info-card safehome-banner">
-          <span class="icon">🔧</span>
-          <p><strong>Student Residence Repairs:</strong> Book verified handymen for plumbing or electrical issues. Funds are held in Escrow until the repair is completed.</p>
+        <div v-if="repairs.length === 0" class="empty-box">
+          <p>No active repair requests found.</p>
         </div>
 
-        <!-- Pending Handyman Repair Card -->
-        <div class="safehome-card">
-          <div class="safehome-header">
-            <div>
-              <h3>{{ handymanBooking.handymanName }}</h3>
-              <p class="seller">Specialty: {{ handymanBooking.specialty }}</p>
+        <div v-else>
+          <div v-for="repair in repairs" :key="repair.id" class="item-card repair-card">
+            <div class="item-info">
+              <h4>{{ repair.title }}</h4>
+              <p class="repair-desc">{{ repair.description }}</p>
+              <p class="location-tag">📍 {{ repair.residence_name }} - {{ repair.room_number }}</p>
+              <p class="price">Estimated Cost: R{{ Number(repair.estimated_cost).toFixed(2) }}</p>
             </div>
-            <span class="badge-blue">Repair Pending</span>
+            <button class="btn-pay ozow btn-sm" @click="handleRepairPayment(repair)">
+              Book Repair (Escrow)
+            </button>
           </div>
-
-          <div class="repair-form-preview">
-            <div class="detail-row">
-              <span>Room / Res Number:</span>
-              <strong>{{ handymanBooking.roomNumber }}</strong>
-            </div>
-            <div class="detail-row">
-              <span>Reported Issue:</span>
-              <strong>{{ handymanBooking.issueType }} - {{ handymanBooking.description }}</strong>
-            </div>
-            <div class="detail-row">
-              <span>Handyman Rating:</span>
-              <strong>★ {{ handymanBooking.rating }}</strong>
-            </div>
-            <div class="detail-row">
-              <span>Handyman Callout Fee:</span>
-              <strong class="price">R{{ handymanBooking.fee.toFixed(2) }}</strong>
-            </div>
-          </div>
-
-          <button @click="simulatePayment('Ozow Instant EFT', 'SafeHome Repair')" class="pay-btn primary-btn" :disabled="isProcessing">
-            Pay Callout Fee into Escrow (R{{ handymanBooking.fee.toFixed(2) }})
-          </button>
         </div>
       </div>
 
-      <!-- TAB 3: ORDER & REPAIR HISTORY -->
-      <div v-else>
-        <h2 class="title">My Orders & Service Requests</h2>
-
-        <div v-if="orders.length > 0" class="orders-list">
-          <div v-for="order in orders" :key="order.id" class="order-card">
+      <!-- TAB 3: ORDERS -->
+      <div v-if="activeTab === 'orders'" class="tab-body">
+        <h2 class="title">My Orders & Escrow Status</h2>
+        <div v-if="orders.length === 0" class="empty-box">
+          <p>No active orders placed.</p>
+        </div>
+        <div v-else class="orders-list">
+          <div v-for="ord in orders" :key="ord.id" class="order-card">
             <div class="order-header">
-              <div>
-                <strong>{{ order.type }} #{{ order.id }}</strong>
-                <p class="order-date">{{ order.date }}</p>
-              </div>
-              <span :class="['status-badge', order.status.toLowerCase().replace(' ', '-')]">
-                {{ order.status }}
-              </span>
+              <span><strong>Order #{{ ord.id }}</strong> ({{ ord.title }})</span>
+              <span :class="['badge', ord.status === 'Completed' ? 'success' : 'escrow']">{{ ord.status }}</span>
             </div>
-
-            <div class="order-pickup" v-if="order.pickupZone">
-              <span>📍 <strong>Pickup Spot:</strong> {{ order.pickupZone }}</span>
-            </div>
-
-            <div class="order-items">
-              <div v-for="item in order.items" :key="item.id" class="order-item-row">
-                <span>{{ item.title }}</span>
-                <span>R{{ item.price.toFixed(2) }}</span>
-              </div>
-            </div>
-
-            <div class="order-footer">
-              <span>Total Paid (Escrow): <strong>R{{ order.total.toFixed(2) }}</strong></span>
-              <button @click="confirmReceipt(order.id)" class="received-btn" v-if="order.status === 'In Escrow'">
-                Confirm Job Done / Item Received
-              </button>
-            </div>
+            <p><strong>Total:</strong> R{{ ord.total.toFixed(2) }}</p>
+            <button v-if="ord.status === 'In Escrow'" class="btn-release" @click="releaseFunds(ord.id)">
+              Confirm Delivery & Release Funds
+            </button>
           </div>
-        </div>
-
-        <div v-else class="empty-cart">
-          <p>No past orders or repair requests yet.</p>
-        </div>
-      </div>
-
-      <!-- Mock Payment Modal -->
-      <div v-if="showMockModal" class="modal-overlay">
-        <div class="modal-box">
-          <h3>Mock Payment Gateway</h3>
-          <p>Processing <strong>R{{ modalAmount.toFixed(2) }}</strong> for {{ modalType }} via {{ selectedMethod }}</p>
-          <button @click="completePayment" class="confirm-btn">Confirm & Pay</button>
         </div>
       </div>
 
@@ -213,148 +134,187 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue';
 import Swal from 'sweetalert2';
 
-export default {
-  name: 'CheckoutView',
-  data() {
-    return {
-      activeTab: 'cart',
-      selectedPickupZone: "UCT - Chancellor's Hall Safe Zone",
-      escrowFee: 15.00,
-      isProcessing: false,
-      showMockModal: false,
-      selectedMethod: '',
-      modalType: '',
-      modalAmount: 0,
-      userId: 21,
-      cartItems: [
-        { id: 1, title: 'Calculus MAM1000W Textbook', seller: 'Thabo M.', condition: 'Good Condition', price: 350.00, image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=150' },
-        { id: 2, title: 'Casio FX-991ZA Plus II Calculator', seller: 'Sipho N.', condition: 'Like New', price: 280.00, image: 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e498?w=150' },
-        { id: 3, title: 'Lab Coat & Safety Goggles (Size M)', seller: 'Kecia K.', condition: 'Used - Fair', price: 150.00, image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=150' }
-      ],
-      handymanBooking: {
-        handymanName: 'Sipho’s Plumbing & Electrical',
-        specialty: 'Plumbing / Electrical Specialist',
-        rating: '4.9 (28 jobs)',
-        roomNumber: 'Res Block B, Room 304',
-        issueType: 'Plumbing',
-        description: 'Leaking basin tap',
-        fee: 250.00
-      },
-      orders: []
-    };
-  },
-  computed: {
-    subtotal() {
-      return this.cartItems.reduce((acc, item) => acc + item.price, 0);
-    },
-    activeEscrowFee() {
-      return this.cartItems.length > 0 ? this.escrowFee : 0.00;
-    },
-    totalPayable() {
-      return this.subtotal + this.activeEscrowFee;
+const activeTab = ref('cart');
+const cartItems = ref([]);
+const universities = ref([]);
+const repairs = ref([]);
+const orders = ref([]);
+const selectedCampus = ref('');
+const emit = defineEmits(['go-home']);
+
+const handleBack = () => {
+  emit('go-home');
+};
+
+// Fetch database records from Express API
+const loadBackendData = async () => {
+  try {
+    // 1. Fetch Products
+    const prodRes = await fetch('http://localhost:3000/api/products');
+    if (prodRes.ok) {
+      cartItems.value = await prodRes.json();
     }
-  },
-  methods: {
-    goToHome() {
-      Swal.fire({
-        title: 'Navigating Home',
-        text: 'Returning to CampusSwap Home page...',
-        icon: 'info',
-        timer: 1500,
-        showConfirmButton: false
-      });
-    },
-    removeItem(id) {
-      this.cartItems = this.cartItems.filter(item => item.id !== id);
 
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'info',
-        title: 'Item removed from cart',
-        showConfirmButton: false,
-        timer: 2000
-      });
-    },
-    resetCart() {
-      this.cartItems = [
-        { id: 1, title: 'Calculus MAM1000W Textbook', seller: 'Thabo M.', condition: 'Good Condition', price: 350.00, image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=150' },
-        { id: 2, title: 'Casio FX-991ZA Plus II Calculator', seller: 'Sipho N.', condition: 'Like New', price: 280.00, image: 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e498?w=150' },
-        { id: 3, title: 'Lab Coat & Safety Goggles (Size M)', seller: 'Kecia K.', condition: 'Used - Fair', price: 150.00, image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=150' }
-      ];
-
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Sample items reloaded',
-        showConfirmButton: false,
-        timer: 2000
-      });
-    },
-    simulatePayment(method, type) {
-      this.selectedMethod = method;
-      this.modalType = type;
-      this.modalAmount = type === 'SafeHome Repair' ? this.handymanBooking.fee : this.totalPayable;
-      this.showMockModal = true;
-    },
-    completePayment() {
-      this.showMockModal = false;
-      this.isProcessing = true;
-
-      setTimeout(() => {
-        let newOrder;
-        if (this.modalType === 'SafeHome Repair') {
-          newOrder = {
-            id: Math.floor(100000 + Math.random() * 900000),
-            date: new Date().toLocaleDateString('en-ZA'),
-            type: 'SafeHome Handyman Booking',
-            items: [{ id: 88, title: `Repair: ${this.handymanBooking.issueType} (${this.handymanBooking.roomNumber})`, price: this.handymanBooking.fee }],
-            total: this.handymanBooking.fee,
-            pickupZone: null,
-            status: 'In Escrow'
-          };
-        } else {
-          newOrder = {
-            id: Math.floor(100000 + Math.random() * 900000),
-            date: new Date().toLocaleDateString('en-ZA'),
-            type: 'Marketplace Order',
-            items: [...this.cartItems],
-            total: this.totalPayable,
-            pickupZone: this.selectedPickupZone,
-            status: 'In Escrow'
-          };
-          this.cartItems = [];
-        }
-
-        this.orders.unshift(newOrder);
-        this.isProcessing = false;
-        this.activeTab = 'orders';
-
-        Swal.fire({
-          title: 'Payment Successful!',
-          text: 'Your funds are held safely in escrow.',
-          icon: 'success',
-          confirmButtonColor: '#10b981'
-        });
-      }, 800);
-    },
-    confirmReceipt(orderId) {
-      const order = this.orders.find(o => o.id === orderId);
-      if (order) {
-        order.status = 'Completed';
-        Swal.fire({
-          title: 'Order Completed',
-          text: 'Escrow funds have been released.',
-          icon: 'success',
-          confirmButtonColor: '#2E7D5A'
-        });
+    // 2. Fetch Universities DB table (UCT, Wits, SU, CPUT, UWC)
+    const uniRes = await fetch('http://localhost:3000/api/universities');
+    if (uniRes.ok) {
+      universities.value = await uniRes.json();
+      if (universities.value.length > 0) {
+        selectedCampus.value = universities.value[0].name;
       }
     }
+
+    // 3. Fetch Repairs DB table
+    const repairRes = await fetch('http://localhost:3000/api/repairs');
+    if (repairRes.ok) {
+      const data = await repairRes.json();
+      repairs.value = Array.isArray(data) && data.length > 0 ? data : getFallbackRepairs();
+    } else {
+      repairs.value = getFallbackRepairs();
+    }
+  } catch (err) {
+    console.error('API loading error:', err);
+    repairs.value = getFallbackRepairs();
   }
+};
+
+// Fallback matching your MySQL workbench rows
+const getFallbackRepairs = () => [
+  {
+    id: 1,
+    title: 'Leaking Kitchen Tap',
+    description: 'Hot water tap won\'t close fully.',
+    residence_name: 'Smuts Hall',
+    room_number: 'Room 302',
+    estimated_cost: 250.00,
+    status: 'assigned'
+  },
+  {
+    id: 2,
+    title: 'Tripped Circuit Breaker',
+    description: 'Power lost after plugging in kettle.',
+    residence_name: 'Fuller Hall',
+    room_number: 'Room 114',
+    estimated_cost: 180.00,
+    status: 'pending'
+  }
+];
+
+
+onMounted(() => {
+  loadBackendData();
+});
+
+// Financial Calculations
+const subtotal = computed(() => {
+  return cartItems.value.reduce((acc, item) => acc + Number(item.price || 0), 0);
+});
+
+const escrowFee = computed(() => {
+  return cartItems.value.length > 0 ? 25.00 : 0.00;
+});
+
+const totalPayable = computed(() => {
+  return subtotal.value + escrowFee.value;
+});
+
+const removeItem = (id) => {
+  cartItems.value = cartItems.value.filter(item => item.id !== id);
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon: 'info',
+    title: 'Item removed from cart',
+    showConfirmButton: false,
+    timer: 2000
+  });
+};
+
+// Checkout SweetAlert
+const handlePayment = (method) => {
+  if (cartItems.value.length === 0) return;
+
+  Swal.fire({
+    title: 'Confirm Escrow Payment',
+    text: `Pay R${totalPayable.value.toFixed(2)} via ${method} for campus pickup at ${selectedCampus.value}?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#16a34a',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Proceed to Pay'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const orderId = Math.floor(100000 + Math.random() * 900000);
+      orders.value.unshift({
+        id: orderId,
+        title: 'Marketplace Cart Order',
+        total: totalPayable.value,
+        status: 'In Escrow'
+      });
+
+      cartItems.value = [];
+      activeTab.value = 'orders';
+
+      Swal.fire(
+        'Payment Secured!',
+        `Your funds are safely held in escrow for ${selectedCampus.value}.`,
+        'success'
+      );
+    }
+  });
+};
+
+// SafeHome Repair Booking SweetAlert
+const handleRepairPayment = (repair) => {
+  Swal.fire({
+    title: 'Book SafeHome Repair?',
+    text: `Deposit R${Number(repair.estimated_cost).toFixed(2)} into Escrow for "${repair.title}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#16a34a',
+    confirmButtonText: 'Confirm Escrow Deposit'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      orders.value.unshift({
+        id: Math.floor(100000 + Math.random() * 900000),
+        title: `Repair: ${repair.title}`,
+        total: Number(repair.estimated_cost),
+        status: 'In Escrow'
+      });
+
+      activeTab.value = 'orders';
+
+      Swal.fire(
+        'Repair Booked!',
+        'Funds held in escrow. Release them only when the job is completed.',
+        'success'
+      );
+    }
+  });
+};
+
+// Release Escrow SweetAlert
+const releaseFunds = (orderId) => {
+  Swal.fire({
+    title: 'Release Funds to Seller/Provider?',
+    text: 'Only confirm if you have received your item or inspected the repair work.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#16a34a',
+    confirmButtonText: 'Yes, Release Funds'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const target = orders.value.find(o => o.id === orderId);
+      if (target) {
+        target.status = 'Completed';
+      }
+      Swal.fire('Funds Released!', 'Transaction successfully completed.', 'success');
+    }
+  });
 };
 </script>
 
@@ -362,105 +322,249 @@ export default {
 .checkout-wrapper {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 30px 16px;
-  background-color: #F4F6F8;
+  padding: 30px 15px;
+  background-color: #f8fafc;
   min-height: 100vh;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
 }
 
-.checkout-container {
-  display: flex;
-  flex-direction: column;
+.checkout-card {
   width: 100%;
   max-width: 540px;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   padding: 24px;
-  box-shadow: 0 4px 16px rgba(13, 27, 61, 0.08);
-  box-sizing: border-box;
 }
 
-.back-home-btn {
+.nav-tabs {
+  display: flex;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 6px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+.title {
+  font-size: 1.25rem;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+
+.item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.repair-card {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.repair-desc {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 4px 0;
+}
+
+.location-tag {
+  font-size: 0.8rem;
+  color: #0369a1;
+  font-weight: 500;
+  margin: 0;
+}
+
+.item-info h4 {
+  margin: 0 0 4px 0;
+  color: #1e293b;
+}
+
+.price {
+  font-weight: 700;
+  color: #059669;
+  margin: 0;
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.pickup-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 16px 0 12px 0;
+}
+
+.pickup-box label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #166534;
+  margin-bottom: 6px;
+}
+
+.select-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.escrow-banner {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.summary-box {
+  margin-top: 16px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.summary-row.total {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.total-price {
+  color: #059669;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 12px 0;
+}
+
+.btn-pay {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.btn-pay.ozow {
+  background-color: #475569;
+}
+
+.btn-pay.payfast {
+  background-color: #a855f7;
+}
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.btn-release {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #059669;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.empty-box {
+  text-align: center;
+  padding: 24px;
+  color: #64748b;
+}
+
+.order-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge.escrow {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.btn-back {
   display: inline-flex;
   align-items: center;
-  background: transparent;
+  gap: 6px;
+  background: none;
   border: none;
-  color: #64748B;
+  color: #475569;
   font-size: 0.9rem;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   padding: 0;
   margin-bottom: 16px;
-  align-self: flex-start;
 }
-.back-home-btn:hover { color: #0D1B3D; }
 
-.tab-navigation { display: flex; gap: 6px; background: #E2E8F0; padding: 4px; border-radius: 10px; margin-bottom: 20px; }
-.tab-btn { flex: 1; padding: 10px 4px; border: none; border-radius: 8px; background: transparent; font-weight: bold; cursor: pointer; color: #64748B; font-size: 0.8rem; }
-.tab-btn.active { background: #0D1B3D; color: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-
-.title { font-size: 1.5rem; font-weight: bold; margin-top: 0; margin-bottom: 16px; color: #0D1B3D; }
-
-/* Cart Items */
-.cart-items-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
-.cart-card { display: flex; align-items: center; gap: 12px; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px; }
-.product-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
-.product-info { flex: 1; }
-.product-info h3 { font-size: 0.95rem; margin: 0; color: #0D1B3D; }
-.seller { font-size: 0.8rem; color: #64748B; margin: 4px 0; }
-.price { color: #2E7D5A; font-weight: bold; font-size: 1rem; }
-.delete-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #EF4444; }
-
-/* SafeHome Handyman Card */
-.safehome-banner { background: #E6F6F6; color: #007A7A; border-left: 4px solid #00A6A6; }
-.safehome-card { border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; background: #FAFAFA; }
-.safehome-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.safehome-header h3 { margin: 0; font-size: 1.05rem; color: #0D1B3D; }
-.badge-blue { background: #E6F6F6; color: #007A7A; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
-.repair-form-preview { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0; padding: 12px 0; margin-bottom: 16px; }
-.detail-row { display: flex; justify-content: space-between; font-size: 0.9rem; color: #64748B; }
-
-/* Info Banners */
-.info-card { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 10px; margin-bottom: 12px; font-size: 0.85rem; }
-.pickup-card { background: #E6F6F6; color: #00A6A6; border-left: 4px solid #00A6A6; }
-.pickup-select-group { display: flex; flex-direction: column; gap: 6px; width: 100%; color: #0D1B3D; }
-.pickup-dropdown { padding: 8px; border-radius: 6px; border: 1px solid #CBD5E1; font-size: 0.85rem; background: white; color: #0D1B3D; }
-.pickup-dropdown optgroup { font-weight: bold; color: #0D1B3D; background-color: #F4F6F8; }
-.escrow-card { background: #EAF5F0; color: #2E7D5A; border: 1px solid #2E7D5A; }
-.escrow-card p { margin: 0; }
-
-/* Summary */
-.summary { margin: 16px 0; border-top: 1px solid #E2E8F0; padding-top: 12px; }
-.summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; color: #64748B; font-size: 0.95rem; }
-.total-row { font-weight: bold; color: #0D1B3D; font-size: 1.15rem; border-top: 1px solid #E2E8F0; padding-top: 10px; }
-.total-price { color: #2E7D5A; }
-
-/* Buttons */
-.empty-cart { text-align: center; padding: 24px 0; color: #64748B; }
-.reset-btn { background: #0D1B3D; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-.pay-btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 0.95rem; }
-.pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.primary-btn { background: #0D1B3D; color: white; }
-.secondary-btn { background: #6C44B6; color: white; }
-
-/* Order History */
-.orders-list { display: flex; flex-direction: column; gap: 16px; }
-.order-card { border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; background: #FAFAFA; }
-.order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-.order-date { font-size: 0.8rem; color: #64748B; margin: 2px 0 0 0; }
-.status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
-.status-badge.in-escrow { background: #E6F6F6; color: #007A7A; }
-.status-badge.completed { background: #EAF5F0; color: #2E7D5A; }
-.order-pickup { font-size: 0.85rem; color: #0D1B3D; margin-bottom: 12px; background: #F4F6F8; padding: 8px 10px; border-radius: 6px; }
-.order-items { border-top: 1px dashed #CBD5E1; border-bottom: 1px dashed #CBD5E1; padding: 8px 0; margin-bottom: 12px; }
-.order-item-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #64748B; margin-bottom: 4px; }
-.order-footer { display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; color: #0D1B3D; }
-.received-btn { background: #2E7D5A; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-/* Modal */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(13, 27, 61, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100; }
-.modal-box { background: white; padding: 24px; border-radius: 12px; text-align: center; width: 85%; max-width: 320px; color: #0D1B3D; }
-.confirm-btn { background: #2E7D5A; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 12px; }
+.btn-back:hover {
+  color: #0f172a;
+  text-decoration: underline;
+}
 </style>

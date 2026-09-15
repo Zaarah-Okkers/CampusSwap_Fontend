@@ -3,7 +3,7 @@
     <div class="checkout-card">
       
       <!-- Back Button triggering custom emit -->
-      <button type="button" class="btn-back" @click="handleBack">
+       <button type="button" class="btn-back" @click="goHome" aria-label="Back to home">
         ← Back to Home
       </button>
 
@@ -137,6 +137,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import Swal from 'sweetalert2';
+import { useRouter } from 'vue-router';
 
 const activeTab = ref('cart');
 const cartItems = ref([]);
@@ -145,9 +146,13 @@ const repairs = ref([]);
 const orders = ref([]);
 const selectedCampus = ref('');
 const emit = defineEmits(['go-home']);
+const router = useRouter();
 
 const handleBack = () => {
   emit('go-home');
+};
+const goHome = () => {
+  router.push('/');
 };
 
 // Fetch database records from Express API

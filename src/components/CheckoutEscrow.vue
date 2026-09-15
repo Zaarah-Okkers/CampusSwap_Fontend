@@ -1,16 +1,15 @@
 <template>
   <div class="checkout-wrapper">
-
-    <!-- Functional Back Button -->
-      <button type="button" class="btn-back" @click="goHome">
+    <div class="checkout-card">
+      <!-- Functional Back Button -->
+      <button type="button" class="btn-back" @click="$emit('go-home')">
         ← Back to Home
       </button>
 
       <!-- Navigation Tabs -->
-      <div class="nav-tabs">
-      </div>
-    <!-- Main Card Container -->
-    <div class="checkout-card">
+      <div class="nav-tabs"></div>
+
+      <!-- Main Title -->
       <h2 class="title">CampusSwap SA - Order Escrow</h2>
 
       <!-- State 1: Active Product / Cart from Backend -->
@@ -120,9 +119,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { api } from '../services/api';
-import { useRouter } from 'vue-router'; // 1. Import useRouter
-import Swal from 'sweetalert2';
+
+const router = useRouter();
 
 const cartItems = ref([]);
 const order = ref(null);
@@ -130,14 +130,10 @@ const loading = ref(true);
 const loadingProcessing = ref(false);
 const errorMessage = ref('');
 const selectedPickupZone = ref("UCT - Chancellor's Hall Safe Zone");
-const router = useRouter(); // 2. Initialize router
 
+// Navigation
 const goHome = () => {
-  router.push('/'); // Or router.push({ name: 'Home' }) if using named routes
-};
-
-const goHome = () => {
-  window.location.href = '/';
+  router.push('/');
 };
 
 // Fetch products directly from backend DB on load

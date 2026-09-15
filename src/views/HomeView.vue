@@ -1,1021 +1,1618 @@
 <template>
-  <div class="home">
-    <!-- Promo carousel -->
-    <div class="promo-carousel glass-panel">
-      <div class="promo-track" :style="{ transform: `translateX(-${activeSlide * 100}%)` }">
-        <div
-          v-for="(slide, i) in promoSlides"
-          :key="i"
-          class="promo-slide"
-          :style="{ background: slide.bg }"
-        >
-          <span class="promo-eyebrow">{{ slide.eyebrow }}</span>
-          <h3>{{ slide.title }}</h3>
-          <p>{{ slide.sub }}</p>
-          <button class="promo-cta">{{ slide.cta }}</button>
-        </div>
-      </div>
-      <button class="promo-arrow prev" @click="prevSlide" aria-label="Previous">‹</button>
-      <button class="promo-arrow next" @click="nextSlide" aria-label="Next">›</button>
-      <div class="promo-dots">
-        <span
-          v-for="(slide, i) in promoSlides"
-          :key="i"
-          class="dot"
-          :class="{ active: i === activeSlide }"
-          @click="activeSlide = i"
-        />
-      </div>
-    </div>
+  <div class="home-page">
 
-    <div class="hero glass-panel">
-      <span class="hero-eyebrow">South Africa's student marketplace</span>
-      <h2>Buy, swap &amp; rent your way through campus</h2>
-      <p class="hero-sub">Textbooks, tech and room essentials, traded safely between students.</p>
-    </div>
+    <!--TOP BAR-->
+    <header class="top-bar">
 
-    <div class="pills">
-      <button
-        v-for="cat in categories"
-        :key="cat.key"
-        class="pill"
-        :class="{ active: category === cat.key }"
-        @click="category = cat.key"
-      >
-        {{ cat.label }}
-      </button>
-    </div>
+      <div class="top-left">
 
-    <div class="grid-header">
-      <p class="subtitle">{{ filteredProducts.length }} listing{{ filteredProducts.length === 1 ? '' : 's' }}</p>
-    </div>
+        <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
 
-    <div class="product-grid" v-if="filteredProducts.length">
-      <div
-        v-for="product in filteredProducts"
-        :key="product.id"
-        class="product-card glass-panel"
-        @click="openProduct(product)"
-      >
-        <div class="card-image">
-          <img :src="product.image" :alt="product.name" loading="lazy" />
-          <span class="condition-badge" :class="product.conditionClass">
-            {{ product.condition }}
+          <span class="hamburger-icon">
+            &#9776;
           </span>
-          <span v-if="product.listingType === 'rent'" class="type-badge rent">Rent</span>
-          <span v-else-if="product.listingType === 'swap'" class="type-badge swap">Swap</span>
-        </div>
-        <div class="card-body">
-          <h3 class="card-title">{{ product.name }}</h3>
-          <p class="card-university">{{ product.university }}</p>
-          <div class="card-footer">
-            <span v-if="product.listingType === 'swap'" class="card-price swap-text">Swap</span>
-            <span v-else class="card-price">
-              R{{ product.price }}<span v-if="product.listingType === 'rent'" class="rent-period">/{{ product.rentPeriod }}</span>
-            </span>
-            <span class="card-rating">
-              ⭐ {{ product.rating || 'New' }}
-            </span>
-          </div>
+
+        </button>
+
+        <h2 class="brand">
+          CampusSwap
+
+          <span class="green-text">
+            SA
+          </span>
+
+        </h2>
+      </div>
+
+      <div class="top-center">
+
+        <div class="search-wrap">
+
+          <span class="search-icon">
+            &#128269;
+          </span>
+
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search books, services, and more..."
+          />
         </div>
       </div>
+
+      <div class="top-right" v-if="isLoggedIn">
+
+        <span class="avatar">
+          MN
+        </span>
+
+      </div>
+
+      <div class="top-right" v-else>
+        <span class="avatar-placeholder">
+
+        </span>
+
+      </div>
+    </header>
+
+    <!-- SIDE NAV -->
+    <div
+      class="side-overlay"
+      :class="{ 'side-overlay-open': sideNavOpen }"
+      @click="closeSideNav"
+    ></div>
+
+    <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
+
+      <div class="side-nav-header">
+
+        <h3>
+          CampusSwap
+
+          <span class="green-text">
+            SA
+          </span>
+
+        </h3>
+
+        <button class="close-side-btn" @click="closeSideNav">
+          &times;
+        </button>
+
+      </div>
+
+      <ul class="side-nav-links">
+
+        <li>
+          <router-link to="/" @click="closeSideNav">
+            Home
+          </router-link>
+        </li>
+
+        <li>
+          <router-link to="/login" @click="closeSideNav">
+            Login
+          </router-link>
+        </li>
+
+        <!-- <li>
+          <router-link to="/academic" @click="closeSideNav">
+            Academic
+          </router-link>
+        </li> -->
+
+        <li>
+          <router-link to="/safehome" @click="closeSideNav">
+            SafeHome
+          </router-link>
+        </li>
+
+        <li>
+          <router-link to="/checkout" @click="closeSideNav">
+            Checkout
+          </router-link>
+        </li>
+
+        <li>
+          <router-link to="/student-dashboard" @click="closeSideNav">
+            Dashboard
+          </router-link>
+        </li>
+
+      </ul>
+
+
+      <div class="side-nav-user" v-if="isLoggedIn">
+
+        <p
+        >Hi! {{ user.name }}
+        </p>
+
+        <p class="side-user-uni">
+          {{ user.university }}
+        </p>
+
+      </div>
     </div>
-    <div v-else class="empty glass-panel">
-      <p class="empty-title">Nothing matches yet</p>
-      <p class="empty-sub">Try a different category or clear your filters.</p>
-    </div>
 
-    <!-- Product detail panel -->
-    <transition name="panel-fade">
-      <div v-if="selectedProduct" class="detail-overlay" @click.self="selectedProduct = null">
-        <div class="detail-panel glass-panel">
-          <button class="detail-close" @click="selectedProduct = null" aria-label="Close">✕</button>
-          <div class="detail-image">
-            <img :src="selectedProduct.image" :alt="selectedProduct.name" />
-            <span class="condition-badge" :class="selectedProduct.conditionClass">
-              {{ selectedProduct.condition }}
-            </span>
-          </div>
-          <div class="detail-body">
-            <h3 class="detail-title">{{ selectedProduct.name }}</h3>
-            <p class="detail-university">🏛️ {{ selectedProduct.university }}</p>
-            <p class="detail-seller">👤 Listed by {{ selectedProduct.sellerName }}</p>
+    <!-- HERO SECTION -->
 
-            <div class="detail-price-row">
-              <span v-if="selectedProduct.listingType === 'swap'" class="detail-price swap-text">
-                Swap for: {{ selectedProduct.swapFor }}
-              </span>
-              <span v-else class="detail-price">
-                R{{ selectedProduct.price }}<span v-if="selectedProduct.listingType === 'rent'" class="rent-period">/{{ selectedProduct.rentPeriod }}</span>
-              </span>
-              <span class="card-rating">⭐ {{ selectedProduct.rating || 'New' }}</span>
-            </div>
+    <section class="hero full-section">
 
-            <p class="detail-description">{{ selectedProduct.description }}</p>
+      <div class="hero-inner">
 
-            <button class="detail-cta" @click="contactSeller(selectedProduct)">
-              {{ selectedProduct.listingType === 'swap' ? 'Propose Swap' : 'Contact Seller' }}
-            </button>
-          </div>
+        <div class="hero-text">
+
+          <p class="hero-tagline">
+            SOUTH AFRICA'S SECURE STUDENT EXCHANGE
+          </p>
+
+          <h1 class="hero-title">
+            One Campus. Endless Possibilities.<br />All In One Place.
+          </h1>
+
+          <p class="hero-desc">
+            Connect directly with verified students at your institution.
+            Safely trade, buy, rent books, technology, and book maintenance services.
+          </p>
+
+          <button class="btn-gold" @click="handleBrowseDeals">
+            Browse Active Campus Deals
+          </button>
+
+        </div> 
+
+        <div class="hero-image">
+          <img
+            src="https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop&crop=center"
+            alt="Diverse South African university students"
+            class="hero-img"
+          />
         </div>
       </div>
-    </transition>
 
-    <!-- Premium features -->
-    <section class="features-section">
-      <h2 class="features-heading">Why students choose CampusSwap</h2>
-      <div class="features-grid">
-        <div class="feature-card glass-panel">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
-              <line x1="4" y1="6" x2="20" y2="6"/>
-              <line x1="8" y1="12" x2="16" y2="12"/>
-              <line x1="11" y1="18" x2="13" y2="18"/>
-            </svg>
-          </div>
-          <h3>Smart category filters</h3>
-          <p>Narrow listings by university, faculty, module code, condition and price in a few taps.</p>
-        </div>
+      <div class="scroll-indicator">
+        <span>
+          Scroll
+        </span>
 
-        <div class="feature-card glass-panel">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
-              <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/>
-              <path d="m9 12 2 2 4-4"/>
-            </svg>
-          </div>
-          <h3>Verified student sellers</h3>
-          <p>Every seller is tied to a real campus account, so you know who you're trading with.</p>
-        </div>
+        <span class="scroll-arrow">
+          &#8595;
+        </span>
 
-        <div class="feature-card glass-panel">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
-              <path d="M12 21s-7-4.4-9.5-8.5C.7 9 2 5.5 5.5 5c2-.3 3.6.7 4.5 2 .9-1.3 2.5-2.3 4.5-2 3.5.5 4.8 4 3 7.5C19 16.6 12 21 12 21z"/>
-            </svg>
-          </div>
-          <h3>Wishlist &amp; saved items</h3>
-          <p>Keep an eye on listings you're not ready to buy yet, and get notified if the price drops.</p>
-        </div>
-
-        <div class="feature-card glass-panel">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
-              <path d="M4 4v5h5"/>
-              <path d="M20 20v-5h-5"/>
-              <path d="M4 9a8 8 0 0 1 14-4.5L20 9"/>
-              <path d="M20 15a8 8 0 0 1-14 4.5L4 15"/>
-            </svg>
-          </div>
-          <h3>Swap &amp; rent options</h3>
-          <p>Not every trade needs cash — swap textbooks directly or rent gear for a week or a semester.</p>
-        </div>
-
-        <div class="feature-card glass-panel">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
-              <path d="M12 22s7-7.5 7-12a7 7 0 0 0-14 0c0 4.5 7 12 7 12z"/>
-              <circle cx="12" cy="10" r="2.5"/>
-            </svg>
-          </div>
-          <h3>Campus pickup points</h3>
-          <p>Arrange handoffs at familiar, well-lit spots on your own campus — no strangers at your door.</p>
-        </div>
-
-        <div class="feature-card cta-card">
-          <h3>Got something to sell?</h3>
-          <p>List it in minutes and reach students on your campus today.</p>
-          <button class="cta-btn" @click="openSellModal">List an item</button>
-        </div>
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="marketplace-footer">
-      <div class="footer-brand">CampusSwap<span class="brand-dot">.</span></div>
-      <div class="social-links">
-        <a href="#" class="social-link" aria-label="Instagram" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-            <rect x="2" y="2" width="20" height="20" rx="5"/>
-            <circle cx="12" cy="12" r="4"/>
-            <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/>
-          </svg>
-        </a>
-        <a href="mailto:hello@campusswap.co.za" class="social-link" aria-label="Email">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <path d="m2 7 10 6 10-6"/>
-          </svg>
-        </a>
-        <a href="#" class="social-link" aria-label="Facebook" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-            <path d="M14 9h3V5h-3a4 4 0 0 0-4 4v3H7v4h3v7h4v-7h3l1-4h-4V9a1 1 0 0 1 1-1z"/>
-          </svg>
-        </a>
-        <a href="#" class="social-link" aria-label="Reddit" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-            <circle cx="12" cy="13" r="8"/>
-            <circle cx="9" cy="13" r="1" fill="currentColor" stroke="none"/>
-            <circle cx="15" cy="13" r="1" fill="currentColor" stroke="none"/>
-            <path d="M8.5 16.5c1 .8 2.2 1.2 3.5 1.2s2.5-.4 3.5-1.2"/>
-            <path d="M12 5v3"/>
-            <circle cx="12" cy="4" r="1" fill="currentColor" stroke="none"/>
-          </svg>
-        </a>
+    <!-- CORE SERVICES -->
+
+    <section class="core-services full-section">
+
+
+      <h2 class="section-title">
+        Core Student Services
+      </h2>
+
+      <div class="service-cards">
+
+        <div class="service-card">
+
+          <div class="card-icon">
+            &#128218;
+          </div>
+
+          <h3>
+            Academic Marketplace
+          </h3>
+
+          <p>
+            Buy &amp; rent textbooks, tech, and study materials from fellow students.
+          </p>
+
+          <!-- <button class="card-btn" @click="goToAcademic">
+            Browse Marketplace
+          </button> -->
+
+        </div>
+
+        <div class="service-card">
+
+          <div class="card-icon">
+            &#128736;
+          </div>
+
+          <h3>
+            SafeHome
+          </h3>
+
+          <p>
+            Book background-checked handymen for cleaning, repairs, and many more services.
+          </p>
+
+          <button class="card-btn" @click="goToSafeHome">
+            Book SafeHome
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="scroll-indicator scroll-indicator-light">
+        <span>
+          Scroll
+        </span>
+
+        <span class="scroll-arrow">
+          &#8595;
+        </span>
+
+      </div>
+    </section>
+
+    <!-- TUTORIAL – How CampusSwap Works -->
+
+    <section class="tutorial-section full-section">
+
+      <div class="tutorial">
+
+        <h2 class="tutorial-title">
+          How CampusSwap Works
+        </h2>
+
+        <div class="steps">
+
+          <div class="step">
+
+            <span class="step-num">
+              1
+            </span>
+
+            <div class="step-body">
+
+              <h3>
+                Verify Your Profile
+              </h3>
+
+              <p>
+                Sign up with your SA university email or work email to ensure a safe environment.
+              </p>
+
+            </div>
+          </div>
+
+          <div class="step">
+
+            <span class="step-num">
+              2
+            </span>
+
+            <div class="step-body">
+
+              <h3>
+                Buy, Sell or Book
+              </h3>
+
+              <p>
+                List textbooks you no longer need, find rentals or book background-checked campus handymen.
+              </p>
+
+            </div>
+          </div>
+
+          <div class="step">
+
+            <span class="step-num">
+              3
+            </span>
+
+            <div class="step-body">
+
+              <h3>
+                Secure Escrow
+              </h3>
+
+              <p>
+                Payments are held securely in escrow until you verify everything is received and correct.
+              </p>
+
+            </div>
+          </div>
+        </div>
+
+
+        <div class="tutorial-actions" v-if="isLoggedIn">
+
+          <!-- <button class="btn-outline-gold" @click="goToAcademic">
+            Browse Academic Marketplace
+          </button> -->
+
+          <button class="btn-outline-green" @click="goToSafeHome">
+            Book SafeHome Repairs
+          </button> 
+
+        </div>
+
+        <div class="tutorial-actions" v-else>
+
+          <p class="login-prompt purple-bold">
+            
+            &#128274; 
+            <a href="#" @click.prevent="toggleLogin">
+              Log in
+            </a> 
+            with your university email to access all features.
+          </p>
+
+        </div>
+      </div>
+
+      <div class="scroll-indicator scroll-indicator-light">
+        
+        <span>
+          Scroll
+        </span>
+
+        <span class="scroll-arrow">
+          &#8595;
+        </span>
+
+      </div>
+    </section>
+
+    <!--FEATURED NEAR YOU -->
+
+    <section class="featured-section full-section">
+
+      <div class="featured-inner">
+
+        <h2 class="section-title">
+          Featured Near You
+        </h2>
+
+        <div class="featured-grid">
+
+          <div class="featured-item">
+
+            <div class="item-image">
+              📱
+            </div>
+
+            <h4>
+              HP EliteBook 840 G5
+            </h4>
+
+            <p class="item-price">
+              R4,500
+            </p>
+
+            <span class="item-badge">
+              Used Like New
+            </span>
+
+          </div>
+
+          <div class="featured-item">
+
+            <div class="item-image">
+              📘
+            </div>
+
+            <h4>
+              Calculus MAM1000W Guide
+            </h4>
+
+            <p class="item-price">
+              R350
+            </p>
+
+            <span class="item-badge">
+              UCT Guide
+            </span>
+
+          </div>
+
+          <div class="featured-item">
+
+            <div class="item-image">
+              🧮
+            </div>
+
+            <h4>
+              TI-Plus Graphing Calc
+            </h4>
+
+            <p class="item-price">
+              R1,200
+            </p>
+
+            <span class="item-badge">
+              ACT Rewards
+            </span>
+
+          </div>
+
+          <div class="featured-item">
+
+            <div class="item-image">
+              🎧
+            </div>
+
+            <h4>
+              Sony ANC Headphones
+            </h4>
+
+            <p class="item-price">
+              R1,800
+            </p>
+
+            <span class="item-badge">
+              Use Now
+            </span>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-indicator scroll-indicator-light">
+
+        <span>
+          Scroll
+        </span>
+
+        <span class="scroll-arrow">
+          &#8595;
+        </span>
+
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+      <div class="footer-brand">
+
+        <h3 class="footer-logo">
+          CampusSwap
+          
+          <span class="green-text">
+            SA
+          </span>
+        </h3>
+         
+        <p>
+          South Africa's trusted, student-only platform for secure peer trading,
+          verified off-campus support services, and educational material exchange.
+        </p>
+
+      </div>
+
+
+      <div class="footer-links">
+
+        <h4>
+          Services
+        </h4>
+
+        <ul>
+
+          <li>
+            <a href="#">
+              Academic Marketplace
+            </a>
+          </li>
+
+          <li>
+            <a href="#">
+              SafeHome Maintenance
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+
+      <div class="footer-links">
+
+        <h4>
+          Trust &amp; Protection
+        </h4>
+
+        <ul>
+
+          <li>
+            <a href="#">
+              Ozow Escrow Guarantee
+            </a>
+          </li>
+
+          <li>
+            <a href="#">
+              EduID Authentication
+            </a>
+          </li>
+
+          <li>
+            <a href="#">
+              Safety Zones &amp; Meetups
+            </a>
+          </li>
+
+        </ul>
+
       </div>
     </footer>
 
-    <button class="fab" @click="openSellModal">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-    </button>
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+<script>
+import Swal from 'sweetalert2'
 
-const category = ref('all')
-
-const categories = [
-  { key: 'all', label: 'All' },
-  { key: 'sell', label: 'Textbooks & Tech' },
-  { key: 'rent', label: 'Rentals' },
-  { key: 'swap', label: 'Swaps' }
-]
-
-const products = ref([
-  { 
-    id: 1, 
-    name: 'HP EliteBook 840 G5', 
-    price: 4500, 
-    condition: 'Like New', 
-    conditionClass: '', 
-    rating: 4.8, 
-    sales: 12, 
-    image: 'https://placehold.co/300x200/6C5CE7/FFFFFF?text=Laptop',
-    university: 'University of Cape Town (UCT)', 
-    sellerName: 'Thabo M.', 
-    description: 'Reliable business laptop in great condition...' 
-  },
-  { 
-    id: 2, 
-    name: 'University Physics Book', 
-    listingType: 'swap', 
-    swapFor: 'Organic Chemistry Textbook', 
-    condition: 'Like New', 
-    conditionClass: '', 
-    rating: 4.8, 
-    sales: 4, 
-    image: 'https://placehold.co/300x200/4ADE80/FFFFFF?text=Physics',
-    university: 'Wits', 
-    sellerName: 'Aisha K.', 
-    description: 'Latest edition prescribed textbook...' 
-  },
-  { 
-    id: 3, 
-    name: 'Anti-Theft Laptop Bag', 
-    listingType: 'rent', 
-    price: 40, 
-    rentPeriod: 'week', 
-    condition: 'Fair Condition', 
-    conditionClass: 'fair', 
-    rating: 4.8, 
-    sales: 8, 
-    image: 'https://placehold.co/300x200/FF8577/FFFFFF?text=Bag',
-    university: 'Stellenbosch', 
-    sellerName: 'Liam P.', 
-    description: 'Padded laptop bag with hidden back-panel zip...' 
-  },
-  { 
-    id: 4, 
-    name: 'Sony ANC Headphones', 
-    price: 1800, 
-    condition: 'Like New', 
-    conditionClass: '', 
-    rating: 4.8, 
-    sales: 2, 
-    image: 'https://placehold.co/300x200/6FA8FF/FFFFFF?text=Headphones',
-    university: 'University of Cape Town (UCT)', 
-    sellerName: 'Naledi S.', 
-    description: 'Sony noise-cancelling over-ear headphones...' 
-  },
-  { 
-    id: 5, 
-    name: 'Casio Scientific Calculator', 
-    price: 220, 
-    condition: 'Like New', 
-    conditionClass: '', 
-    rating: 4.9, 
-    sales: 15, 
-    image: 'https://placehold.co/300x200/E8B54D/FFFFFF?text=Calc',
-    university: 'University of Cape Town (UCT)', 
-    sellerName: 'Sipho D.', 
-    description: 'Standard-issue engineering/science calculator...' 
-  },
-  { 
-    id: 6, 
-    name: 'Desk Lamp with USB Port', 
-    price: 180, 
-    condition: 'Fair Condition', 
-    conditionClass: 'fair', 
-    rating: 4.5, 
-    sales: 6, 
-    image: 'https://placehold.co/300x200/9B59B6/FFFFFF?text=Lamp',
-    university: 'Wits', 
-    sellerName: 'Karabo N.', 
-    description: 'LED desk lamp with three brightness settings...' 
-  }
-])
-
-const filteredProducts = computed(() => {
-  let filtered = products.value
+export default {
   
-  if (category.value !== 'all') {
-    const type = category.value
-    filtered = filtered.filter(p => {
-      const pType = p.listingType || 'sell'
-      return pType === type
-    })
-  }
-  
-  return filtered
-})
-
-const selectedProduct = ref(null)
-
-function openProduct(product) {
-  selectedProduct.value = product
-}
-
-function contactSeller(product) {
-  alert(`Messaging feature coming soon! You'd be contacting ${product.sellerName}.`)
-}
-
-function openSellModal() {
-  alert('🛒 Sell feature coming soon!')
-}
-
-// Promo carousel
-const activeSlide = ref(0)
-
-const promoSlides = [
-  {
-    eyebrow: 'Back to campus',
-    title: 'Fresh textbook listings, added daily',
-    sub: 'Find your set books before lectures start — priced by students, for students.',
-    cta: 'Browse textbooks',
-    bg: 'linear-gradient(135deg, rgba(108,92,231,0.45), rgba(10,14,39,0.15))'
+  name: 'HomePage',
+  data() {
+    return {
+      isLoggedIn: false,
+      sideNavOpen: false,
+      user: {
+        name: 'Myles N.',
+        university: 'University of Cape Town'
+      }
+    };
   },
-  {
-    eyebrow: 'Save on tech',
-    title: 'Laptops & gadgets at campus prices',
-    sub: 'Verified sellers, fair conditions, no bidding wars.',
-    cta: 'Shop tech',
-    bg: 'linear-gradient(135deg, rgba(111,168,255,0.4), rgba(10,14,39,0.15))'
-  },
-  {
-    eyebrow: 'Zero waste',
-    title: 'Swap instead of buying new',
-    sub: 'Trade textbooks and gear directly with other students.',
-    cta: 'Start a swap',
-    bg: 'linear-gradient(135deg, rgba(232,181,77,0.4), rgba(10,14,39,0.15))'
+  methods: {
+    toggleSideNav() {
+      this.sideNavOpen = !this.sideNavOpen;
+      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
+    },
+    closeSideNav() {
+      this.sideNavOpen = false;
+      document.body.style.overflow = '';
+    },
+
+    
+    async handleBrowseDeals() {
+      if (this.isLoggedIn) {
+        await Swal.fire({
+          icon: 'info',
+          title: 'Navigating...',
+          text: 'You are being redirected to Campus Deals.',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        
+      } else {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Login Required',
+          text: 'Please log in with your university email to view deals.',
+          confirmButtonColor: '#f5b941',
+        });
+      }
+    },
+
+    //  3. Toggle login with a confirmation 
+    async toggleLogin() {
+      if (this.isLoggedIn) {
+        // If they are about to log out, ask for confirmation
+        const result = await Swal.fire({
+          title: 'Logout?',
+          text: 'Are you sure you want to log out?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, logout',
+          cancelButtonText: 'Cancel',
+        });
+        if (result.isConfirmed) {
+          this.isLoggedIn = false;
+          Swal.fire('Logged Out', 'You have been logged out.', 'success');
+        }
+      } else {
+        // If logging in, just toggle (or you could show a success message)
+        this.isLoggedIn = true;
+        Swal.fire({
+          icon: 'success',
+          title: 'Welcome!',
+          text: 'You are now logged in.',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+    },
+
+    // -------- 4. Academic and SafeHome buttons --------
+    async goToAcademic() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Academic Marketplace',
+        text: 'Navigating to browse textbooks, tech, and study materials.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    async goToSafeHome() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'SafeHome',
+        text: 'Navigating to book handyman services.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
   }
-]
+}; 
 
-let carouselTimer = null
-
-function nextSlide() {
-  activeSlide.value = (activeSlide.value + 1) % promoSlides.length
-}
-
-function prevSlide() {
-  activeSlide.value = (activeSlide.value - 1 + promoSlides.length) % promoSlides.length
-}
-
-onMounted(() => {
-  carouselTimer = setInterval(nextSlide, 6000)
-})
-
-onUnmounted(() => {
-  clearInterval(carouselTimer)
-})
 </script>
 
 <style scoped>
-.home {
-  padding: 16px 0 120px;
-}
-
-/* Promo carousel */
-.promo-carousel {
-  position: relative;
-  border-radius: 22px;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.promo-track {
-  display: flex;
-  transition: transform 0.5s ease;
-}
-
-.promo-slide {
-  min-width: 100%;
-  padding: 36px 60px 40px 28px;
-}
-
-.promo-eyebrow {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gold);
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.promo-slide h3 {
-  font-size: 24px;
-  line-height: 1.25;
-  margin-bottom: 8px;
-  color: var(--text);
-}
-
-.promo-slide p {
-  font-size: 14px;
-  color: var(--text-muted);
-  max-width: 42ch;
-  margin-bottom: 16px;
-}
-
-.promo-cta {
-  padding: 10px 22px;
-  border-radius: 24px;
-  border: none;
-  background: var(--gold);
-  color: var(--ink);
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.promo-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.promo-arrow.prev {
-  left: 12px;
-}
-
-.promo-arrow.next {
-  right: 12px;
-}
-
-.promo-dots {
-  position: absolute;
-  bottom: 14px;
-  left: 28px;
-  display: flex;
-  gap: 6px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.dot.active {
-  background: var(--gold);
-  width: 20px;
-  border-radius: 4px;
-}
-
-.hero {
-  border-radius: 22px;
-  padding: 32px 28px;
-  margin-bottom: 20px;
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.35), rgba(232, 181, 77, 0.12));
-}
-
-.hero-eyebrow {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gold);
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.hero h2 {
-  font-size: 28px;
-  line-height: 1.2;
-  margin-bottom: 10px;
-  color: var(--text);
-}
-
-.hero-sub {
-  font-size: 15px;
-  color: var(--text-muted);
-  max-width: 40ch;
-}
-
-.pills {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 4px 0 8px;
-  scrollbar-width: none;
-}
-
-.pills::-webkit-scrollbar {
-  display: none;
-}
-
-.pill {
-  flex-shrink: 0;
-  padding: 10px 20px;
-  border-radius: 24px;
-  border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.25s ease;
-}
-
-.pill:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
-}
-
-.pill.active {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--ink);
-}
-
-.grid-header {
-  margin: 18px 2px 10px;
-}
-
-.subtitle {
-  margin: 0;
-  font-size: 12.5px;
-  color: var(--text-faint);
-  font-weight: 600;
-}
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.product-card {
-  border-radius: 20px;
-  overflow: visible;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  padding: 10px 10px 0;
-  box-shadow: 0 10px 28px rgba(5, 7, 20, 0.28);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-}
-
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(5, 7, 20, 0.4);
-}
-
-.card-image {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  background: rgba(255, 255, 255, 0.04);
-  overflow: hidden;
-  border-radius: 16px;
-}
-
-.card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.condition-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 10px;
-  background: rgba(74, 222, 128, 0.2);
-  color: var(--mint);
-  text-transform: uppercase;
-}
-
-.condition-badge.fair {
-  background: rgba(232, 181, 77, 0.2);
-  color: var(--gold);
-}
-
-.type-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 10px;
-  color: white;
-  text-transform: uppercase;
-}
-
-.type-badge.rent {
-  background: var(--sky);
-  color: var(--ink);
-}
-
-.type-badge.swap {
-  background: var(--violet);
-}
-
-.card-body {
-  padding: 10px 4px 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0 0 4px;
-  line-height: 1.3;
-}
-
-.card-university {
-  font-size: 11.5px;
-  color: var(--text-faint);
-  margin: 0 0 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-footer {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-price {
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--mint);
-}
-
-.rent-period {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.swap-text {
-  color: var(--gold);
-}
-
-.card-rating {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-/* Product detail panel */
-.detail-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(5, 7, 20, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 60;
-}
-
-.detail-panel {
-  width: 100%;
-  max-width: 480px;
-  max-height: 88vh;
-  overflow-y: auto;
-  border-radius: 24px 24px 0 0;
-  position: relative;
-  background: var(--ink-elevated);
-}
-
-.detail-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.08);
-  color: var(--text);
-  font-size: 16px;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.detail-image {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-}
-
-.detail-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.detail-body {
-  padding: 20px;
-}
-
-.detail-title {
-  font-size: 19px;
-  color: var(--text);
-  margin: 0 0 6px;
-}
-
-.detail-university,
-.detail-seller {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0 0 4px;
-}
-
-.detail-price-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 14px 0;
-}
-
-.detail-price {
-  font-weight: 700;
-  font-size: 20px;
-  color: var(--mint);
-}
-
-.detail-description {
-  font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 18px;
-}
-
-.detail-cta {
-  width: 100%;
-  padding: 14px;
-  border-radius: 16px;
-  border: none;
-  background: var(--gold);
-  color: var(--ink);
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.panel-fade-enter-active,
-.panel-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.panel-fade-enter-from,
-.panel-fade-leave-to {
-  opacity: 0;
-}
-
-@media (min-width: 640px) {
-  .detail-overlay {
-    align-items: center;
+  
+  .home-page {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333333;
+    margin: 0px;
+    padding: 0px;
   }
-  .detail-panel {
-    border-radius: 24px;
-  }
-}
 
-/* Premium features */
-.features-section {
-  margin-top: 44px;
-}
-
-.features-heading {
-  font-size: 20px;
-  color: var(--text);
-  margin: 0 0 16px 2px;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.feature-card {
-  border-radius: 18px;
-  padding: 22px;
-}
-
-.feature-icon {
-  color: var(--gold);
-  margin-bottom: 14px;
-}
-
-.feature-card h3 {
-  font-size: 15px;
-  color: var(--text);
-  margin: 0 0 6px;
-}
-
-.feature-card p {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin: 0;
-}
-
-.cta-card {
-  background: var(--ink);
-  border: 1px solid var(--glass-border);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.cta-card h3 {
-  font-size: 17px;
-}
-
-.cta-btn {
-  margin-top: 14px;
-  padding: 10px 20px;
-  border-radius: 24px;
-  border: none;
-  background: var(--gold);
-  color: var(--ink);
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  align-self: flex-start;
-}
-
-/* Footer */
-.marketplace-footer {
-  margin-top: 44px;
-  padding: 24px 4px;
-  border-top: 1px solid var(--glass-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.footer-brand {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.footer-brand .brand-dot {
-  color: var(--gold);
-}
-
-.social-links {
-  display: flex;
-  gap: 12px;
-}
-
-.social-link {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.04);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  transition: all 0.2s ease;
-}
-
-.social-link:hover {
-  color: var(--gold);
-  border-color: var(--gold);
-}
-
-.fab {
-  position: fixed;
-  right: 32px;
-  bottom: 32px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--gold);
-  color: var(--ink);
-  border: none;
-  box-shadow: 0 10px 28px rgba(232, 181, 77, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 45;
-  transition: transform 0.2s ease;
-}
-
-.fab:hover {
-  transform: scale(1.05);
-}
-
-.empty {
-  border-radius: 18px;
-  padding: 60px 20px;
-  text-align: center;
-}
-
-.empty-title {
-  font-size: 17px;
-  margin-bottom: 6px;
-  color: var(--text);
-}
-
-.empty-sub {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-@media (max-width: 900px) {
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  .hero {
-    padding: 20px 16px;
-  }
-  .hero h2 {
-    font-size: 22px;
-  }
-  .promo-slide {
-    padding: 28px 44px 34px 20px;
-  }
-  .promo-slide h3 {
-    font-size: 19px;
-  }
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-  .marketplace-footer {
+  /* FULL VIEWPORT SECTIONS*/
+  .full-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 60px 30px;
+    box-sizing: border-box;
+  }
+
+  /* TOP BAR */
+  .top-bar {
+    background-color: #0d1b3d;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: sticky;
+    top: 0px;
+    z-index: 100;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+    flex-wrap: wrap;
+  }
+
+  .top-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .hamburger-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hamburger-icon {
+    font-size: 28px;
+    color: #ffffff;
+    line-height: 1;
+  }
+
+  .brand {
+    color: #ffffff;
+    font-size: 22px;
+    margin: 0px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .brand .green-text,
+  .green-text {
+    color: #2e7d5a;
+  }
+
+  .top-center {
+    flex: 1;
+    min-width: 160px;
+    max-width: 520px;
+  }
+
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 6px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .search-wrap:hover,
+  .search-wrap:focus-within {
+    background-color: rgba(255, 255, 255, 0.20);
+    border-color: rgba(245, 185, 65, 0.4);
+  }
+
+  .search-icon {
+    color: #9ca3af;
+    font-size: 16px;
+    margin-right: 10px;
+  }
+
+  .search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 14px;
+    padding: 8px 0px;
+    width: 100%;
+    font-weight: 400;
+  }
+
+  .search-input::placeholder {
+    color: #9ca3af;
+    font-weight: 300;
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .avatar {
+    background-color: #f5b941;
+    color: #0d1b3d;
+    font-weight: 700;
+    font-size: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+  }
+
+  .avatar-placeholder {
+    width: 36px;
+    height: 36px;
+  }
+
+  /*  SIDE NAV */
+  .side-overlay {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .side-overlay-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .side-nav {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 280px;
+    height: 100%;
+    background-color: #0d1b3d;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    padding: 20px 24px;
+    box-shadow: 4px 0px 16px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .side-nav-open {
+    transform: translateX(0px);
+  }
+
+  .side-nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+  }
+
+  .side-nav-header h3 {
+    color: #ffffff;
+    font-size: 20px;
+    margin: 0px;
+  }
+
+  .side-nav-header .green-text {
+    color: #2e7d5a;
+  }
+
+  .close-side-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0px 4px;
+    line-height: 1;
+  }
+
+  .close-side-btn:hover {
+    color: #f5b941;
+  }
+
+  .side-nav-links {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+    flex: 1;
+  }
+
+  .side-nav-links li {
+    margin-bottom: 4px;
+  }
+
+  .side-nav-links li a {
+    display: block;
+    color: #d1d5db;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  }
+
+  .side-nav-links li a:hover {
+    background-color: rgba(245, 185, 65, 0.12);
+    color: #f5b941;
+    border-left-color: #f5b941;
+  }
+
+  .side-nav-user {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #d1d5db;
+  }
+
+  .side-nav-user p {
+    margin: 4px 0px;
+    font-size: 14px;
+  }
+
+  .side-user-uni {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  /* ================================================================
+     HERO SECTION
+     ================================================================ */
+  .hero {
+    background-color: #0d1b3d;
+    color: #ffffff;
+  }
+
+  .hero-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0px auto;
+    flex-wrap: wrap;
+  }
+
+  .hero-text {
+    flex: 1 1 50%;
+    min-width: 300px;
+  }
+
+  .hero-tagline {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: #f5b941;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .hero-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .hero-desc {
+    font-size: 18px;
+    font-weight: 400;
+    color: #d1d5db;
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+
+  .btn-gold {
+    background-color: #f5b941;
+    color: #0d1b3d;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.25s ease, transform 0.15s ease;
+  }
+
+  .btn-gold:hover {
+    background-color: #e0a330;
+    transform: translateY(-2px);
+  }
+
+  .btn-gold:active {
+    transform: translateY(0px);
+  }
+
+  .hero-image {
+    flex: 1 1 40%;
+    min-width: 280px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0px 12px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  /* ================================================================
+     CORE SERVICES
+     ================================================================ */
+  .core-services {
+    background-color: #f8f9fa;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .section-title {
+    color: #0d1b3d;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 36px;
     text-align: center;
   }
-}
+
+  .service-cards {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0px auto;
+  }
+
+  .service-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 32px 28px 30px;
+    width: 280px;
+    text-align: center;
+    box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background-color 0.35s ease, transform 0.25s ease, box-shadow 0.35s ease;
+  }
+
+  .service-card:hover {
+    background-color: #00a6a6;
+    transform: translateY(-6px);
+    box-shadow: 0px 12px 32px rgba(0, 166, 166, 0.25);
+  }
+
+  .service-card:hover h3,
+  .service-card:hover p,
+  .service-card:hover .card-icon {
+    color: #ffffff;
+  }
+
+  .service-card:hover .card-btn {
+    background-color: #ffffff;
+    color: #00a6a6;
+    border-color: #ffffff;
+  }
+
+  .card-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    display: block;
+    transition: color 0.35s ease;
+  }
+
+  .service-card h3 {
+    color: #0d1b3d;
+    font-size: 20px;
+    margin: 0px 0px 8px 0px;
+    transition: color 0.35s ease;
+  }
+
+  .service-card p {
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0px 0px 18px 0px;
+    transition: color 0.35s ease;
+  }
+
+  .card-btn {
+    background-color: #0d1b3d;
+    color: #ffffff;
+    border: 2px solid #0d1b3d;
+    border-radius: 30px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    margin-top: auto;
+  }
+
+  .card-btn:hover {
+    transform: scale(1.04);
+    background-color: #f5b941;
+    border-color: #f5b941;
+    color: #0d1b3d;
+  }
+
+  /* ================================================================
+     TUTORIAL
+     ================================================================ */
+  .tutorial-section {
+    background-color: #f0f2f5;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .tutorial {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 40px 36px 44px;
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.06);
+    max-width: 820px;
+    width: 100%;
+    margin: 0px auto;
+  }
+
+  .tutorial-title {
+    color: #0d1b3d;
+    font-size: 28px;
+    text-align: center;
+    font-weight: 700;
+    margin-top: 0px;
+    margin-bottom: 32px;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .step-num {
+    background-color: #f5b941;
+    color: #0d1b3d;
+    font-weight: 700;
+    font-size: 18px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-body h3 {
+    color: #2e7d5a;
+    font-size: 19px;
+    margin: 0px 0px 4px 0px;
+  }
+
+  .step-body p {
+    color: #4b5563;
+    font-size: 15px;
+    margin: 0px;
+    line-height: 1.5;
+  }
+
+  .tutorial-actions {
+    margin-top: 36px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 32px;
+  }
+
+  .btn-outline-gold {
+    background: transparent;
+    border: 2px solid #f5b941;
+    color: #0d1b3d;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 26px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+  }
+
+  .btn-outline-gold:hover {
+    background-color: #f5b941;
+    color: #0d1b3d;
+    transform: translateY(-2px);
+  }
+
+  .btn-outline-green {
+    background: transparent;
+    border: 2px solid #2e7d5a;
+    color: #2e7d5a;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 26px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+  }
+
+  .btn-outline-green:hover {
+    background-color: #2e7d5a;
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  .login-prompt.purple-bold {
+    color: #6c4b6a;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 0px;
+  }
+
+  .login-prompt.purple-bold a {
+    color: #f5b941;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .login-prompt.purple-bold a:hover {
+    border-bottom-color: #f5b941;
+  }
+
+  /* ================================================================
+     FEATURED NEAR YOU
+     ================================================================ */
+  .featured-section {
+    background-color: #ffffff;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .featured-inner {
+    max-width: 1100px;
+    width: 100%;
+    margin: 0px auto;
+    text-align: center;
+  }
+
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .featured-item {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 20px 16px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+  }
+
+  .featured-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .item-image {
+    font-size: 40px;
+    margin-bottom: 8px;
+  }
+
+  .featured-item h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0d1b3d;
+    margin: 8px 0px 4px;
+  }
+
+  .item-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2e7d5a;
+    margin: 4px 0px;
+  }
+
+  .item-badge {
+    display: inline-block;
+    background-color: #f5b941;
+    color: #0d1b3d;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 6px;
+  }
+
+  /* ================================================================
+     SCROLL INDICATOR
+     ================================================================ */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #ffffff;
+    font-size: 13px;
+    letter-spacing: 2px;
+    opacity: 0.7;
+    font-weight: 300;
+    animation: float-down 2.2s ease-in-out infinite;
+    cursor: default;
+  }
+
+  .scroll-indicator-light {
+    color: #6b7280;
+  }
+
+  .scroll-arrow {
+    font-size: 22px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  @keyframes float-down {
+    0% {
+      transform: translateX(-50%) translateY(0px);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateX(-50%) translateY(8px);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-50%) translateY(0px);
+      opacity: 0.5;
+    }
+  }
+
+  /* ================================================================
+     FOOTER
+     ================================================================ */
+  footer {
+    background-color: #050c1e;
+    color: #ffffff;
+    padding: 40px 30px 36px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+    border-top: 3px solid #f5b941;
+  }
+
+  .footer-brand {
+    max-width: 340px;
+  }
+
+  .footer-logo {
+    color: #ffffff;
+    font-size: 22px;
+    margin: 0px 0px 12px 0px;
+  }
+
+  .footer-brand p {
+    color: #9ca3af;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0px;
+  }
+
+  .footer-links h4 {
+    color: #f5b941;
+    margin: 0px 0px 14px 0px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .footer-links ul {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+  }
+
+  .footer-links li {
+    margin-bottom: 10px;
+  }
+
+  .footer-links a {
+    color: #d1d5db;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+  }
+
+  .footer-links a:hover {
+    color: #ffffff;
+  }
+
+  /* ================================================================
+     RESPONSIVE
+     ================================================================ */
+  @media (max-width: 992px) {
+    .hero-title {
+      font-size: 32px;
+    }
+    .hero-desc {
+      font-size: 16px;
+    }
+    .top-center {
+      max-width: 300px;
+    }
+    .featured-grid {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .top-bar {
+      padding: 10px 16px;
+      gap: 10px;
+    }
+
+    .brand {
+      font-size: 18px;
+    }
+
+    .top-center {
+      order: 3;
+      flex-basis: 100%;
+      max-width: 100%;
+      min-width: 0px;
+    }
+
+    .search-wrap {
+      padding: 4px 14px;
+    }
+
+    .search-input {
+      font-size: 13px;
+      padding: 6px 0px;
+    }
+
+    .top-right {
+      display: none;
+    }
+
+    .hero-inner {
+      flex-direction: column;
+      text-align: center;
+      gap: 30px;
+    }
+
+    .hero-text {
+      flex: 1 1 100%;
+      min-width: 0px;
+    }
+
+    .hero-desc {
+      max-width: 100%;
+    }
+
+    .hero-image {
+      flex: 1 1 100%;
+      min-width: 0px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .hero-title {
+      font-size: 28px;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+    }
+
+    .btn-gold {
+      font-size: 14px;
+      padding: 12px 24px;
+    }
+
+    .full-section {
+      padding: 40px 16px;
+      min-height: 100vh;
+    }
+
+    .core-services {
+      padding: 30px 16px 40px;
+    }
+
+    .section-title {
+      font-size: 24px;
+    }
+
+    .service-cards {
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .service-card {
+      width: 100%;
+      max-width: 360px;
+      padding: 24px 18px 22px;
+    }
+
+    .tutorial-section {
+      padding: 30px 16px 40px;
+    }
+
+    .tutorial {
+      padding: 24px 18px 28px;
+    }
+
+    .tutorial-title {
+      font-size: 22px;
+    }
+
+    .step {
+      gap: 14px;
+    }
+
+    .step-num {
+      width: 38px;
+      height: 38px;
+      font-size: 16px;
+    }
+
+    .step-body h3 {
+      font-size: 17px;
+    }
+
+    .step-body p {
+      font-size: 14px;
+    }
+
+    .tutorial-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .btn-outline-gold,
+    .btn-outline-green {
+      width: 100%;
+      max-width: 260px;
+      text-align: center;
+    }
+
+    .login-prompt.purple-bold {
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .featured-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    footer {
+      flex-direction: column;
+      padding: 30px 18px 24px;
+      gap: 24px;
+    }
+
+    .footer-brand {
+      max-width: 100%;
+    }
+
+    .scroll-indicator {
+      bottom: 16px;
+      font-size: 12px;
+    }
+    .scroll-arrow {
+      font-size: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title {
+      font-size: 22px;
+    }
+
+    .hero-desc {
+      font-size: 14px;
+    }
+
+    .brand {
+      font-size: 16px;
+    }
+
+    .hamburger-icon {
+      font-size: 24px;
+    }
+
+    .search-input {
+      font-size: 12px;
+    }
+
+    .service-card {
+      max-width: 300px;
+    }
+
+    .featured-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .side-nav {
+      width: 260px;
+      padding: 16px 18px;
+    }
+  }
 </style>

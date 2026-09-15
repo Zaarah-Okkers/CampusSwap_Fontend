@@ -1,5 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
 import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/LoginView.vue'
+import StudentDashboard from '../views/StudentDashboard.vue'
+import ProviderDashboard from '../views/ProviderDashboard.vue'
+import AdminDashboard from '../views/AdminDashboard.vue'
+import ResManagerDashboard from '../views/ResManagerDashboard.vue'
+import CheckoutView from '../components/CheckoutView.vue'
+import SafeHomeView from '../views/SafeHomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,6 +16,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
     },
     {
       path: '/chat',
@@ -20,19 +33,48 @@ const router = createRouter({
       component: () => import('../views/Bookstore.vue'),
     },
     {
+      path: '/student-dashboard',
+      name: 'student-dashboard',
+      component: StudentDashboard,
+    },
+    {
+      path: '/provider-dashboard',
+      name: 'provider-dashboard',
+      component: ProviderDashboard,
+    },
+    {
+      path: '/admin-dashboard',
+      name: 'admin-dashboard',
+      component: AdminDashboard,
+    },
+    {
+      path: '/resmanager-dashboard',
+      name: 'resmanager-dashboard',
+      component: ResManagerDashboard,
+    },
+    {
+      path: '/safehome',
+      name: 'safehome',
+      component: SafeHomeView,
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: CheckoutView,
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminLayout.vue'),
       children: [
         {
           path: '',
-          name: 'admin-dashboard',
+          name: 'admin-panel-dashboard',
           component: () => import('../views/admin/AdminDashboard.vue'),
         },
         {
           path: 'dashboard',
-          name: 'admin-dashboard',
-          component: () => import('../views/admin/AdminDashboard.vue'),
+          redirect: { name: 'admin-panel-dashboard' },
         },
         {
           path: 'users',

@@ -1,33 +1,205 @@
 <template>
+  <div class="app-layout">
 
-  <div class="app-layout" :style="{ '--sidebar-w': sidebarWidth }">
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
+    <header class="top-bar">
 
-    <!-- Sidebar -->
-    <Sidebar ref="sidebarRef" />
+      <div class="top-left">
 
-    <!-- Main Application -->
+        <button
+          class="hamburger-btn"
+          @click="toggleSideNav"
+          aria-label="Open menu"
+        >
+          <span class="hamburger-icon">
+            &#9776;
+          </span>
+        </button>
+
+        <router-link to="/" class="brand-link">
+          <h2 class="brand">
+            CampusSwap<span class="green-text">SA</span>
+          </h2>
+        </router-link>
+
+      </div>
+
+      <div class="top-center">
+        <div class="search-wrap">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search books, services, and more..."
+          />
+        </div>
+      </div>
+
+      <div class="top-right">
+
+        <div
+          class="notification-bell"
+          @click="showNotifications"
+        >
+          <span class="bell-icon">
+            &#128276;
+          </span>
+
+          <span class="notification-dot"></span>
+        </div>
+
+        <div class="profile-pic" title="My Profile">
+
+          <img
+            v-if="profileImage"
+            :src="profileImage"
+            alt="Profile"
+          />
+
+          <span v-else>
+            {{ userInitial }}
+          </span>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         SIDE NAV OVERLAY
+    ====================================================== -->
+    <div
+      class="side-overlay"
+      :class="{ 'side-overlay-open': sideNavOpen }"
+      @click="closeSideNav"
+    ></div>
+
+
+    <!-- =====================================================
+         SIDE NAV
+    ====================================================== -->
+    <div
+      class="side-nav"
+      :class="{ 'side-nav-open': sideNavOpen }"
+    >
+
+      <div class="side-nav-header">
+
+        <h3>
+          CampusSwap<span class="green-text">SA</span>
+        </h3>
+
+        <button
+          class="close-side-btn"
+          @click="closeSideNav"
+        >
+          &times;
+        </button>
+
+      </div>
+
+
+      <!-- Navigation links -->
+      <ul class="side-nav-links">
+
+        <li>
+          <router-link
+            to="/"
+            @click="closeSideNav"
+          >
+            Home
+          </router-link>
+        </li>
+
+
+        <!-- Academic Marketplace -->
+        <!--
+        <li
+          v-if="
+            userRole === 'student' ||
+            userRole === 'admin'
+          "
+        >
+          <router-link
+            to="/academic"
+            @click="closeSideNav"
+          >
+            Academic Marketplace
+          </router-link>
+        </li>
+        -->
+
+
+        <!-- SafeHome -->
+        <li>
+          <router-link
+            to="/safehome"
+            @click="closeSideNav"
+          >
+            SafeHome
+          </router-link>
+        </li>
+
+
+        <!-- Checkout -->
+        <li
+          v-if="
+            userRole === 'student' ||
+            userRole === 'admin' ||
+            userRole === 'resmanager'
+          "
+        >
+          <router-link
+            to="/checkout"
+            @click="closeSideNav"
+          >
+            Checkout
+          </router-link>
+        </li>
+
+
+        <!-- Dashboard -->
+        <li>
+          <router-link
+            to="/admin-dashboard"
+            @click="closeSideNav"
+          >
+            Dashboard
+          </router-link>
+        </li>
+
+      </ul>
+
+
+      <!-- Logout -->
+      <div class="side-nav-logout">
+
+        <button
+          class="logout-btn"
+          @click="logout"
+        >
+          Logout
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MAIN APPLICATION
+    ====================================================== -->
     <main class="main-content">
 
       <div class="safehome-page">
 
-        <!-- TOP BAR -->
-        <div class="top-bar">
 
-          <div class="profile-pic" title="My Profile">
-            <img
-              v-if="profileImage"
-              :src="profileImage"
-              alt="Profile"
-            />
-
-            <span v-else>
-              {{ userInitial }}
-            </span>
-          </div>
-
-        </div>
-
-        <!-- HERO -->
+        <!-- =================================================
+             HERO
+        ================================================== -->
         <section class="hero">
 
           <div class="hero-content">
@@ -46,6 +218,7 @@
               From plumbing and electrical work to cleaning and repairs,
               SafeHome makes finding help simple.
             </p>
+
 
             <!-- SEARCH -->
             <div class="search-card">
@@ -74,6 +247,7 @@
 
               </div>
 
+
               <div class="input-group">
 
                 <label>
@@ -87,6 +261,7 @@
                 />
 
               </div>
+
 
               <div class="input-group">
 
@@ -102,6 +277,7 @@
 
               </div>
 
+
               <button
                 class="search-btn"
                 @click="findProviders"
@@ -115,7 +291,10 @@
 
         </section>
 
-        <!-- EMERGENCY SERVICES -->
+
+        <!-- =================================================
+             EMERGENCY SERVICES
+        ================================================== -->
         <section class="emergency-section">
 
           <div class="emergency-card">
@@ -150,6 +329,7 @@
 
             </div>
 
+
             <button
               class="emergency-btn"
               @click="findEmergencyHelp"
@@ -161,7 +341,10 @@
 
         </section>
 
-        <!-- SERVICES -->
+
+        <!-- =================================================
+             SERVICES
+        ================================================== -->
         <section class="services-section">
 
           <div class="section-heading">
@@ -179,6 +362,7 @@
             </p>
 
           </div>
+
 
           <div class="services-grid">
 
@@ -211,7 +395,10 @@
 
         </section>
 
-        <!-- PROVIDERS -->
+
+        <!-- =================================================
+             PROVIDERS
+        ================================================== -->
         <section
           v-if="showProviders"
           class="providers-section"
@@ -244,6 +431,7 @@
             </p>
 
           </div>
+
 
           <div class="providers-grid">
 
@@ -284,10 +472,13 @@
 
               </div>
 
+
               <p class="provider-bio">
                 {{ provider.bio }}
               </p>
 
+
+              <!-- PROBLEM DETAILS -->
               <div class="problem-details">
 
                 <label class="problem-label">
@@ -301,6 +492,7 @@
                   placeholder="e.g. Kitchen tap leaking under the sink..."
                 ></textarea>
 
+
                 <div class="photo-row">
 
                   <label class="photo-upload">
@@ -309,11 +501,18 @@
                       type="file"
                       accept="image/*"
                       hidden
-                      @change="handlePhotoUpload(provider.id, $event)"
+                      @change="
+                        handlePhotoUpload(
+                          provider.id,
+                          $event
+                        )
+                      "
                     />
 
                     <span
-                      v-if="!quoteForms[provider.id].photoPreview"
+                      v-if="
+                        !quoteForms[provider.id].photoPreview
+                      "
                     >
                       📷 Add a photo
                     </span>
@@ -324,9 +523,14 @@
 
                   </label>
 
+
                   <img
-                    v-if="quoteForms[provider.id].photoPreview"
-                    :src="quoteForms[provider.id].photoPreview"
+                    v-if="
+                      quoteForms[provider.id].photoPreview
+                    "
+                    :src="
+                      quoteForms[provider.id].photoPreview
+                    "
                     class="photo-preview"
                     alt="Problem photo preview"
                     @click="removePhoto(provider.id)"
@@ -337,6 +541,8 @@
 
               </div>
 
+
+              <!-- PROVIDER FOOTER -->
               <div class="provider-footer">
 
                 <span class="experience">
@@ -357,7 +563,10 @@
 
         </section>
 
-        <!-- CUSTOMER REVIEWS -->
+
+        <!-- =================================================
+             CUSTOMER REVIEWS
+        ================================================== -->
         <section class="reviews-section">
 
           <div class="section-heading">
@@ -375,6 +584,7 @@
             </p>
 
           </div>
+
 
           <div class="reviews-grid">
 
@@ -395,9 +605,11 @@
 
               </div>
 
+
               <p class="review-quote">
                 “{{ review.quote }}”
               </p>
+
 
               <div class="review-author">
 
@@ -425,36 +637,113 @@
 
         </section>
 
+
       </div>
 
     </main>
 
   </div>
-
 </template>
+
 
 <script setup>
 
 import { ref, reactive, computed } from 'vue'
-// import Sidebar from '@/components/icons/sidebar.vue'  - also i can seem to find this file in your branch so i commnented it out for now as it is causing errors. 
 import Swal from 'sweetalert2'
 
 
 /* =========================================================
-   LAYOUT / SIDEBAR SYNC
+   SIDEBAR
 ========================================================= */
 
-const sidebarRef = ref(null)
+const sideNavOpen = ref(false)
 
-const sidebarWidth = computed(() => {
+const userRole = ref('student')
 
-  if (!sidebarRef.value) return '250px'
 
-  return sidebarRef.value.isCollapsed
-    ? '72px'
-    : '250px'
+function toggleSideNav() {
 
-})
+  sideNavOpen.value = !sideNavOpen.value
+
+  document.body.style.overflow =
+    sideNavOpen.value ? 'hidden' : ''
+
+}
+
+
+function closeSideNav() {
+
+  sideNavOpen.value = false
+
+  document.body.style.overflow = ''
+
+}
+
+
+function logout() {
+
+  Swal.fire({
+
+    title: 'Logout?',
+
+    text: 'Are you sure you want to log out?',
+
+    icon: 'question',
+
+    showCancelButton: true,
+
+    confirmButtonColor: '#d33',
+
+    cancelButtonColor: '#3085d6',
+
+    confirmButtonText: 'Yes, logout',
+
+    cancelButtonText: 'Cancel'
+
+  }).then((result) => {
+
+    if (result.isConfirmed) {
+
+      Swal.fire({
+
+        title: 'Logged Out',
+
+        text: 'You have been logged out successfully.',
+
+        icon: 'success',
+
+        timer: 1500,
+
+        showConfirmButton: false
+
+      }).then(() => {
+
+        window.location.href = '/login'
+
+      })
+
+    }
+
+  })
+
+}
+
+
+function showNotifications() {
+
+  Swal.fire({
+
+    title: 'Notifications',
+
+    text: 'You have 3 new notifications!',
+
+    icon: 'info',
+
+    confirmButtonText: 'Okay'
+
+  })
+
+}
 
 
 /* =========================================================
@@ -462,6 +751,7 @@ const sidebarWidth = computed(() => {
 ========================================================= */
 
 const profileImage = ref('')
+
 const userName = ref('Guest')
 
 const userInitial = computed(() =>
@@ -474,9 +764,13 @@ const userInitial = computed(() =>
 ========================================================= */
 
 const selectedServiceId = ref(null)
+
 const residenceName = ref('')
+
 const roomNumber = ref('')
+
 const showProviders = ref(false)
+
 const isEmergencyMode = ref(false)
 
 
@@ -485,6 +779,7 @@ const isEmergencyMode = ref(false)
 ========================================================= */
 
 const services = [
+
   {
     id: 1,
     name: 'Plumbing',
@@ -532,6 +827,7 @@ const services = [
     description:
       'General repairs, installations and maintenance.'
   }
+
 ]
 
 
@@ -587,7 +883,6 @@ const emergencyServices = [
 
 /* =========================================================
    PROVIDERS
-   These match the database structure.
 ========================================================= */
 
 const providers = ref([
@@ -690,7 +985,6 @@ const reviews = [
 
 /* =========================================================
    QUOTE REQUEST FORMS
-   One form for each provider card.
 ========================================================= */
 
 const quoteForms = reactive(
@@ -723,23 +1017,39 @@ function findProviders() {
   if (!selectedServiceId.value) {
 
     Swal.fire({
+
       title: 'Select a service',
-      text: 'Please choose a service before finding providers.',
+
+      text:
+        'Please choose a service before finding providers.',
+
       icon: 'warning',
+
       confirmButtonText: 'Okay'
+
     })
 
     return
+
   }
 
+
   isEmergencyMode.value = false
+
   showProviders.value = true
 
+
   Swal.fire({
+
     title: 'Providers Found!',
-    text: `We found providers for ${selectedService.value.name}.`,
+
+    text:
+      `We found providers for ${selectedService.value.name}.`,
+
     icon: 'success',
+
     confirmButtonText: 'View Providers'
+
   })
 
 }
@@ -752,7 +1062,9 @@ function findProviders() {
 function selectService(service) {
 
   selectedServiceId.value = service.id
+
   isEmergencyMode.value = false
+
   showProviders.value = true
 
 }
@@ -764,8 +1076,11 @@ function selectService(service) {
 
 function selectEmergencyService(service) {
 
-  selectedServiceId.value = service.serviceTypeId
+  selectedServiceId.value =
+    service.serviceTypeId
+
   isEmergencyMode.value = true
+
   showProviders.value = true
 
 }
@@ -779,6 +1094,7 @@ function findEmergencyHelp() {
 
   isEmergencyMode.value = true
 
+
   if (!selectedServiceId.value) {
 
     selectedServiceId.value =
@@ -786,13 +1102,21 @@ function findEmergencyHelp() {
 
   }
 
+
   showProviders.value = true
 
+
   Swal.fire({
+
     title: '🚨 Emergency Help',
-    text: 'Emergency providers are now being shown.',
+
+    text:
+      'Emergency providers are now being shown.',
+
     icon: 'warning',
+
     confirmButtonText: 'View Providers'
+
   })
 
 }
@@ -808,38 +1132,58 @@ function handlePhotoUpload(providerId, event) {
 
   if (!file) return
 
+
   if (!file.type.startsWith('image/')) {
 
     Swal.fire({
+
       title: 'Invalid file',
-      text: 'Please upload an image file.',
+
+      text:
+        'Please upload an image file.',
+
       icon: 'error',
+
       confirmButtonText: 'Okay'
+
     })
 
     event.target.value = ''
 
     return
+
   }
+
 
   quoteForms[providerId].photo = file
 
+
   const reader = new FileReader()
+
 
   reader.onload = (e) => {
 
     quoteForms[providerId].photoPreview =
       e.target.result
 
+
     Swal.fire({
+
       title: 'Photo Added!',
-      text: 'Your problem photo has been attached successfully.',
+
+      text:
+        'Your problem photo has been attached successfully.',
+
       icon: 'success',
+
       timer: 1500,
+
       showConfirmButton: false
+
     })
 
   }
+
 
   reader.readAsDataURL(file)
 
@@ -853,25 +1197,42 @@ function handlePhotoUpload(providerId, event) {
 function removePhoto(providerId) {
 
   Swal.fire({
+
     title: 'Remove photo?',
-    text: 'Are you sure you want to remove this photo?',
+
+    text:
+      'Are you sure you want to remove this photo?',
+
     icon: 'warning',
+
     showCancelButton: true,
+
     confirmButtonText: 'Yes, remove it',
+
     cancelButtonText: 'Keep photo'
+
   }).then((result) => {
 
     if (result.isConfirmed) {
 
       quoteForms[providerId].photo = null
+
       quoteForms[providerId].photoPreview = null
 
+
       Swal.fire({
+
         title: 'Removed!',
-        text: 'The photo has been removed.',
+
+        text:
+          'The photo has been removed.',
+
         icon: 'success',
+
         timer: 1200,
+
         showConfirmButton: false
+
       })
 
     }
@@ -889,8 +1250,10 @@ function getQuote(provider) {
 
   const form = quoteForms[provider.id]
 
+
   let message =
     `Quote request sent to ${provider.full_name}`
+
 
   if (selectedService.value) {
 
@@ -899,12 +1262,14 @@ function getQuote(provider) {
 
   }
 
+
   if (residenceName.value.trim()) {
 
     message +=
       `\nResidence: ${residenceName.value.trim()}`
 
   }
+
 
   if (roomNumber.value.trim()) {
 
@@ -913,12 +1278,14 @@ function getQuote(provider) {
 
   }
 
+
   if (form.description.trim()) {
 
     message +=
       `\n\nProblem: ${form.description.trim()}`
 
   }
+
 
   if (form.photo) {
 
@@ -927,6 +1294,7 @@ function getQuote(provider) {
 
   }
 
+
   if (isEmergencyMode.value) {
 
     message +=
@@ -934,11 +1302,13 @@ function getQuote(provider) {
 
   }
 
+
   Swal.fire({
 
-    title: isEmergencyMode.value
-      ? '🚨 Emergency Quote Requested!'
-      : 'Quote Requested!',
+    title:
+      isEmergencyMode.value
+        ? '🚨 Emergency Quote Requested!'
+        : 'Quote Requested!',
 
     text: message,
 
@@ -952,6 +1322,7 @@ function getQuote(provider) {
 
 </script>
 
+
 <style scoped>
 
 /* =========================================================
@@ -959,102 +1330,475 @@ function getQuote(provider) {
 ========================================================= */
 
 .app-layout {
-
   width: 100%;
   min-height: 100vh;
   background: #f8fafc;
-
 }
 
 .main-content {
-
-  width: calc(100% - var(--sidebar-w, 250px));
-
-  margin-left: var(--sidebar-w, 250px);
-
+  width: 100%;
+  margin-left: 0;
   min-height: 100vh;
-
-  transition:
-    margin-left 0.25s ease,
-    width 0.25s ease;
-
 }
 
 .safehome-page {
-
   width: 100%;
-
   min-height: 100vh;
-
   background: #f8fafc;
-
   color: #1e293b;
-
 }
 
 
 /* =========================================================
-   TOP BAR / PROFILE
+   TOP BAR
 ========================================================= */
 
 .top-bar {
+  background-color: #0d1b3d;
 
-  width: 100%;
-
-  box-sizing: border-box;
-
-  padding: 16px 40px;
+  padding: 10px 24px;
 
   display: flex;
 
   align-items: center;
 
-  justify-content: flex-start;
+  justify-content: space-between;
 
-  background: #f8fafc;
+  gap: 16px;
 
+  position: sticky;
+
+  top: 0;
+
+  z-index: 100;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3);
+
+  flex-wrap: wrap;
+
+  box-sizing: border-box;
+}
+
+.top-left {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex-shrink: 0;
+}
+
+.hamburger-btn {
+  background: none;
+
+  border: none;
+
+  cursor: pointer;
+
+  padding: 4px 6px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.hamburger-icon {
+  font-size: 28px;
+
+  color: #fff;
+
+  line-height: 1;
+}
+
+.brand-link {
+  text-decoration: none;
+}
+
+.brand {
+  color: #fff;
+
+  font-size: 22px;
+
+  margin: 0;
+
+  font-weight: 600;
+
+  letter-spacing: 0.5px;
+
+  white-space: nowrap;
+}
+
+.brand .green-text,
+.green-text {
+  color: #2e7d5a;
+}
+
+
+/* =========================================================
+   SEARCH BAR
+========================================================= */
+
+.top-center {
+  flex: 1;
+
+  min-width: 160px;
+
+  max-width: 520px;
+}
+
+.search-wrap {
+  display: flex;
+
+  align-items: center;
+
+  background-color:
+    rgba(255, 255, 255, 0.12);
+
+  border-radius: 24px;
+
+  padding: 6px 16px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+}
+
+.search-wrap:hover,
+.search-wrap:focus-within {
+  background-color:
+    rgba(255, 255, 255, 0.20);
+
+  border-color:
+    rgba(245, 185, 65, 0.4);
+}
+
+.search-input {
+  background: transparent;
+
+  border: none;
+
+  outline: none;
+
+  color: #fff;
+
+  font-size: 14px;
+
+  padding: 8px 0;
+
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+
+/* =========================================================
+   TOP RIGHT
+========================================================= */
+
+.top-right {
+  display: flex;
+
+  align-items: center;
+
+  flex-shrink: 0;
+
+  gap: 15px;
+}
+
+.notification-bell {
+  position: relative;
+
+  cursor: pointer;
+
+  font-size: 24px;
+
+  color: #fff;
+
+  transition: color 0.3s ease;
+}
+
+.notification-bell:hover {
+  color: #f5b941;
+}
+
+.notification-dot {
+  position: absolute;
+
+  top: -2px;
+
+  right: -2px;
+
+  width: 10px;
+
+  height: 10px;
+
+  background-color: #ff4d4f;
+
+  border-radius: 50%;
+
+  border:
+    2px solid #0d1b3d;
 }
 
 .profile-pic {
+  width: 36px;
 
-  width: 42px;
-
-  height: 42px;
+  height: 36px;
 
   border-radius: 50%;
 
   overflow: hidden;
 
-  display: grid;
+  display: flex;
 
-  place-items: center;
+  align-items: center;
 
-  background: #0D1B3D;
+  justify-content: center;
 
-  color: white;
+  background-color: #f5b941;
 
-  font-weight: 800;
+  color: #0d1b3d;
 
-  font-size: 16px;
+  font-weight: 700;
 
-  cursor: pointer;
+  font-size: 14px;
 
-  border: 2px solid white;
+  border: none;
 
-  box-shadow:
-    0 2px 8px
-    rgba(15, 23, 42, 0.12);
-
+  box-shadow: none;
 }
 
 .profile-pic img {
-
   width: 100%;
 
   height: 100%;
 
   object-fit: cover;
+}
 
+
+/* =========================================================
+   SIDE NAV OVERLAY
+========================================================= */
+
+.side-overlay {
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  background-color:
+    rgba(0, 0, 0, 0.5);
+
+  z-index: 200;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.side-overlay-open {
+  opacity: 1;
+
+  visibility: visible;
+}
+
+
+/* =========================================================
+   SIDE NAV
+========================================================= */
+
+.side-nav {
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  width: 280px;
+
+  height: 100%;
+
+  background-color: #0d1b3d;
+
+  z-index: 300;
+
+  transform: translateX(-100%);
+
+  transition:
+    transform 0.3s ease;
+
+  padding: 20px 24px;
+
+  box-shadow:
+    4px 0 16px rgba(0, 0, 0, 0.3);
+
+  overflow-y: auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  box-sizing: border-box;
+}
+
+.side-nav-open {
+  transform: translateX(0);
+}
+
+
+/* =========================================================
+   SIDE NAV HEADER
+========================================================= */
+
+.side-nav-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding-bottom: 20px;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.1);
+
+  margin-bottom: 20px;
+}
+
+.side-nav-header h3 {
+  color: #fff;
+
+  font-size: 20px;
+
+  margin: 0;
+}
+
+.close-side-btn {
+  background: none;
+
+  border: none;
+
+  color: #fff;
+
+  font-size: 28px;
+
+  cursor: pointer;
+}
+
+.close-side-btn:hover {
+  color: #f5b941;
+}
+
+
+/* =========================================================
+   SIDE NAV LINKS
+========================================================= */
+
+.side-nav-links {
+  list-style: none;
+
+  padding: 0;
+
+  margin: 0;
+
+  flex: 1;
+}
+
+.side-nav-links li {
+  margin-bottom: 4px;
+}
+
+.side-nav-links li a {
+  display: block;
+
+  color: #d1d5db;
+
+  text-decoration: none;
+
+  font-size: 16px;
+
+  font-weight: 500;
+
+  padding: 12px 16px;
+
+  border-radius: 8px;
+
+  border-left:
+    3px solid transparent;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.side-nav-links li a:hover {
+  background-color:
+    rgba(245, 185, 65, 0.12);
+
+  color: #f5b941;
+
+  border-left-color:
+    #f5b941;
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.side-nav-logout {
+  margin-top: auto;
+
+  padding-top: 20px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+  width: 100%;
+
+  background: transparent;
+
+  border:
+    2px solid #f5b941;
+
+  color: #f5b941;
+
+  font-weight: 700;
+
+  padding: 12px 24px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #f5b941;
+
+  color: #0d1b3d;
+
+  transform: translateY(-2px);
 }
 
 
@@ -1063,7 +1807,6 @@ function getQuote(provider) {
 ========================================================= */
 
 .hero {
-
   width: 100%;
 
   background:
@@ -1079,21 +1822,17 @@ function getQuote(provider) {
   color: white;
 
   box-sizing: border-box;
-
 }
 
 .hero-content {
-
   width: 100%;
 
   max-width: 1200px;
 
   margin: auto;
-
 }
 
 .badge {
-
   display: inline-block;
 
   padding: 8px 14px;
@@ -1106,11 +1845,9 @@ function getQuote(provider) {
   font-size: 14px;
 
   margin-bottom: 20px;
-
 }
 
 .hero h1 {
-
   font-size:
     clamp(42px, 6vw, 70px);
 
@@ -1119,17 +1856,13 @@ function getQuote(provider) {
   margin: 0;
 
   font-weight: 800;
-
 }
 
 .hero h1 span {
-
   color: #ddd6fe;
-
 }
 
 .hero p {
-
   max-width: 650px;
 
   font-size: 18px;
@@ -1140,7 +1873,6 @@ function getQuote(provider) {
     25px 0 35px;
 
   opacity: 0.9;
-
 }
 
 
@@ -1149,7 +1881,6 @@ function getQuote(provider) {
 ========================================================= */
 
 .search-card {
-
   width: 100%;
 
   box-sizing: border-box;
@@ -1174,30 +1905,24 @@ function getQuote(provider) {
     rgba(15, 23, 42, 0.2);
 
   color: #1e293b;
-
 }
 
 .input-group {
-
   display: flex;
 
   flex-direction: column;
 
   gap: 8px;
-
 }
 
 .input-group label {
-
   font-size: 13px;
 
   font-weight: 700;
-
 }
 
 .input-group input,
 .input-group select {
-
   width: 100%;
 
   box-sizing: border-box;
@@ -1215,27 +1940,23 @@ function getQuote(provider) {
   font-size: 15px;
 
   background: #f8fafc;
-
 }
 
 .input-group input:focus,
 .input-group select:focus {
-
   outline: none;
 
   border-color:
     #00a6a6;
-
 }
 
 
 /* =========================================================
-   BUTTON
+   BUTTONS
 ========================================================= */
 
 .search-btn,
 .provider-footer button {
-
   border: none;
 
   background:
@@ -1253,15 +1974,12 @@ function getQuote(provider) {
   cursor: pointer;
 
   transition: 0.2s ease;
-
 }
 
 .search-btn:hover,
 .provider-footer button:hover {
-
   background:
     #00a6a6;
-
 }
 
 
@@ -1270,7 +1988,6 @@ function getQuote(provider) {
 ========================================================= */
 
 .emergency-section {
-
   width: 100%;
 
   max-width: 1200px;
@@ -1284,11 +2001,9 @@ function getQuote(provider) {
   position: relative;
 
   z-index: 2;
-
 }
 
 .emergency-card {
-
   width: 100%;
 
   box-sizing: border-box;
@@ -1319,19 +2034,15 @@ function getQuote(provider) {
   box-shadow:
     0 20px 40px
     rgba(220, 38, 38, 0.25);
-
 }
 
 .emergency-text {
-
   flex: 1;
 
   min-width: 260px;
-
 }
 
 .emergency-badge {
-
   display: inline-block;
 
   padding: 6px 12px;
@@ -1348,41 +2059,35 @@ function getQuote(provider) {
   letter-spacing: 1px;
 
   margin-bottom: 12px;
-
 }
 
 .emergency-text h2 {
-
   font-size: 26px;
 
-  margin: 0 0 8px;
-
+  margin:
+    0 0 8px;
 }
 
 .emergency-text p {
-
-  margin: 0 0 16px;
+  margin:
+    0 0 16px;
 
   opacity: 0.95;
 
   line-height: 1.6;
 
   max-width: 480px;
-
 }
 
 .emergency-tags {
-
   display: flex;
 
   flex-wrap: wrap;
 
   gap: 10px;
-
 }
 
 .emergency-tag {
-
   padding: 8px 14px;
 
   border-radius: 50px;
@@ -1399,19 +2104,15 @@ function getQuote(provider) {
   transition: 0.2s ease;
 
   white-space: nowrap;
-
 }
 
 .emergency-tag:hover {
-
   background: white;
 
   color: #b91c1c;
-
 }
 
 .emergency-btn {
-
   border: none;
 
   background: white;
@@ -1431,15 +2132,12 @@ function getQuote(provider) {
   white-space: nowrap;
 
   transition: 0.2s ease;
-
 }
 
 .emergency-btn:hover {
-
   background: #0D1B3D;
 
   color: white;
-
 }
 
 
@@ -1450,7 +2148,6 @@ function getQuote(provider) {
 .services-section,
 .providers-section,
 .reviews-section {
-
   width: 100%;
 
   max-width: 1200px;
@@ -1461,17 +2158,13 @@ function getQuote(provider) {
 
   padding:
     80px 40px;
-
 }
 
 .section-heading {
-
   margin-bottom: 40px;
-
 }
 
 .section-heading > span {
-
   color:
     #2e7d5a;
 
@@ -1480,23 +2173,18 @@ function getQuote(provider) {
   font-weight: 800;
 
   letter-spacing: 1.5px;
-
 }
 
 .section-heading h2 {
-
   font-size: 36px;
 
   margin:
     8px 0;
-
 }
 
 .section-heading p {
-
   color:
     #64748b;
-
 }
 
 
@@ -1505,18 +2193,15 @@ function getQuote(provider) {
 ========================================================= */
 
 .services-grid {
-
   display: grid;
 
   grid-template-columns:
     repeat(3, 1fr);
 
   gap: 20px;
-
 }
 
 .service-card {
-
   background: white;
 
   padding: 28px;
@@ -1529,11 +2214,9 @@ function getQuote(provider) {
   cursor: pointer;
 
   transition: 0.2s ease;
-
 }
 
 .service-card:hover {
-
   transform:
     translateY(-5px);
 
@@ -1546,26 +2229,20 @@ function getQuote(provider) {
   box-shadow:
     0 10px 25px
     rgba(0, 166, 166, 0.25);
-
 }
 
 .service-card:hover h3,
 .service-card:hover p,
 .service-card:hover .view-service {
-
   color: white;
-
 }
 
 .service-card:hover .service-icon {
-
   background:
     rgba(255, 255, 255, 0.2);
-
 }
 
 .service-icon {
-
   width: 52px;
 
   height: 52px;
@@ -1582,28 +2259,22 @@ function getQuote(provider) {
   font-size: 25px;
 
   margin-bottom: 18px;
-
 }
 
 .service-card h3 {
-
   margin-bottom: 8px;
-
 }
 
 .service-card p {
-
   color:
     #64748b;
 
   line-height: 1.6;
 
   font-size: 14px;
-
 }
 
 .view-service {
-
   display: inline-block;
 
   margin-top: 10px;
@@ -1614,7 +2285,6 @@ function getQuote(provider) {
   font-weight: 700;
 
   font-size: 14px;
-
 }
 
 
@@ -1623,18 +2293,15 @@ function getQuote(provider) {
 ========================================================= */
 
 .providers-grid {
-
   display: grid;
 
   grid-template-columns:
     repeat(3, 1fr);
 
   gap: 20px;
-
 }
 
 .provider-card {
-
   background: white;
 
   padding: 24px;
@@ -1643,21 +2310,17 @@ function getQuote(provider) {
 
   border:
     1px solid #e2e8f0;
-
 }
 
 .provider-top {
-
   display: flex;
 
   align-items: center;
 
   gap: 12px;
-
 }
 
 .provider-avatar {
-
   width: 50px;
 
   height: 50px;
@@ -1676,37 +2339,27 @@ function getQuote(provider) {
   font-weight: 800;
 
   font-size: 18px;
-
 }
 
 .provider-info {
-
   min-width: 0;
-
 }
 
 .provider-top h3 {
-
   margin:
     0 0 4px;
-
 }
 
 .rating {
-
   font-size: 14px;
-
 }
 
 .rating span {
-
   color:
     #94a3b8;
-
 }
 
 .verified {
-
   margin-left: auto;
 
   color:
@@ -1717,11 +2370,9 @@ function getQuote(provider) {
   font-weight: 700;
 
   white-space: nowrap;
-
 }
 
 .provider-bio {
-
   color:
     #64748b;
 
@@ -1731,7 +2382,6 @@ function getQuote(provider) {
 
   margin:
     20px 0;
-
 }
 
 
@@ -1740,7 +2390,6 @@ function getQuote(provider) {
 ========================================================= */
 
 .problem-details {
-
   display: flex;
 
   flex-direction: column;
@@ -1757,21 +2406,17 @@ function getQuote(provider) {
     1px dashed #e2e8f0;
 
   border-radius: 12px;
-
 }
 
 .problem-label {
-
   font-size: 12px;
 
   font-weight: 700;
 
   color: #1e293b;
-
 }
 
 .problem-textarea {
-
   width: 100%;
 
   box-sizing: border-box;
@@ -1794,30 +2439,24 @@ function getQuote(provider) {
   background: white;
 
   color: #1e293b;
-
 }
 
 .problem-textarea:focus {
-
   outline: none;
 
   border-color:
     #00a6a6;
-
 }
 
 .photo-row {
-
   display: flex;
 
   align-items: center;
 
   gap: 12px;
-
 }
 
 .photo-upload {
-
   display: inline-flex;
 
   align-items: center;
@@ -1842,21 +2481,17 @@ function getQuote(provider) {
   cursor: pointer;
 
   transition: 0.2s ease;
-
 }
 
 .photo-upload:hover {
-
   border-color:
     #00a6a6;
 
   color:
     #00a6a6;
-
 }
 
 .photo-preview {
-
   width: 42px;
 
   height: 42px;
@@ -1869,11 +2504,9 @@ function getQuote(provider) {
     1px solid #e2e8f0;
 
   cursor: pointer;
-
 }
 
 .provider-footer {
-
   display: flex;
 
   justify-content:
@@ -1882,16 +2515,13 @@ function getQuote(provider) {
   align-items: center;
 
   gap: 10px;
-
 }
 
 .experience {
-
   color:
     #64748b;
 
   font-size: 13px;
-
 }
 
 
@@ -1900,18 +2530,15 @@ function getQuote(provider) {
 ========================================================= */
 
 .reviews-grid {
-
   display: grid;
 
   grid-template-columns:
     repeat(3, 1fr);
 
   gap: 20px;
-
 }
 
 .review-card {
-
   background: white;
 
   padding: 26px;
@@ -1926,19 +2553,15 @@ function getQuote(provider) {
   flex-direction: column;
 
   gap: 14px;
-
 }
 
 .review-stars {
-
   font-size: 15px;
 
   letter-spacing: 2px;
-
 }
 
 .review-quote {
-
   color:
     #334155;
 
@@ -1949,21 +2572,17 @@ function getQuote(provider) {
   font-style: italic;
 
   flex: 1;
-
 }
 
 .review-author {
-
   display: flex;
 
   align-items: center;
 
   gap: 12px;
-
 }
 
 .review-avatar {
-
   width: 38px;
 
   height: 38px;
@@ -1985,24 +2604,19 @@ function getQuote(provider) {
   font-weight: 800;
 
   font-size: 14px;
-
 }
 
 .review-author strong {
-
   display: block;
 
   font-size: 14px;
-
 }
 
 .review-service {
-
   color:
     #94a3b8;
 
   font-size: 12px;
-
 }
 
 
@@ -2015,23 +2629,17 @@ function getQuote(provider) {
   .services-grid,
   .providers-grid,
   .reviews-grid {
-
     grid-template-columns:
       repeat(2, 1fr);
-
   }
 
   .search-card {
-
     grid-template-columns:
       1fr 1fr;
-
   }
 
   .search-btn {
-
     width: 100%;
-
   }
 
 }
@@ -2043,85 +2651,76 @@ function getQuote(provider) {
 
 @media (max-width: 800px) {
 
-  /* Sidebar becomes an overlay */
-
   .main-content {
-
     width: 100%;
-
     margin-left: 0;
+  }
 
+  .top-center {
+    order: 3;
+
+    flex-basis: 100%;
+
+    max-width: 100%;
+
+    min-width: 0;
+  }
+
+  .top-right {
+    display: flex;
   }
 
   .top-bar {
-
     padding:
-      14px 20px;
-
+      10px 20px;
   }
 
   .hero {
-
     padding:
       50px 20px 70px;
-
   }
 
   .emergency-section {
-
     padding:
       0 20px;
 
     margin-top:
       -40px;
-
   }
 
   .emergency-card {
-
     padding: 26px;
 
     flex-direction: column;
 
     align-items: flex-start;
-
   }
 
   .emergency-btn {
-
     width: 100%;
-
   }
 
   .services-section,
   .providers-section,
   .reviews-section {
-
     padding:
       60px 20px;
-
   }
 
   .search-card {
-
     grid-template-columns:
       1fr;
-
   }
 
   .services-grid,
   .providers-grid,
   .reviews-grid {
-
     grid-template-columns:
       1fr;
-
   }
 
   .hero h1 {
-
     font-size: 44px;
-
   }
 
 }
@@ -2133,22 +2732,24 @@ function getQuote(provider) {
 
 @media (max-width: 500px) {
 
+  .side-nav {
+    width: 280px;
+  }
+
   .hero h1 {
-
     font-size: 38px;
-
   }
 
   .hero p {
-
     font-size: 16px;
-
   }
 
   .section-heading h2 {
-
     font-size: 28px;
+  }
 
+  .brand {
+    font-size: 19px;
   }
 
 }

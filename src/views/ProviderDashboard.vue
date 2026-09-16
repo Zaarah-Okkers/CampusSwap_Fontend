@@ -144,11 +144,11 @@
       <div class="greeting-block">
 
         <h2 class="dashboard-title">
-          Hi, Zaarah!
+          Hi,{{ user.full_name || 'Provider' }} 
         </h2>
 
         <p class="university-text">
-          Cape Town Express Plumbing
+          {{ user.service_area || 'Service Provider' }}
         </p>
 
       </div>
@@ -162,15 +162,14 @@
         </h3>
 
         <div class="stats-grid">
-
           <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
 
             <span class="stat-title">
-              Jobs Completed
+              Assigned Jobs
             </span>
 
             <span class="stat-value" style="color: #2e7d5a;">
-              24
+              {{ assignedJobs.length }}
             </span>
           </div>
 
@@ -181,21 +180,23 @@
             </span>
 
             <span class="stat-value" style="color: #00a6a6;">
-              3.8
+              {{ user.rating || '0.0' }}
             </span>
           </div>
 
           <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
 
             <span class="stat-title">
-              Pending Requests
+              Completed
             </span>
-            
+
             <span class="stat-value" style="color: #f5b941;">
-              3
+              {{ completedJobs }}
             </span>
           </div>
         </div>
+
+          
       </div>
 
       <!-- Account Management Card -->
@@ -218,7 +219,7 @@
 
           <div class="menu-item">
 
-            <router-link to="/dashboard" class="menu-link">
+            <router-link to="/provider-dashboard" class="menu-link">
               My Dashboard 
 
               <span class="arrow">
@@ -277,18 +278,39 @@
 
 <script>
 import Swal from 'sweetalert2'
+import { dashAPI, authAPI, session } from '@/services/api';
 
 export default {
   name: 'ProviderDashboard',
+
   data() {
     return {
       sideNavOpen: false,
-      userRole: 'service provider',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
+      user: {},
+      // jobs assigned to this provider
+      assignedJobs: []
     };
   },
+
+  async mounted() {
+    this.user = session.get() || {};
+
+    if (!this.user.id) {
+      this.$router.push('/login');
+      return;
+    }
+
+    try {
+      const data = await dashAPI.getProvider(this.user.id);
+      this.assignedJobs = data.assignedJobs || [];
+    } catch (err) {
+      console.error('Failed to load provider dashboard:', err.message);
+    }
+  },
+
   computed: {
     formattedDate() {
       const now = new Date();
@@ -298,20 +320,25 @@ export default {
         month: 'long',
         day: 'numeric'
       });
+    },
+
+    // count of jobs marked as completed
+    completedJobs() {
+      return this.assignedJobs.filter(j => j.status === 'completed').length;
     }
   },
+
   methods: {
-    // -------- Toggle side navigation --------
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
     },
+
     closeSideNav() {
       this.sideNavOpen = false;
       document.body.style.overflow = '';
     },
 
-    // -------- Logout with confirmation --------
     async logout() {
       const result = await Swal.fire({
         title: 'Logout?',
@@ -323,13 +350,14 @@ export default {
         confirmButtonText: 'Yes, logout',
         cancelButtonText: 'Cancel',
       });
+
       if (result.isConfirmed) {
+        session.clear();
         await Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
         this.$router.push('/login');
       }
     },
 
-    // -------- Change Password with SweetAlert --------
     async changePassword() {
       if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
         await Swal.fire({
@@ -361,20 +389,35 @@ export default {
         return;
       }
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'Password Updated!',
-        text: 'Your password has been changed successfully.',
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      try {
+        await authAPI.changePassword(
+          this.user.id,
+          this.currentPassword,
+          this.newPassword
+        );
 
-      this.currentPassword = '';
-      this.newPassword = '';
-      this.confirmPassword = '';
+        await Swal.fire({
+          icon: 'success',
+          title: 'Password Updated!',
+          text: 'Your password has been changed successfully.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        this.currentPassword = '';
+        this.newPassword = '';
+        this.confirmPassword = '';
+      } catch (err) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: err.message,
+          confirmButtonColor: '#d33',
+        });
+      }
     },
 
-    // -------- Quick Actions with SweetAlert --------
+    // placeholder methods — pages not built yet
     async viewJobs() {
       await Swal.fire({
         icon: 'info',

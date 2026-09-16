@@ -370,86 +370,35 @@
         </h2>
 
         <div class="featured-grid">
-
-          <div class="featured-item">
-
+          <!-- will have the backend data here  -->
+          <div v-for="product in featuredProducts" :key="product.id" class="featured-item">
             <div class="item-image">
-              📱
+              <img
+                  v-if="product.image_url"
+                  :src="product.image_url"
+                  :alt="product.name"
+                  class="product-img"
+                /><span v-else>📦</span>
             </div>
 
             <h4>
-              HP EliteBook 840 G5
+              {{ product.name }}
             </h4>
 
             <p class="item-price">
-              R4,500
+              R{{ product.price ? Number(product.price).toFixed(2) : 'Swap' }}
             </p>
 
             <span class="item-badge">
-              Used Like New
+              {{ product.condition_label }}
             </span>
+        </div>
 
-          </div>
+          <!-- empty state if no products in the DB -->
+          <p v-if="featuredProducts.length === 0" class="empty-state">
+            No listings yet — check back soon!
+          </p>
 
-          <div class="featured-item">
-
-            <div class="item-image">
-              📘
-            </div>
-
-            <h4>
-              Calculus MAM1000W Guide
-            </h4>
-
-            <p class="item-price">
-              R350
-            </p>
-
-            <span class="item-badge">
-              UCT Guide
-            </span>
-
-          </div>
-
-          <div class="featured-item">
-
-            <div class="item-image">
-              🧮
-            </div>
-
-            <h4>
-              TI-Plus Graphing Calc
-            </h4>
-
-            <p class="item-price">
-              R1,200
-            </p>
-
-            <span class="item-badge">
-              ACT Rewards
-            </span>
-
-          </div>
-
-          <div class="featured-item">
-
-            <div class="item-image">
-              🎧
-            </div>
-
-            <h4>
-              Sony ANC Headphones
-            </h4>
-
-            <p class="item-price">
-              R1,800
-            </p>
-
-            <span class="item-badge">
-              Use Now
-            </span>
-
-          </div>
         </div>
       </div>
 
@@ -547,21 +496,56 @@
 </template>
 
 <script>
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
+import { homeAPI } from '@/services/api';
 
 export default {
   
   name: 'HomePage',
   data() {
     return {
-      isLoggedIn: false,
-      sideNavOpen: false,
-      user: {
-        name: 'Myles N.',
-        university: 'University of Cape Town'
-      }
-    };
+    isLoggedIn: false,
+    sideNavOpen: false,
+    featuredProducts: [],
+    categories: [],
+    universities: [],
+    user: {
+      name: 'Guest',
+      university: ''
+    }
+  };
+},
+
+// runs once when the page loads — fetches real data from backend
+async created() {
+
+  // check if someone is logged in
+  const stored = localStorage.getItem('user');
+
+  if (stored) {
+    const u = JSON.parse(stored);
+
+    this.isLoggedIn = true;
+
+    this.user.name = u.full_name || 'Student';
+  }
+
+  // grab real data from the DB
+  try {
+    const data = await homeAPI.getHomeData();
+
+    this.featuredProducts = data.featuredProducts || [];
+
+    this.categories = data.categories || [];
+
+    this.universities = data.universities || [];
+
+  } 
+  catch (err) {
+    console.error('Home data failed to load:', err.message);
+  }
   },
+
   methods: {
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
@@ -611,7 +595,8 @@ export default {
           this.isLoggedIn = false;
           Swal.fire('Logged Out', 'You have been logged out.', 'success');
         }
-      } else {
+      } 
+      else {
         // If logging in, just toggle (or you could show a success message)
         this.isLoggedIn = true;
         Swal.fire({
@@ -911,9 +896,7 @@ export default {
     opacity: 0.7;
   }
 
-  /* ================================================================
-     HERO SECTION
-     ================================================================ */
+  /* HERO SECTION */
   .hero {
     background-color: #0d1b3d;
     color: #ffffff;
@@ -998,9 +981,7 @@ export default {
     object-fit: cover;
   }
 
-  /* ================================================================
-     CORE SERVICES
-     ================================================================ */
+  /* CORE SERVICES */
   .core-services {
     background-color: #f8f9fa;
     padding-top: 40px;
@@ -1098,9 +1079,7 @@ export default {
     color: #0d1b3d;
   }
 
-  /* ================================================================
-     TUTORIAL
-     ================================================================ */
+  /* TUTORIAL*/
   .tutorial-section {
     background-color: #f0f2f5;
     padding-top: 40px;
@@ -1299,9 +1278,7 @@ export default {
     margin-top: 6px;
   }
 
-  /* ================================================================
-     SCROLL INDICATOR
-     ================================================================ */
+  /* SCROLL INDICATOR */
   .scroll-indicator {
     position: absolute;
     bottom: 28px;
@@ -1344,9 +1321,7 @@ export default {
     }
   }
 
-  /* ================================================================
-     FOOTER
-     ================================================================ */
+  /* FOOTER */
   footer {
     background-color: #050c1e;
     color: #ffffff;
@@ -1403,9 +1378,7 @@ export default {
     color: #ffffff;
   }
 
-  /* ================================================================
-     RESPONSIVE
-     ================================================================ */
+  /* RESPONSIVE */
   @media (max-width: 992px) {
     .hero-title {
       font-size: 32px;
@@ -1615,4 +1588,21 @@ export default {
       padding: 16px 18px;
     }
   }
+  /* makes product images fit inside the card nicely */
+  .product-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  /* message shown when there are no products */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #64748b;
+    font-size: 15px;
+    padding: 30px 0;
+  }
+
 </style>

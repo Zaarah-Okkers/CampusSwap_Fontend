@@ -413,7 +413,9 @@ export default {
     };
   },
   methods: {
+
     // ===== SIDE NAV =====
+    
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';

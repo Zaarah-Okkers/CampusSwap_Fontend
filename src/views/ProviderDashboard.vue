@@ -1,14 +1,15 @@
 <!-- this is for the service provider dashboard -->
 
 <template>
-  <section class="service_provider-dash"><!-- TOP BAR -->
+  <section class="service_provider-dash">
+
+    <!-- TOP BAR -->
     <header class="top-bar">
       <div class="top-left">
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
           <span class="hamburger-icon">&#9776;</span>
         </button>
-        
-        <!-- Added Router Link so clicking the logo goes Home -->
+
         <router-link to="/" class="brand-link">
           <h2 class="brand">
             CampusSwap<span class="green-text">SA</span>
@@ -26,13 +27,13 @@
         </div>
       </div>
 
-      <!-- Added Alert Bell next to Avatar -->
       <div class="top-right">
-        <div class="notification-bell" @click="alert('You have 3 new notifications!')">
-          <span class="bell-icon">&#128276;</span> <!-- Bell Icon -->
-          <span class="notification-dot"></span> <!-- Red Dot -->
+        <div class="notification-bell" @click="notifyClick">
+          <span class="bell-icon">&#128276;</span>
+          <span class="notification-dot"></span>
         </div>
-        <span class="avatar">MN</span>
+
+        <span class="avatar">{{ initials }}</span>
       </div>
     </header>
 
@@ -44,53 +45,71 @@
     ></div>
 
     <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
+
       <div class="side-nav-header">
         <h3>CampusSwap<span class="green-text">SA</span></h3>
         <button class="close-side-btn" @click="closeSideNav">&times;</button>
       </div>
-      
-      <!-- Navigation Links (Home is ALWAYS visible for everyone) -->
+
+      <!-- Menu: role-aware -->
       <ul class="side-nav-links">
-        <li><router-link to="/" @click="closeSideNav">Home</router-link></li>
-        <!-- <li><router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">Academic Marketplace</router-link></li>
-        <li><router-link to="/safehome" @click="closeSideNav">SafeHome</router-link></li>
-        <li><router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">Checkout</router-link></li> -->
-        <li><router-link to="/dashboard" @click="closeSideNav">Dashboard</router-link></li>
+        <li>
+          <router-link to="/" @click="closeSideNav">Home</router-link>
+        </li>
+
+        <template v-if="user && user.id">
+          <li v-if="canSeeAcademic">
+            <router-link to="/academic" @click="closeSideNav">Academic Marketplace</router-link>
+          </li>
+          <li>
+            <router-link to="/safehome" @click="closeSideNav">SafeHome</router-link>
+          </li>
+          <li v-if="canSeeCheckout">
+            <router-link to="/checkout" @click="closeSideNav">Checkout</router-link>
+          </li>
+          <li>
+            <router-link :to="myDashboard" @click="closeSideNav">Dashboard</router-link>
+          </li>
+        </template>
       </ul>
 
-      <!-- Logout Button at bottom -->
-      <div class="side-nav-logout">
-        <button class="logout-btn" @click="logout">Logout</button>
+      <!-- User footer with logout -->
+      <div class="side-nav-user" v-if="user && user.id">
+        <p>Hi! {{ user.full_name }}</p>
+        <p class="side-user-uni">{{ roleLabel }}</p>
+        <button class="side-logout-btn" @click="logout">Logout</button>
       </div>
     </div>
 
     <!-- MAIN DASHBOARD CONTENT -->
     <div class="dashboard-container">
-      
+
       <!-- User Greeting -->
       <div class="greeting-block">
-        <h2 class="dashboard-title">Hi, Zaarah!</h2>
-        <p class="university-text">Cape Town Express Plumbing</p>
+        <h2 class="dashboard-title">Hi, {{ user.full_name || 'Provider' }}</h2>
+        <p class="university-text">
+          {{ roleLabel }}<span v-if="user.service_area"> &middot; {{ user.service_area }}</span>
+        </p>
       </div>
 
-      <!-- Profile Stats Card (Fixed Layout) -->
+      <!-- Profile Stats Card -->
       <div class="card">
         <h3 class="card-heading">My Profile</h3>
 
         <div class="stats-grid">
           <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
-            <span class="stat-title">Jobs Completed</span>
-            <span class="stat-value" style="color: #2e7d5a;">24</span>
+            <span class="stat-title">Assigned Jobs</span>
+            <span class="stat-value" style="color: #2e7d5a;">{{ assignedJobs.length }}</span>
           </div>
 
           <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
             <span class="stat-title">Rating</span>
-            <span class="stat-value" style="color: #00a6a6;">3.8</span>
+            <span class="stat-value" style="color: #00a6a6;">{{ user.rating || '0.0' }}</span>
           </div>
 
           <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
-            <span class="stat-title">Pending Requests</span>
-            <span class="stat-value" style="color: #f5b941;">3</span>
+            <span class="stat-title">Completed</span>
+            <span class="stat-value" style="color: #f5b941;">{{ completedJobs }}</span>
           </div>
         </div>
       </div>
@@ -98,23 +117,17 @@
       <!-- Account Management Card -->
       <div class="card">
         <h3 class="card-heading">Account Management</h3>
-        
-      
-          <div class="menu-item">
-            <router-link to="/safehome" class="menu-link">Available Jobs <span class="arrow">&gt;</span></router-link>
-          </div>
 
-          <div class="menu-item">
-            <router-link to="/dashboard" class="menu-link">My Dashboard <span class="arrow">&gt;</span></router-link>
-          </div>
-        
+        <div class="menu-item">
+          <router-link to="/safehome" class="menu-link">
+            Available Jobs <span class="arrow">&gt;</span>
+          </router-link>
+        </div>
 
-        
-
-        <!-- Change Password Section (Inside Account Management) -->
+        <!-- Change Password Section -->
         <div class="password-section">
           <h4 class="password-title">Change Password</h4>
-          
+
           <div class="form-group">
             <label>Current Password</label>
             <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
@@ -131,28 +144,51 @@
           </div>
 
           <button class="btn-save" @click="changePassword">Update Password</button>
+
         </div>
 
       </div>
 
     </div>
-  
+
   </section>
 </template>
 
 <script>
 import Swal from 'sweetalert2'
+import { dashAPI, authAPI, session, LOGOUT_MESSAGES } from '@/services/api';
 
 export default {
   name: 'ProviderDashboard',
+
   data() {
     return {
       sideNavOpen: false,
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
+      user: {},
+      // jobs assigned to this provider
+      assignedJobs: []
     };
   },
+
+  async mounted() {
+    this.user = session.get() || {};
+
+    if (!this.user.id) {
+      this.$router.push('/login');
+      return;
+    }
+
+    try {
+      const data = await dashAPI.getProvider(this.user.id);
+      this.assignedJobs = data.assignedJobs || [];
+    } catch (err) {
+      console.error('Failed to load provider dashboard:', err.message);
+    }
+  },
+
   computed: {
     formattedDate() {
       const now = new Date();
@@ -162,20 +198,80 @@ export default {
         month: 'long',
         day: 'numeric'
       });
+    },
+
+    // count of jobs marked as completed
+    completedJobs() {
+      return this.assignedJobs.filter(j => j.status === 'completed').length;
+    },
+
+    // avatar initials — "Cape Town Express Plumbing" becomes "CT"
+    initials() {
+      if (!this.user.full_name) return 'SP';
+      return this.user.full_name
+        .split(' ')
+        .map(w => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+    },
+
+    // friendly label for the backend role ENUM
+    roleLabel() {
+      const labels = {
+        student: 'Student',
+        service_provider: 'Service Provider',
+        res_manager: 'Residence Manager',
+        admin: 'Administrator'
+      };
+      return labels[this.user.role] || 'Service Provider';
+    },
+
+    // who can see Academic Marketplace? students, admins, res managers (NOT providers)
+    canSeeAcademic() {
+      return ['student', 'admin', 'res_manager'].includes(this.user.role);
+    },
+
+    // who can see Checkout? students, admins, res managers (NOT providers)
+    canSeeCheckout() {
+      return ['student', 'admin', 'res_manager'].includes(this.user.role);
+    },
+
+    // own dashboard route — same on every dashboard
+    myDashboard() {
+      const routes = {
+        student: '/student-dashboard',
+        service_provider: '/provider-dashboard',
+        admin: '/admin-dashboard',
+        res_manager: '/resmanager-dashboard'
+      };
+      return routes[this.user.role] || '/login';
     }
   },
+
   methods: {
-    // -------- Toggle side navigation --------
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
     },
+
     closeSideNav() {
       this.sideNavOpen = false;
       document.body.style.overflow = '';
     },
 
-    // -------- Logout with confirmation --------
+    // notification bell
+    notifyClick() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Notifications',
+        text: 'You have 3 new notifications.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    // logout — role-specific message + clears session
     async logout() {
       const result = await Swal.fire({
         title: 'Logout?',
@@ -187,13 +283,21 @@ export default {
         confirmButtonText: 'Yes, logout',
         cancelButtonText: 'Cancel',
       });
+
       if (result.isConfirmed) {
-        await Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
+        const message = LOGOUT_MESSAGES[this.user.role] || 'Logged out.';
+        session.clear();
+        await Swal.fire({
+          icon: 'success',
+          title: message,
+          timer: 1800,
+          showConfirmButton: false
+        });
         this.$router.push('/login');
       }
     },
 
-    // -------- Change Password with SweetAlert --------
+    // change password — hits the real backend
     async changePassword() {
       if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
         await Swal.fire({
@@ -225,62 +329,35 @@ export default {
         return;
       }
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'Password Updated!',
-        text: 'Your password has been changed successfully.',
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      try {
+        await authAPI.changePassword(
+          this.user.id,
+          this.currentPassword,
+          this.newPassword
+        );
 
-      this.currentPassword = '';
-      this.newPassword = '';
-      this.confirmPassword = '';
-    },
+        await Swal.fire({
+          icon: 'success',
+          title: 'Password Updated!',
+          text: 'Your password has been changed successfully.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
 
-    // -------- Quick Actions with SweetAlert --------
-    async viewJobs() {
-      await Swal.fire({
-        icon: 'info',
-        title: 'View All Jobs',
-        text: 'Navigating to your job history...',
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    },
-
-    async manageServices() {
-      await Swal.fire({
-        icon: 'info',
-        title: 'Manage Services',
-        text: 'Navigating to service management...',
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    },
-
-    async viewMessages() {
-      await Swal.fire({
-        icon: 'info',
-        title: 'Messages',
-        text: 'Navigating to your inbox...',
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    },
-
-    async updateProfile() {
-      await Swal.fire({
-        icon: 'info',
-        title: 'Update Profile',
-        text: 'Navigating to profile settings...',
-        timer: 1500,
-        showConfirmButton: false,
-      });
+        this.currentPassword = '';
+        this.newPassword = '';
+        this.confirmPassword = '';
+      } catch (err) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: err.message,
+          confirmButtonColor: '#d33',
+        });
+      }
     }
   }
 };
-
 </script>
 
 <style scoped>
@@ -294,7 +371,7 @@ export default {
   min-height: 100vh;
 }
 
-/* Top Bar (Navy - Retained) */
+/* Top Bar */
 .top-bar {
   background-color: #0d1b3d;
   padding: 10px 24px;
@@ -332,7 +409,6 @@ export default {
   line-height: 1;
 }
 
-/* Make logo a link */
 .brand-link {
   text-decoration: none;
 }
@@ -430,7 +506,7 @@ export default {
   justify-content: center;
 }
 
-/* Side Nav (Navy - Retained) */
+/* Side Nav */
 .side-overlay {
   position: fixed;
   top: 0;
@@ -526,29 +602,41 @@ export default {
   border-left-color: #f5b941;
 }
 
-/* Logout Button at bottom (Gold on hover) */
-.side-nav-logout {
+/* user footer with inline logout */
+.side-nav-user {
   margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
 }
 
-.logout-btn {
+.side-nav-user p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.side-user-uni {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.side-logout-btn {
+  margin-top: 12px;
   width: 100%;
   background: transparent;
   border: 2px solid #f5b941;
   color: #f5b941;
   font-weight: 700;
-  padding: 12px 24px;
+  padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 14px;
   transition: all 0.3s ease;
 }
 
-.logout-btn:hover {
+.side-logout-btn:hover {
   background-color: #f5b941;
   color: #0d1b3d;
-  transform: translateY(-2px);
 }
 
 /* Dashboard Content */
@@ -591,18 +679,17 @@ export default {
   margin: 0 0 16px 0;
   font-weight: 700;
   padding-bottom: 10px;
-  border-bottom: 2px solid #6c4b6a; /* Purple accent */
+  border-bottom: 2px solid #6c4b6a;
 }
 
-/* Stats Grid - FIXED! No more huge vertical bars */
 .stats-grid {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
 .stat-card {
-  flex: 1 1 150px; /* Grow, shrink, but at least 150px wide */
+  flex: 1 1 150px;
   padding: 15px;
   border-radius: 12px;
   text-align: center;
@@ -729,10 +816,8 @@ export default {
     min-width: 0;
   }
   .top-right {
-    display: flex; 
+    display: flex;
   }
-  
-  /* No more stacking, just smaller gap */
   .stats-grid {
     gap: 8px;
   }
@@ -741,6 +826,3 @@ export default {
   }
 }
 </style>
-
-
-

@@ -11,7 +11,7 @@
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
 
           <span class="hamburger-icon">
-            &#9776;
+            <AppIcon name="dashboard" />
           </span>
 
         </button>
@@ -44,7 +44,7 @@
         <div class="notification-bell" @click="alert('You have 3 new notifications!')">
 
           <span class="bell-icon">
-            &#128276;
+            <AppIcon name="alert" />
           </span>
 
           <span class="notification-dot">
@@ -54,7 +54,7 @@
         </div>
 
         <span class="avatar">
-          MN
+          {{ userInitials }}
         </span>
 
       </div>
@@ -318,10 +318,12 @@
 
 <script>
 import Swal from 'sweetalert2'
+import AppIcon from '../components/AppIcon.vue'
 
 export default {
 
   name: 'AdminDashboard',
+  components: { AppIcon },
   data() {
     return {
       sideNavOpen: false,
@@ -333,6 +335,14 @@ export default {
   },
 
   computed: {
+    userInitials() {
+      return this.$store.getters['user/currentUser'].name
+        .split(' ')
+        .map(part => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    },
     formattedDate() {
       const now = new Date();
       return now.toLocaleDateString('en-ZA', {
@@ -761,14 +771,14 @@ export default {
 }
 
 .dashboard-title {
-  color: #0d1b3d;
+  color: #ffffff;
   font-size: 26px;
   font-weight: 700;
   margin: 0 0 6px 0;
 }
 
 .university-text {
-  color: #6c4b6a;
+  color: #d1d5db;
   font-size: 15px;
   font-weight: 500;
   margin: 0;
@@ -835,6 +845,16 @@ export default {
   color: #64748b;
   margin-bottom: 5px;
   font-weight: 500;
+}
+
+.stat-title-one,
+.stat-title-two,
+.stat-title-three {
+  color: #334155;
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 5px;
 }
 
 .stat-value-one {

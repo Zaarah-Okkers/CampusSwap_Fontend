@@ -14,7 +14,7 @@
           aria-label="Open menu"
         >
           <span class="hamburger-icon">
-            &#9776;
+            <AppIcon name="dashboard" />
           </span>
         </button>
 
@@ -43,7 +43,7 @@
           @click="showNotifications"
         >
           <span class="bell-icon">
-            &#128276;
+            <AppIcon name="alert" />
           </span>
 
           <span class="notification-dot"></span>
@@ -205,7 +205,7 @@
           <div class="hero-content">
 
             <span class="badge">
-              🏠 SafeHomeZA
+              <AppIcon name="home" /> SafeHomeZA
             </span>
 
             <h1>
@@ -302,7 +302,7 @@
             <div class="emergency-text">
 
               <span class="emergency-badge">
-                🚨 URGENT HELP
+                <AppIcon name="alert" /> URGENT HELP
               </span>
 
               <h2>
@@ -322,7 +322,7 @@
                   class="emergency-tag"
                   @click="selectEmergencyService(item)"
                 >
-                  {{ item.icon }} {{ item.name }}
+                  <AppIcon :name="item.icon" /> {{ item.name }}
                 </span>
 
               </div>
@@ -374,7 +374,7 @@
             >
 
               <div class="service-icon">
-                {{ service.icon }}
+                <AppIcon :name="service.icon" />
               </div>
 
               <h3>
@@ -454,7 +454,7 @@
                   </h3>
 
                   <div class="rating">
-                    ⭐ {{ provider.rating }}
+                    <AppIcon name="star" /> {{ provider.rating }}
 
                     <span>
                       ({{ provider.rating_count }} reviews)
@@ -600,7 +600,7 @@
                   v-for="n in review.stars"
                   :key="n"
                 >
-                  ⭐
+                  <AppIcon name="star" />
                 </span>
 
               </div>
@@ -650,6 +650,7 @@
 
 import { ref, reactive, computed } from 'vue'
 import Swal from 'sweetalert2'
+import AppIcon from '../components/AppIcon.vue'
 
 
 /* =========================================================
@@ -783,7 +784,7 @@ const services = [
   {
     id: 1,
     name: 'Plumbing',
-    icon: '🔧',
+    icon: 'tools',
     description:
       'Leaks, pipes, blocked drains and repairs.'
   },
@@ -791,7 +792,7 @@ const services = [
   {
     id: 2,
     name: 'Electrical',
-    icon: '⚡',
+    icon: 'alert',
     description:
       'Electrical repairs, installations and maintenance.'
   },
@@ -799,7 +800,7 @@ const services = [
   {
     id: 3,
     name: 'Cleaning',
-    icon: '🧹',
+    icon: 'tools',
     description:
       'Reliable home and deep cleaning services.'
   },
@@ -807,7 +808,7 @@ const services = [
   {
     id: 4,
     name: 'Gardening',
-    icon: '🌱',
+    icon: 'home',
     description:
       'Lawn care, landscaping and garden maintenance.'
   },
@@ -815,7 +816,7 @@ const services = [
   {
     id: 5,
     name: 'Security',
-    icon: '🛡️',
+    icon: 'shield',
     description:
       'Home security and protection services.'
   },
@@ -823,7 +824,7 @@ const services = [
   {
     id: 6,
     name: 'Handyman',
-    icon: '🛠️',
+    icon: 'tools',
     description:
       'General repairs, installations and maintenance.'
   }
@@ -854,28 +855,28 @@ const emergencyServices = [
     name: 'Emergency Plumbing',
     serviceName: 'Plumbing',
     serviceTypeId: 1,
-    icon: '🚿'
+    icon: 'tools'
   },
 
   {
     name: 'Emergency Electrical',
     serviceName: 'Electrical',
     serviceTypeId: 2,
-    icon: '⚡'
+    icon: 'alert'
   },
 
   {
     name: 'Locksmith',
     serviceName: 'Security',
     serviceTypeId: 5,
-    icon: '🔑'
+    icon: 'lock'
   },
 
   {
     name: 'Security',
     serviceName: 'Security',
     serviceTypeId: 5,
-    icon: '🛡️'
+    icon: 'shield'
   }
 
 ]
@@ -1108,7 +1109,7 @@ function findEmergencyHelp() {
 
   Swal.fire({
 
-    title: '🚨 Emergency Help',
+    title: 'Emergency Help',
 
     text:
       'Emergency providers are now being shown.',
@@ -1298,7 +1299,7 @@ function getQuote(provider) {
   if (isEmergencyMode.value) {
 
     message +=
-      `\n\n🚨 Priority: EMERGENCY`
+      `\n\nPriority: EMERGENCY`
 
   }
 
@@ -1307,7 +1308,7 @@ function getQuote(provider) {
 
     title:
       isEmergencyMode.value
-        ? '🚨 Emergency Quote Requested!'
+        ? 'Emergency Quote Requested!'
         : 'Quote Requested!',
 
     text: message,

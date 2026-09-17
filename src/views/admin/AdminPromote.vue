@@ -1,7 +1,7 @@
 <template>
   <div class="admin-promote">
     <div class="page-header">
-      <h2>🚀 Promote Content</h2>
+      <h2><AppIcon name="rocket" /> Promote Content</h2>
       <p>Boost visibility for premium users</p>
     </div>
 
@@ -11,7 +11,7 @@
         <h3>Featured Listings</h3>
         <p>Feature premium users' listings on the homepage</p>
         <button class="promote-btn" @click="featuredListings = !featuredListings">
-          {{ featuredListings ? '✅ Enabled' : 'Enable' }}
+          <template v-if="featuredListings"><AppIcon name="check" /> Enabled</template><template v-else>Enable</template>
         </button>
       </div>
 
@@ -20,16 +20,16 @@
         <h3>Targeted Promotion</h3>
         <p>Show premium content to relevant users</p>
         <button class="promote-btn" @click="targetedPromotion = !targetedPromotion">
-          {{ targetedPromotion ? '✅ Enabled' : 'Enable' }}
+          <template v-if="targetedPromotion"><AppIcon name="check" /> Enabled</template><template v-else>Enable</template>
         </button>
       </div>
 
       <div class="promote-card glass-panel">
-        <div class="promote-icon">⭐</div>
+        <div class="promote-icon"><AppIcon name="star" /></div>
         <h3>Premium Badge</h3>
         <p>Display premium badge on user profiles</p>
         <button class="promote-btn" @click="premiumBadge = !premiumBadge">
-          {{ premiumBadge ? '✅ Enabled' : 'Enable' }}
+          <template v-if="premiumBadge"><AppIcon name="check" /> Enabled</template><template v-else>Enable</template>
         </button>
       </div>
 
@@ -38,7 +38,7 @@
         <h3>Newsletter Promotion</h3>
         <p>Include premium listings in newsletters</p>
         <button class="promote-btn" @click="newsletterPromotion = !newsletterPromotion">
-          {{ newsletterPromotion ? '✅ Enabled' : 'Enable' }}
+          <template v-if="newsletterPromotion"><AppIcon name="check" /> Enabled</template><template v-else>Enable</template>
         </button>
       </div>
     </div>
@@ -58,6 +58,7 @@
 </template>
 
 <script setup>
+import AppIcon from '../../components/AppIcon.vue'
 import { ref } from 'vue'
 
 const featuredListings = ref(true)

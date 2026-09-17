@@ -8,7 +8,7 @@
         :class="{ active: active === item.key }"
         @click="navigate(item.key)"
       >
-        <span class="nav-icon">{{ item.icon }}</span>
+        <AppIcon class="nav-icon" :name="item.icon" />
         <span class="nav-label">{{ item.label }}</span>
         <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
       </button>
@@ -20,6 +20,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import AppIcon from '../AppIcon.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -27,11 +28,11 @@ const store = useStore()
 const active = ref('dashboard')
 
 const menuItems = [
-  { key: 'dashboard', label: 'Dashboard', icon: '📊', path: '/admin' },
-  { key: 'users', label: 'Users', icon: '👥', path: '/admin/users' },
-  { key: 'premium', label: 'Premium', icon: '⭐', path: '/admin/premium' },
-  { key: 'advertise', label: 'Advertise', icon: '📢', path: '/admin/advertise' },
-  { key: 'promote', label: 'Promote', icon: '🚀', path: '/admin/promote' },
+  { key: 'dashboard', label: 'Dashboard', icon: 'dashboard', path: '/admin' },
+  { key: 'users', label: 'Users', icon: 'users', path: '/admin/users' },
+  { key: 'premium', label: 'Premium', icon: 'star', path: '/admin/premium' },
+  { key: 'advertise', label: 'Advertise', icon: 'megaphone', path: '/admin/advertise' },
+  { key: 'promote', label: 'Promote', icon: 'rocket', path: '/admin/promote' },
 ]
 
 const premiumUsers = computed(() => {

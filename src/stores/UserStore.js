@@ -1,6 +1,7 @@
 export default {
   namespaced: true,
   state: {
+    isLoggedIn: false,
     currentUser: {
       id: 1,
       name: 'Zaarah K.',
@@ -100,18 +101,31 @@ export default {
         verified: true,
         online: true,
         isPremium: false
+      },
+      {
+        id: 9,
+        name: 'Residence Manager',
+        email: 'resmanager@campus.co.za',
+        role: 'resmanager',
+        avatar: 'https://placehold.co/100x100/4ADE80/FFFFFF?text=RM',
+        university: 'Smuts Hall Residence',
+        verified: true,
+        online: true,
+        isPremium: false
       }
     ],
     adminNotifications: []
   },
   getters: {
+    isLoggedIn: state => state.isLoggedIn,
     currentUser: state => state.currentUser,
     users: state => state.users,
     getRoleDisplay: () => (role) => {
       const roles = {
         student: 'Student',
         admin: 'Admin',
-        service_provider: 'Service Provider'
+        service_provider: 'Service Provider',
+        resmanager: 'Residence Manager'
       }
       return roles[role] || role
     },
@@ -119,12 +133,36 @@ export default {
       const colors = {
         student: '#6C5CE7',
         admin: '#FF6B6B',
-        service_provider: '#6FA8FF'
+        service_provider: '#6FA8FF',
+        resmanager: '#4ADE80'
       }
       return colors[role] || '#6C5CE7'
     }
   },
   mutations: {
+    setLoggedIn(state, value) {
+      state.isLoggedIn = value
+    },
+    logout(state) {
+      state.isLoggedIn = false
+      state.currentUser = {
+        id: 'logged-out',
+        name: 'Logged out viewer',
+        email: '',
+        role: 'logged_out',
+        avatar: 'https://placehold.co/100x100/64748B/FFFFFF?text=G',
+        university: '',
+        verified: false,
+        online: false,
+        isPremium: false
+      }
+    },
+    loginAsRole(state, role) {
+      const storeRole = role === 'provider' ? 'service_provider' : role
+      const user = state.users.find(candidate => candidate.role === storeRole)
+      if (user) state.currentUser = user
+      state.isLoggedIn = true
+    },
     switchUser(state, userId) {
       const user = state.users.find(u => u.id === userId)
       if (user) {
@@ -154,8 +192,18 @@ export default {
     }
   },
   actions: {
-    switchUser({ commit }, userId) {
+    logout({ commit }) {
+      commit('logout')
+      localStorage.removeItem('isLoggedIn')
+    },
+    switchUser({ commit, state }, userId) {
+      const userExists = state.users.some(user => user.id === userId)
       commit('switchUser', userId)
+      if (userExists) {
+        commit('setLoggedIn', true)
+        localStorage.setItem('isLoggedIn', 'true')
+      }
+      return userExists
     },
     sendReportToAdmin({ commit, state }, report) {
       const notification = {

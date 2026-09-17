@@ -160,14 +160,7 @@ defineProps({
 
 /* Shimmer Animation */
 .shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 @keyframes shimmer {

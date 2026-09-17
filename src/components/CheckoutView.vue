@@ -13,19 +13,19 @@
           :class="['tab-btn', { active: activeTab === 'cart' }]" 
           @click="activeTab = 'cart'"
         >
-          🛒 Cart ({{ cartItems.length }})
+          <AppIcon name="cart" /> Cart ({{ cartItems.length }})
         </button>
         <button 
           :class="['tab-btn', { active: activeTab === 'repairs' }]" 
           @click="activeTab = 'repairs'"
         >
-          🛠️ SafeHome (Repairs)
+          <AppIcon name="tools" /> SafeHome (Repairs)
         </button>
         <button 
           :class="['tab-btn', { active: activeTab === 'orders' }]" 
           @click="activeTab = 'orders'"
         >
-          📦 My Orders ({{ orders.length }})
+          <AppIcon name="package" /> My Orders ({{ orders.length }})
         </button>
       </div>
 
@@ -58,7 +58,7 @@
 
           <!-- Escrow Protection Banner -->
           <div class="escrow-banner">
-            🛡️ <strong>Escrow Protection Active:</strong> Funds are held safely by CampusSwap SA until you verify receipt.
+            <AppIcon name="shield" /> <strong>Escrow Protection Active:</strong> Funds are held safely by CampusSwap SA until you verify receipt.
           </div>
 
           <!-- Summary Breakdown -->
@@ -135,6 +135,7 @@
 </template>
 
 <script setup>
+import AppIcon from './AppIcon.vue'
 import { ref, computed, onMounted } from 'vue';
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';

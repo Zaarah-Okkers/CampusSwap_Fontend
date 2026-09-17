@@ -2,7 +2,7 @@
   <header class="admin-header">
     <div class="admin-header-content">
       <div class="admin-brand">
-        <span class="brand-icon">🏛️</span>
+        <span class="brand-icon"><AppIcon name="building" /></span>
         <div>
           <h1>CampusSwap</h1>
           <span>Admin Panel</span>
@@ -23,6 +23,7 @@
 </template>
 
 <script setup>
+import AppIcon from '../AppIcon.vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'

@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import HomeView from '../views/HomeView.vue'
+import AboutView from '../views/AboutView.vue'
+import ContactView from '../views/ContactView.vue'
 import LoginView from '../views/LoginView.vue'
 import StudentDashboard from '../views/StudentDashboard.vue'
 import ProviderDashboard from '../views/ProviderDashboard.vue'
@@ -8,6 +10,7 @@ import AdminDashboard from '../views/AdminDashboard.vue'
 import ResManagerDashboard from '../views/ResManagerDashboard.vue'
 import CheckoutView from '../components/CheckoutView.vue'
 import SafeHomeView from '../views/SafeHomeView.vue'
+import store from '../stores'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,9 +21,43 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/about',
+      name: 'about',
+      component: AboutView,
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: ContactView,
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginView,
+    },
+    {
+      path: '/login/student',
+      name: 'student-login',
+      component: LoginView,
+      meta: { loginRole: 'student' },
+    },
+    {
+      path: '/login/provider',
+      name: 'provider-login',
+      component: LoginView,
+      meta: { loginRole: 'provider' },
+    },
+    {
+      path: '/login/admin',
+      name: 'admin-login',
+      component: LoginView,
+      meta: { loginRole: 'admin' },
+    },
+    {
+      path: '/login/resmanager',
+      name: 'resmanager-login',
+      component: LoginView,
+      meta: { loginRole: 'resmanager' },
     },
     {
       path: '/chat',
@@ -33,14 +70,49 @@ const router = createRouter({
       component: () => import('../views/Bookstore.vue'),
     },
     {
+      path: '/marketplace',
+      name: 'marketplace',
+      component: () => import('../views/MarketplaceView.vue'),
+    },
+    {
+      path: '/sell-item',
+      name: 'sell-item',
+      component: () => import('../views/SellItemView.vue'),
+    },
+    {
       path: '/student-dashboard',
       name: 'student-dashboard',
       component: StudentDashboard,
     },
     {
+      path: '/student-profile',
+      name: 'student-profile',
+      component: StudentDashboard,
+    },
+    {
+      path: '/student-residence',
+      name: 'student-residence',
+      component: () => import('../views/StudentResidence.vue'),
+    },
+    {
       path: '/provider-dashboard',
       name: 'provider-dashboard',
       component: ProviderDashboard,
+    },
+    {
+      path: '/provider-jobs',
+      name: 'provider-jobs',
+      component: () => import('../views/ProviderJobs.vue'),
+    },
+    {
+      path: '/provider-jobs/available',
+      name: 'provider-available-jobs',
+      component: () => import('../views/ProviderAvailableJobs.vue'),
+    },
+    {
+      path: '/provider-profile',
+      name: 'provider-profile',
+      component: () => import('../views/ProviderProfile.vue'),
     },
     {
       path: '/admin-dashboard',
@@ -50,7 +122,12 @@ const router = createRouter({
     {
       path: '/resmanager-dashboard',
       name: 'resmanager-dashboard',
-      component: ResManagerDashboard,
+      component: () => import('../views/ResidencePortal.vue'),
+    },
+    {
+      path: '/resmanager-payments',
+      name: 'resmanager-payments',
+      component: () => import('../views/ResidencePortal.vue'),
     },
     {
       path: '/safehome',
@@ -96,6 +173,11 @@ const router = createRouter({
           name: 'admin-promote',
           component: () => import('../views/admin/AdminPromote.vue'),
         },
+        {
+          path: 'profile',
+          name: 'admin-profile',
+          component: AdminDashboard,
+        },
       ],
     },
     {
@@ -104,6 +186,16 @@ const router = createRouter({
       component: HomeView,
     },
   ],
+})
+
+const privatePrefixes = ['/student-dashboard', '/student-profile', '/provider-', '/admin', '/books', '/marketplace', '/sell-item', '/chat', '/checkout', '/safehome']
+
+router.beforeEach((to) => {
+  const requiresLogin = privatePrefixes.some(prefix => prefix.endsWith('-') ? to.path.startsWith(prefix) : to.path === prefix || to.path.startsWith(`${prefix}/`))
+  if (requiresLogin && !store.getters['user/isLoggedIn'] && localStorage.getItem('isLoggedIn') !== 'true') {
+    return { name: 'login', query: { redirect: to.fullPath } }
+  }
+  return true
 })
 
 export default router

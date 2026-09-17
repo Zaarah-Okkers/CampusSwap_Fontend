@@ -9,7 +9,7 @@
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
 
           <span class="hamburger-icon">
-            &#9776;
+            <AppIcon name="dashboard" />
           </span>
 
         </button>
@@ -39,10 +39,10 @@
       <div class="top-right">
 
         <div class="notification-bell" @click="alert('You have 3 new notifications!')">
-          <span class="bell-icon">&#128276;</span> <!-- Bell Icon -->
+          <span class="bell-icon"><AppIcon name="alert" /></span>
           <span class="notification-dot"></span> <!-- Red Dot -->
         </div>
-        <span class="avatar">MN</span>
+        <span class="avatar">{{ userInitials }}</span>
       </div>
     </header>
 
@@ -265,9 +265,11 @@
 
 <script>
 import Swal from 'sweetalert2'
+import AppIcon from '../components/AppIcon.vue'
 
 export default {
   name: 'ResManagerDashboard',
+  components: { AppIcon },
   data() {
     return {
       sideNavOpen: false,
@@ -278,6 +280,14 @@ export default {
     };
   },
   computed: {
+    userInitials() {
+      return this.$store.getters['user/currentUser'].name
+        .split(' ')
+        .map(part => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    },
     formattedDate() {
       const now = new Date();
       return now.toLocaleDateString('en-ZA', {
@@ -687,14 +697,14 @@ export default {
 }
 
 .dashboard-title {
-  color: #0d1b3d;
+  color: #ffffff;
   font-size: 26px;
   font-weight: 700;
   margin: 0 0 6px 0;
 }
 
 .university-text {
-  color: #6c4b6a;
+  color: #d1d5db;
   font-size: 15px;
   font-weight: 500;
   margin: 0;

@@ -5,15 +5,6 @@
     <header class="top-bar">
 
       <div class="top-left">
-
-        <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
-
-          <span class="hamburger-icon">
-            &#9776;
-          </span>
-
-        </button>
-
         <h2 class="brand">
           CampusSwap
 
@@ -29,7 +20,10 @@
         <div class="search-wrap">
 
           <span class="search-icon">
-            &#128269;
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
           </span>
 
           <input
@@ -40,101 +34,10 @@
         </div>
       </div>
 
-      <div class="top-right" v-if="isLoggedIn">
-
-        <span class="avatar">
-          MN
-        </span>
-
-      </div>
-
-      <div class="top-right" v-else>
-        <span class="avatar-placeholder">
-
-        </span>
-
+      <div class="top-right">
+        <UserSwitch />
       </div>
     </header>
-
-    <!-- SIDE NAV -->
-    <div
-      class="side-overlay"
-      :class="{ 'side-overlay-open': sideNavOpen }"
-      @click="closeSideNav"
-    ></div>
-
-    <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
-
-      <div class="side-nav-header">
-
-        <h3>
-          CampusSwap
-
-          <span class="green-text">
-            SA
-          </span>
-
-        </h3>
-
-        <button class="close-side-btn" @click="closeSideNav">
-          &times;
-        </button>
-
-      </div>
-
-      <ul class="side-nav-links">
-
-        <li>
-          <router-link to="/" @click="closeSideNav">
-            Home
-          </router-link>
-        </li>
-
-        <li>
-          <router-link to="/login" @click="closeSideNav">
-            Login
-          </router-link>
-        </li>
-
-        <!-- <li>
-          <router-link to="/academic" @click="closeSideNav">
-            Academic
-          </router-link>
-        </li> -->
-
-        <li>
-          <router-link to="/safehome" @click="closeSideNav">
-            SafeHome
-          </router-link>
-        </li>
-
-        <li>
-          <router-link to="/checkout" @click="closeSideNav">
-            Checkout
-          </router-link>
-        </li>
-
-        <li>
-          <router-link to="/student-dashboard" @click="closeSideNav">
-            Dashboard
-          </router-link>
-        </li>
-
-      </ul>
-
-
-      <div class="side-nav-user" v-if="isLoggedIn">
-
-        <p
-        >Hi! {{ user.name }}
-        </p>
-
-        <p class="side-user-uni">
-          {{ user.university }}
-        </p>
-
-      </div>
-    </div>
 
     <!-- HERO SECTION -->
 
@@ -165,7 +68,7 @@
 
         <div class="hero-image">
           <img
-            src="https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop&crop=center"
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop&crop=center"
             alt="Diverse South African university students"
             class="hero-img"
           />
@@ -178,7 +81,7 @@
         </span>
 
         <span class="scroll-arrow">
-          &#8595;
+          <AppIcon name="arrowDown" />
         </span>
 
       </div>
@@ -198,7 +101,10 @@
         <div class="service-card">
 
           <div class="card-icon">
-            &#128218;
+            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
           </div>
 
           <h3>
@@ -218,7 +124,9 @@
         <div class="service-card">
 
           <div class="card-icon">
-            &#128736;
+            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
           </div>
 
           <h3>
@@ -243,7 +151,7 @@
         </span>
 
         <span class="scroll-arrow">
-          &#8595;
+          <AppIcon name="arrowDown" />
         </span>
 
       </div>
@@ -335,8 +243,14 @@
         <div class="tutorial-actions" v-else>
 
           <p class="login-prompt purple-bold">
-            
-            &#128274; 
+
+            <span class="lock-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
+
             <a href="#" @click.prevent="toggleLogin">
               Log in
             </a> 
@@ -353,7 +267,7 @@
         </span>
 
         <span class="scroll-arrow">
-          &#8595;
+          <AppIcon name="arrowDown" />
         </span>
 
       </div>
@@ -374,7 +288,10 @@
           <div class="featured-item">
 
             <div class="item-image">
-              📱
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="12" rx="1"></rect>
+                <line x1="2" y1="20" x2="22" y2="20"></line>
+              </svg>
             </div>
 
             <h4>
@@ -394,7 +311,10 @@
           <div class="featured-item">
 
             <div class="item-image">
-              📘
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
             </div>
 
             <h4>
@@ -414,7 +334,17 @@
           <div class="featured-item">
 
             <div class="item-image">
-              🧮
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                <line x1="8" y1="7" x2="16" y2="7"></line>
+                <line x1="8" y1="11" x2="8.01" y2="11"></line>
+                <line x1="12" y1="11" x2="12.01" y2="11"></line>
+                <line x1="16" y1="11" x2="16.01" y2="11"></line>
+                <line x1="8" y1="15" x2="8.01" y2="15"></line>
+                <line x1="12" y1="15" x2="12.01" y2="15"></line>
+                <line x1="16" y1="15" x2="16.01" y2="15"></line>
+                <line x1="8" y1="19" x2="16" y2="19"></line>
+              </svg>
             </div>
 
             <h4>
@@ -434,7 +364,10 @@
           <div class="featured-item">
 
             <div class="item-image">
-              🎧
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+              </svg>
             </div>
 
             <h4>
@@ -460,7 +393,7 @@
         </span>
 
         <span class="scroll-arrow">
-          &#8595;
+          <AppIcon name="arrowDown" />
         </span>
 
       </div>
@@ -548,14 +481,19 @@
 
 <script>
 import Swal from 'sweetalert2'
+import UserSwitch from '../components/UserSwitch.vue'
+import AppIcon from '../components/AppIcon.vue'
 
 export default {
-  
+
   name: 'HomePage',
+  components: {
+    UserSwitch,
+    AppIcon
+  },
   data() {
     return {
       isLoggedIn: false,
-      sideNavOpen: false,
       user: {
         name: 'Myles N.',
         university: 'University of Cape Town'
@@ -563,16 +501,6 @@ export default {
     };
   },
   methods: {
-    toggleSideNav() {
-      this.sideNavOpen = !this.sideNavOpen;
-      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
-    },
-    closeSideNav() {
-      this.sideNavOpen = false;
-      document.body.style.overflow = '';
-    },
-
-    
     async handleBrowseDeals() {
       if (this.isLoggedIn) {
         await Swal.fire({
@@ -693,22 +621,6 @@ export default {
     flex-shrink: 0;
   }
 
-  .hamburger-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .hamburger-icon {
-    font-size: 28px;
-    color: #ffffff;
-    line-height: 1;
-  }
-
   .brand {
     color: #ffffff;
     font-size: 22px;
@@ -747,8 +659,9 @@ export default {
 
   .search-icon {
     color: #9ca3af;
-    font-size: 16px;
     margin-right: 10px;
+    display: flex;
+    align-items: center;
   }
 
   .search-input {
@@ -790,125 +703,6 @@ export default {
   .avatar-placeholder {
     width: 36px;
     height: 36px;
-  }
-
-  /*  SIDE NAV */
-  .side-overlay {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 200;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
-
-  .side-overlay-open {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .side-nav {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 280px;
-    height: 100%;
-    background-color: #0d1b3d;
-    z-index: 300;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    padding: 20px 24px;
-    box-shadow: 4px 0px 16px rgba(0, 0, 0, 0.3);
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .side-nav-open {
-    transform: translateX(0px);
-  }
-
-  .side-nav-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 20px;
-  }
-
-  .side-nav-header h3 {
-    color: #ffffff;
-    font-size: 20px;
-    margin: 0px;
-  }
-
-  .side-nav-header .green-text {
-    color: #2e7d5a;
-  }
-
-  .close-side-btn {
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0px 4px;
-    line-height: 1;
-  }
-
-  .close-side-btn:hover {
-    color: #f5b941;
-  }
-
-  .side-nav-links {
-    list-style: none;
-    padding: 0px;
-    margin: 0px;
-    flex: 1;
-  }
-
-  .side-nav-links li {
-    margin-bottom: 4px;
-  }
-
-  .side-nav-links li a {
-    display: block;
-    color: #d1d5db;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border-left: 3px solid transparent;
-    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-  }
-
-  .side-nav-links li a:hover {
-    background-color: rgba(245, 185, 65, 0.12);
-    color: #f5b941;
-    border-left-color: #f5b941;
-  }
-
-  .side-nav-user {
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    color: #d1d5db;
-  }
-
-  .side-nav-user p {
-    margin: 4px 0px;
-    font-size: 14px;
-  }
-
-  .side-user-uni {
-    font-size: 12px;
-    opacity: 0.7;
   }
 
   /* ================================================================
@@ -1057,9 +851,11 @@ export default {
   }
 
   .card-icon {
-    font-size: 48px;
+    color: #0d1b3d;
     margin-bottom: 12px;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: color 0.35s ease;
   }
 
@@ -1217,6 +1013,16 @@ export default {
     font-weight: 700;
     font-size: 16px;
     margin: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .lock-icon {
+    display: inline-flex;
+    align-items: center;
   }
 
   .login-prompt.purple-bold a {
@@ -1270,8 +1076,11 @@ export default {
   }
 
   .item-image {
-    font-size: 40px;
+    color: #0d1b3d;
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .featured-item h4 {
@@ -1594,10 +1403,6 @@ export default {
       font-size: 16px;
     }
 
-    .hamburger-icon {
-      font-size: 24px;
-    }
-
     .search-input {
       font-size: 12px;
     }
@@ -1608,11 +1413,6 @@ export default {
 
     .featured-grid {
       grid-template-columns: 1fr;
-    }
-
-    .side-nav {
-      width: 260px;
-      padding: 16px 18px;
     }
   }
 </style>

@@ -43,7 +43,7 @@
 
           <!-- Escrow Protection Banner -->
           <div class="escrow-banner">
-            🛡️ <strong>Escrow Protection Active:</strong> Funds are held safely by CampusSwap until you verify receipt.
+            <AppIcon name="shield" /> <strong>Escrow Protection Active:</strong> Funds are held safely by CampusSwap until you verify receipt.
           </div>
 
           <!-- Summary Breakdown -->
@@ -118,6 +118,7 @@
 </template>
 
 <script setup>
+import AppIcon from './AppIcon.vue'
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../services/api';

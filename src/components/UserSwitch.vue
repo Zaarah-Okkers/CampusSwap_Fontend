@@ -1,92 +1,90 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/UserStore'
 
+const store = useStore()
 const router = useRouter()
-const userStore = useUserStore()
 
 const showDropdown = ref(false)
 
 // Quick user roles for easy switching
 const quickUsers = [
-  { 
-    id: 1, 
-    name: 'Zaarah K.', 
-    role: 'student', 
+  {
+    id: 'logged-out',
+    name: 'Logged out viewer',
+    role: 'logged_out',
+    avatar: 'https://placehold.co/100x100/64748B/FFFFFF?text=G',
+    color: '#94A3B8'
+  },
+  {
+    id: 1,
+    name: 'Zaarah K.',
+    role: 'student',
     avatar: 'https://placehold.co/100x100/6C5CE7/FFFFFF?text=Z',
-    emoji: '🎓',
     color: '#6C5CE7'
   },
-  { 
-    id: 5, 
-    name: 'Admin User', 
-    role: 'admin', 
+  {
+    id: 5,
+    name: 'Admin User',
+    role: 'admin',
     avatar: 'https://placehold.co/100x100/FF6B6B/FFFFFF?text=A',
-    emoji: '👑',
     color: '#FF6B6B'
   },
-  { 
-    id: 6, 
-    name: 'ServicePro SA', 
-    role: 'service_provider', 
+  {
+    id: 6,
+    name: 'ServicePro SA',
+    role: 'service_provider',
     avatar: 'https://placehold.co/100x100/6FA8FF/FFFFFF?text=SP',
-    emoji: '🔧',
     color: '#6FA8FF'
+  },
+  {
+    id: 9,
+    name: 'Residence Manager',
+    role: 'resmanager',
+    avatar: 'https://placehold.co/100x100/4ADE80/FFFFFF?text=RM',
+    color: '#4ADE80'
   }
 ]
 
+const currentUser = computed(() => store.getters['user/currentUser'])
+
+function getRoleDisplay(role) {
+  return store.getters['user/getRoleDisplay'](role)
+}
+
 const currentUserDisplay = computed(() => {
-  const user = userStore.currentUser
-  const quickUser = quickUsers.find(u => u.id === user.id)
+  const user = currentUser.value
+  const viewer = quickUsers.find(option => option.id === user.id)
   return {
     name: user.name,
     role: user.role,
     avatar: user.avatar,
-    emoji: quickUser?.emoji || '👤',
-    color: quickUser?.color || '#6C5CE7',
-    roleDisplay: userStore.getRoleDisplay(user.role)
+    color: viewer?.color || '#6C5CE7',
+    roleDisplay: user.role === 'logged_out' ? 'Public viewer' : getRoleDisplay(user.role)
   }
 })
 
-function switchToUser(userId) {
-  const success = userStore.switchUser(userId)
+async function switchToUser(userId) {
+  if (userId === 'logged-out') {
+    await store.dispatch('user/logout')
+    showDropdown.value = false
+    await router.push('/')
+    return
+  }
+
+  const success = await store.dispatch('user/switchUser', userId)
   if (success) {
     showDropdown.value = false
-    const user = userStore.currentUser
-    
-    // Redirect based on role
-    if (user.role === 'admin') {
-      router.push('/admin')
-    } else {
-      router.push('/')
-    }
-    
-    // Show quick feedback
-    console.log(`✅ Switched to ${user.name} (${userStore.getRoleDisplay(user.role)})`)
+    const user = currentUser.value
+    await router.push('/')
+
+    console.log(`Switched to ${user.name} (${getRoleDisplay(user.role)})`)
   }
 }
 
 function toggleDropdown() {
   showDropdown.value = !showDropdown.value
-}
-
-function getRoleEmoji(role) {
-  const emojis = {
-    'student': '🎓',
-    'admin': '👑',
-    'service_provider': '🔧'
-  }
-  return emojis[role] || '👤'
-}
-
-function getRoleColor(role) {
-  const colors = {
-    'student': '#6C5CE7',
-    'admin': '#FF6B6B',
-    'service_provider': '#6FA8FF'
-  }
-  return colors[role] || '#6C5CE7'
 }
 </script>
 
@@ -103,7 +101,12 @@ function getRoleColor(role) {
       <div class="user-info">
         <span class="user-name">{{ currentUserDisplay.name }}</span>
         <span class="user-role" :style="{ color: currentUserDisplay.color }">
-          {{ currentUserDisplay.emoji }} {{ currentUserDisplay.roleDisplay }}
+          <!-- role icon -->
+          <svg v-if="currentUserDisplay.role === 'student'" class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>
+          <svg v-else-if="currentUserDisplay.role === 'admin'" class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7Z"/></svg>
+          <svg v-else-if="currentUserDisplay.role === 'service_provider'" class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg>
+          <svg v-else class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          {{ currentUserDisplay.roleDisplay }}
         </span>
       </div>
       <svg class="dropdown-arrow" :class="{ open: showDropdown }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -114,16 +117,19 @@ function getRoleColor(role) {
     <!-- Dropdown -->
     <div v-if="showDropdown" class="dropdown-menu glass-panel">
       <div class="dropdown-header">
-        <span class="dropdown-title">🔄 Switch User</span>
+        <span class="dropdown-title">
+          <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          Switch User
+        </span>
         <span class="dropdown-hint">(Testing Only)</span>
       </div>
-      
+
       <!-- Quick Switch Users -->
-      <div 
-        v-for="user in quickUsers" 
+      <div
+        v-for="user in quickUsers"
         :key="user.id"
         class="dropdown-item"
-        :class="{ active: userStore.currentUser.id === user.id }"
+        :class="{ active: currentUser.id === user.id }"
         @click="switchToUser(user.id)"
       >
         <div class="dropdown-item-avatar">
@@ -132,11 +138,14 @@ function getRoleColor(role) {
         <div class="dropdown-item-info">
           <span class="dropdown-item-name">{{ user.name }}</span>
           <span class="dropdown-item-role" :style="{ color: user.color }">
-            {{ user.emoji }} {{ userStore.getRoleDisplay(user.role) }}
+            <svg v-if="user.role === 'student'" class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>
+            <svg v-else-if="user.role === 'admin'" class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7Z"/></svg>
+            <svg v-else-if="user.role === 'service_provider'" class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg>
+            {{ getRoleDisplay(user.role) }}
           </span>
         </div>
-        <span v-if="userStore.currentUser.id === user.id" class="active-badge">✓</span>
-        <span v-else class="switch-hint">→</span>
+        <svg v-if="currentUser.id === user.id" class="active-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg v-else class="switch-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
     </div>
   </div>
@@ -209,8 +218,17 @@ function getRoleColor(role) {
 }
 
 .user-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 10px;
   font-weight: 500;
+}
+
+.role-icon {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
 }
 
 .dropdown-arrow {
@@ -262,9 +280,18 @@ function getRoleColor(role) {
 }
 
 .dropdown-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
+}
+
+.header-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--gold);
 }
 
 .dropdown-hint {
@@ -321,20 +348,26 @@ function getRoleColor(role) {
 }
 
 .dropdown-item-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
   font-weight: 500;
 }
 
 .active-badge {
-  font-size: 16px;
+  width: 16px;
+  height: 16px;
   color: var(--gold);
-  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .switch-hint {
-  font-size: 14px;
+  width: 14px;
+  height: 14px;
   color: var(--text-faint);
   opacity: 0.5;
+  flex-shrink: 0;
 }
 
 /* Responsive */
@@ -342,26 +375,26 @@ function getRoleColor(role) {
   .user-btn {
     padding: 4px 8px 4px 4px;
   }
-  
+
   .user-avatar-container {
     width: 28px;
     height: 28px;
   }
-  
+
   .role-indicator {
     width: 12px;
     height: 12px;
     font-size: 6px;
   }
-  
+
   .user-name {
     font-size: 11px;
   }
-  
+
   .user-role {
     font-size: 9px;
   }
-  
+
   .dropdown-menu {
     min-width: 200px;
     right: -40px;

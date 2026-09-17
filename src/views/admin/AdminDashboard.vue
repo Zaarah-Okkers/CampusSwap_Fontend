@@ -1,34 +1,34 @@
 <template>
   <div class="admin-dashboard">
     <div class="page-header">
-      <h1>📊 Dashboard</h1>
+      <h1><AppIcon name="dashboard" /> Dashboard</h1>
       <p>Welcome to the Admin Panel</p>
     </div>
     
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon blue">👥</div>
+        <div class="stat-icon blue"><AppIcon name="users" /></div>
         <div class="stat-info">
           <span class="stat-number">{{ users.length }}</span>
           <span class="stat-label">Total Users</span>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon gold">⭐</div>
+        <div class="stat-icon gold"><AppIcon name="star" /></div>
         <div class="stat-info">
           <span class="stat-number">{{ premiumUsers.length }}</span>
           <span class="stat-label">Premium Users</span>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon green">📦</div>
+        <div class="stat-icon green"><AppIcon name="package" /></div>
         <div class="stat-info">
           <span class="stat-number">12</span>
           <span class="stat-label">Total Listings</span>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon red">🚨</div>
+        <div class="stat-icon red"><AppIcon name="alert" /></div>
         <div class="stat-info">
           <span class="stat-number">0</span>
           <span class="stat-label">Pending Reports</span>
@@ -41,6 +41,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import AppIcon from '../../components/AppIcon.vue'
 
 const store = useStore()
 const users = computed(() => store.state.user?.users || [])

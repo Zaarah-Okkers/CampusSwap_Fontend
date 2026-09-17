@@ -92,9 +92,7 @@ function handleCardSelect(product) {
   border-radius: 22px;
   padding: 32px 28px;
   margin-bottom: 20px;
-  background:
-    linear-gradient(135deg, rgba(108, 92, 231, 0.35), rgba(232, 181, 77, 0.12)),
-    var(--glass);
+  background: var(--ink-elevated);
 }
 
 .hero-eyebrow {

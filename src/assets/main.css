@@ -54,11 +54,7 @@ html {
 body {
   min-height: 100vh;
   color: var(--text);
-  background:
-    radial-gradient(120% 60% at 15% 0%, rgba(108, 92, 231, 0.35) 0%, transparent 55%),
-    radial-gradient(90% 50% at 100% 10%, rgba(232, 181, 77, 0.14) 0%, transparent 50%),
-    var(--ink);
-  background-attachment: fixed;
+  background: var(--ink);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
   line-height: 1.55;
@@ -83,8 +79,8 @@ h1, h2, h3, h4 {
 .glass-panel {
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
 }
 
 button, input, select, textarea {

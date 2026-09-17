@@ -1,102 +1,5 @@
 <template>
   <div class="home-page">
-    <!-- TOP BAR -->
-    <header class="top-bar">
-      <div class="top-left">
-        <button
-          class="hamburger-btn"
-          @click="toggleSideNav"
-          aria-label="Open menu"
-        >
-          <span class="hamburger-icon">&#9776;</span>
-        </button>
-
-        <h2 class="brand">
-          CampusSwap
-          <span class="green-text">SA</span>
-        </h2>
-      </div>
-
-      <div class="top-center">
-        <div class="search-wrap">
-          <span class="search-icon">&#128269;</span>
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Search books, services, and more..."
-          />
-        </div>
-      </div>
-
-      <div class="top-right" v-if="isLoggedIn">
-        <span class="avatar">{{ initials }}</span>
-      </div>
-
-      <div class="top-right" v-else>
-        <span class="avatar-placeholder"></span>
-      </div>
-    </header>
-
-    <!-- SIDE NAV -->
-    <div
-      class="side-overlay"
-      :class="{ 'side-overlay-open': sideNavOpen }"
-      @click="closeSideNav"
-    ></div>
-
-    <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
-      <div class="side-nav-header">
-        <h3>
-          CampusSwap
-          <span class="green-text">SA</span>
-        </h3>
-        <button class="close-side-btn" @click="closeSideNav">&times;</button>
-      </div>
-
-      <!-- Menu: public vs private links -->
-      <ul class="side-nav-links">
-        <!-- Home is ALWAYS visible -->
-        <li>
-          <router-link to="/" @click="closeSideNav">Home</router-link>
-        </li>
-
-        <!-- Login only when NOT logged in -->
-        <li v-if="!isLoggedIn">
-          <router-link to="/login" @click="closeSideNav">Login</router-link>
-        </li>
-
-        <!-- Everything else only when logged in -->
-        <template v-if="isLoggedIn">
-          <li>
-            <router-link to="/academic" @click="closeSideNav">
-              Academic Marketplace
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/safehome" @click="closeSideNav"
-              >SafeHome</router-link
-            >
-          </li>
-          <li v-if="showCheckout">
-            <router-link to="/checkout" @click="closeSideNav"
-              >Checkout</router-link
-            >
-          </li>
-          <li>
-            <router-link :to="dashboardRoute" @click="closeSideNav">
-              Dashboard
-            </router-link>
-          </li>
-        </template>
-      </ul>
-
-      <!-- User footer + logout when logged in -->
-      <div class="side-nav-user" v-if="isLoggedIn">
-        <p>Hi! {{ user.name }}</p>
-        <p class="side-user-uni">{{ roleLabel }}</p>
-        <button class="side-logout-btn" @click="logout">Logout</button>
-      </div>
-    </div>
 
     <!-- HERO SECTION -->
     <section class="hero full-section">
@@ -287,7 +190,7 @@
 
     <!-- FOOTER -->
     <footer>
-      <div class="footer-brand">
+      <div class="-brand">
         <h3 class="footer-logo">
           CampusSwap
           <span class="green-text">SA</span>
@@ -304,6 +207,14 @@
         <ul>
           <li><a href="#">Academic Marketplace</a></li>
           <li><a href="#">SafeHome Maintenance</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Company</h4>
+        <ul>
+          <li><router-link to="/about">About Us</router-link></li>
+          <li><router-link to="/contact">Contact Us</router-link></li>
         </ul>
       </div>
 

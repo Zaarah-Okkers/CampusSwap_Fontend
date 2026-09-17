@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
+import AboutView from '../views/AboutView.vue'
+import ContactView from '../views/ContactView.vue'
 import StudentDashboard from "../views/StudentDashboard.vue";
 import ProviderDashboard from "../views/ProviderDashboard.vue";
 import AdminDashboard from "../views/AdminDashboard.vue";
@@ -10,11 +12,32 @@ import ResManagerDashboard from "../views/ResManagerDashboard.vue";
 // import SafeHomeView from '../views/SafeHomeView.vue'
 // import CheckoutView from '../views/CheckoutView.vue'
 // will add the correct names after the merge so they can be linked
+import MarketplaceView from '../views/MarketplaceView.vue'
 
 const routes = [
-  { path: "/", name: "home", component: HomeView },
+  { 
+    path: "/", 
+    name: "home", 
+    component: HomeView 
+  },
 
-  { path: "/login", name: "login", component: LoginView },
+  { 
+    path: '/about', 
+    name: 'about', 
+    component: AboutView 
+  },
+
+  { 
+    path: '/contact', 
+    name: 'contact', 
+    component: ContactView 
+  },
+
+  { 
+    path: "/login", 
+    name: "login", 
+    component: LoginView 
+  },
 
   {
     path: "/student-dashboard",
@@ -54,6 +77,7 @@ const routes = [
   //   name: 'checkout',
   //   component: CheckoutView
   // },
+  { path: '/marketplace', name: 'marketplace', component: MarketplaceView },
 ];
 
 const router = createRouter({
@@ -66,8 +90,11 @@ const router = createRouter({
 // Only Home (/) and Login (/login) are public.
 // Any other route requires a logged-in user.
 // ============================================================
+
 router.beforeEach((to, from, next) => {
-  const publicPages = ["/", "/login"];
+
+  const publicPages = ["/", "/about", "/contact", "/login"];
+
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
   // Public page → always allow

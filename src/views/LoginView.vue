@@ -41,7 +41,6 @@
     <!-- Right side - Form -->
     <div class="login-right">
       <div class="form-wrapper">
-
         <!-- Mobile Logo Header -->
         <div class="mobile-logo-header">
           <div class="mobile-logo-circle">
@@ -98,7 +97,13 @@
               <option value="" disabled>Select your institution</option>
 
               <!-- Students, Admins, Res Managers see universities -->
-              <template v-if="role === 'student' || role === 'admin' || role === 'resmanager'">
+              <template
+                v-if="
+                  role === 'student' ||
+                  role === 'admin' ||
+                  role === 'resmanager'
+                "
+              >
                 <optgroup
                   v-for="(unis, province) in universities"
                   :key="province"
@@ -112,11 +117,21 @@
 
               <!-- Providers see companies -->
               <template v-else>
-                <option value="Cape Town Express Plumbing">Cape Town Express Plumbing</option>
-                <option value="Sipho Electrical Solutions">Sipho Electrical Solutions</option>
-                <option value="Campus Handy Helpers">Campus Handy Helpers</option>
-                <option value="QuickFix Appliance Repair">QuickFix Appliance Repair</option>
-                <option value="Dorm Assembly & Carpentry">Dorm Assembly & Carpentry</option>
+                <option value="Cape Town Express Plumbing">
+                  Cape Town Express Plumbing
+                </option>
+                <option value="Sipho Electrical Solutions">
+                  Sipho Electrical Solutions
+                </option>
+                <option value="Campus Handy Helpers">
+                  Campus Handy Helpers
+                </option>
+                <option value="QuickFix Appliance Repair">
+                  QuickFix Appliance Repair
+                </option>
+                <option value="Dorm Assembly & Carpentry">
+                  Dorm Assembly & Carpentry
+                </option>
               </template>
             </select>
           </div>
@@ -149,7 +164,11 @@
         </div>
 
         <div class="form-options">
-          <a href="#" @click.prevent="alert('Password reset link sent!')" class="forgot-link">
+          <a
+            href="#"
+            @click.prevent="alert('Password reset link sent!')"
+            class="forgot-link"
+          >
             Forgot Password?
           </a>
         </div>
@@ -161,7 +180,11 @@
 
         <p class="new-user">
           New here?
-          <a href="#" @click.prevent="openRegistration" class="create-account-link">
+          <a
+            href="#"
+            @click.prevent="openRegistration"
+            class="create-account-link"
+          >
             Create an account
           </a>
         </p>
@@ -175,12 +198,38 @@
 
         <!-- Quick Test Buttons -->
         <div class="quick-test-section">
-          <p style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">Quick Test Login:</p>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-            <button @click="quickLogin('student')" class="quick-btn student-btn">Student</button>
-            <button @click="quickLogin('provider')" class="quick-btn provider-btn">Provider</button>
-            <button @click="quickLogin('admin')" class="quick-btn admin-btn">Admin</button>
-            <button @click="quickLogin('resmanager')" class="quick-btn resmanager-btn">Res Mgr</button>
+          <p style="font-size: 11px; color: #9ca3af; margin-bottom: 8px">
+            Quick Test Login:
+          </p>
+          <div
+            style="
+              display: flex;
+              gap: 8px;
+              flex-wrap: wrap;
+              justify-content: center;
+            "
+          >
+            <button
+              @click="quickLogin('student')"
+              class="quick-btn student-btn"
+            >
+              Student
+            </button>
+            <button
+              @click="quickLogin('provider')"
+              class="quick-btn provider-btn"
+            >
+              Provider
+            </button>
+            <button @click="quickLogin('admin')" class="quick-btn admin-btn">
+              Admin
+            </button>
+            <button
+              @click="quickLogin('resmanager')"
+              class="quick-btn resmanager-btn"
+            >
+              Res Mgr
+            </button>
           </div>
         </div>
 
@@ -188,16 +237,21 @@
         <div class="mobile-footer">
           <p>&#128274; Ozow Escrow Protected &bull; Secured by EduID</p>
         </div>
-
       </div>
     </div>
 
     <!-- REGISTRATION MODAL -->
-    <div v-if="showRegistration" class="modal-overlay" @click="closeRegistration">
+    <div
+      v-if="showRegistration"
+      class="modal-overlay"
+      @click="closeRegistration"
+    >
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h2>Create Your Account</h2>
-          <button class="modal-close-btn" @click="closeRegistration">&times;</button>
+          <button class="modal-close-btn" @click="closeRegistration">
+            &times;
+          </button>
         </div>
 
         <div class="modal-body">
@@ -271,7 +325,11 @@
 
           <!-- University Selection -->
           <div
-            v-if="regData.role === 'student' || regData.role === 'admin' || regData.role === 'resmanager'"
+            v-if="
+              regData.role === 'student' ||
+              regData.role === 'admin' ||
+              regData.role === 'resmanager'
+            "
             class="form-group"
           >
             <label>University</label>
@@ -299,11 +357,21 @@
               <span class="input-icon">&#128188;</span>
               <select v-model="regData.company" class="form-input">
                 <option value="" disabled>-- Select Your Company --</option>
-                <option value="Cape Town Express Plumbing">Cape Town Express Plumbing</option>
-                <option value="Sipho Electrical Solutions">Sipho Electrical Solutions</option>
-                <option value="Campus Handy Helpers">Campus Handy Helpers</option>
-                <option value="QuickFix Appliance Repair">QuickFix Appliance Repair</option>
-                <option value="Dorm Assembly & Carpentry">Dorm Assembly & Carpentry</option>
+                <option value="Cape Town Express Plumbing">
+                  Cape Town Express Plumbing
+                </option>
+                <option value="Sipho Electrical Solutions">
+                  Sipho Electrical Solutions
+                </option>
+                <option value="Campus Handy Helpers">
+                  Campus Handy Helpers
+                </option>
+                <option value="QuickFix Appliance Repair">
+                  QuickFix Appliance Repair
+                </option>
+                <option value="Dorm Assembly & Carpentry">
+                  Dorm Assembly & Carpentry
+                </option>
                 <option value="Other">And other...</option>
               </select>
             </div>
@@ -346,12 +414,17 @@
                 <span v-if="!regData.idFile">Choose Student ID Image</span>
                 <span v-else>{{ regData.idFile.name }}</span>
               </label>
-              <p class="file-hint">Upload a photo of your student ID card for verification</p>
+              <p class="file-hint">
+                Upload a photo of your student ID card for verification
+              </p>
             </div>
           </div>
 
           <!-- Verified Badge Preview -->
-          <div v-if="regData.role === 'student' && regData.idFile" class="verified-badge-preview">
+          <div
+            v-if="regData.role === 'student' && regData.idFile"
+            class="verified-badge-preview"
+          >
             <span class="verified-badge">Verified Student</span>
             <p class="verified-text">Your ID will be verified by an admin</p>
           </div>
@@ -361,11 +434,16 @@
             <label>
               <input type="checkbox" v-model="regData.agreeTerms" />
               I agree to the
-              <a href="#" @click.prevent="alert('Terms and conditions coming soon!')">
+              <a
+                href="#"
+                @click.prevent="alert('Terms and conditions coming soon!')"
+              >
                 Terms of Service
               </a>
               and
-              <a href="#" @click.prevent="alert('Privacy policy coming soon!')">Privacy Policy</a>
+              <a href="#" @click.prevent="alert('Privacy policy coming soon!')"
+                >Privacy Policy</a
+              >
             </label>
           </div>
 
@@ -380,7 +458,11 @@
 
           <p class="login-link">
             Already have an account?
-            <a href="#" @click.prevent="closeRegistration" class="create-account-link">
+            <a
+              href="#"
+              @click.prevent="closeRegistration"
+              class="create-account-link"
+            >
               Sign in
             </a>
           </p>
@@ -391,85 +473,82 @@
 </template>
 
 <script>
-import Swal from 'sweetalert2'
-import { authAPI, roleMap, dashboardRoutes, session, LOGOUT_MESSAGES } from '@/services/api'
+import Swal from "sweetalert2";
+import {
+  authAPI,
+  roleMap,
+  dashboardRoutes,
+  session,
+  LOGOUT_MESSAGES,
+} from "@/services/api";
 
 // role-specific welcome messages shown after login/register
 const SUCCESS_MESSAGES = {
-  student:          'Certified user moment.',
-  service_provider: 'Access granted, chief.',
-  admin:            'Level unlocked.',
-  res_manager:      'Player 1 has entered.'
+  student: "Certified user moment.",
+  service_provider: "Access granted, chief.",
+  admin: "Level unlocked.",
+  res_manager: "Player 1 has entered.",
 };
 
 export default {
-  name: 'LoginPage',
+  name: "LoginPage",
 
   data() {
     return {
       sideNavOpen: false,
-      role: 'student',
-      email: '',
-      password: '',
-      selectedInstitution: '',
+      role: "student",
+      email: "",
+      password: "",
+      selectedInstitution: "",
 
       showRegistration: false,
       regData: {
-        role: 'student',
-        fullName: '',
-        email: '',
-        studentNumber: '',
-        university: '',
-        company: '',
-        password: '',
-        confirmPassword: '',
+        role: "student",
+        fullName: "",
+        email: "",
+        studentNumber: "",
+        university: "",
+        company: "",
+        password: "",
+        confirmPassword: "",
         idFile: null,
-        agreeTerms: false
+        agreeTerms: false,
       },
 
       universities: {
-        'Western Cape': [
-          'University of Cape Town (UCT)',
-          'University of the Western Cape (UWC)',
-          'Stellenbosch University (SU)',
-          'Cape Peninsula University of Technology (CPUT)',
-          'University of South Africa (UNISA) Cape Town Branch'
+        "Western Cape": [
+          "University of Cape Town (UCT)",
+          "University of the Western Cape (UWC)",
+          "Stellenbosch University (SU)",
+          "Cape Peninsula University of Technology (CPUT)",
+          "University of South Africa (UNISA) Cape Town Branch",
         ],
-        'Gauteng': [
-          'University of the Witwatersrand (Wits)',
-          'University of Pretoria (UP)',
-          'University of Johannesburg (UJ)',
-          'Tshwane University of Technology (TUT)',
-          'University of South Africa (UNISA) main branch'
+        Gauteng: [
+          "University of the Witwatersrand (Wits)",
+          "University of Pretoria (UP)",
+          "University of Johannesburg (UJ)",
+          "Tshwane University of Technology (TUT)",
+          "University of South Africa (UNISA) main branch",
         ],
-        'KwaZulu-Natal': [
-          'University of KwaZulu-Natal (UKZN)',
-          'Durban University of Technology (DUT)',
-          'Mangosuthu University of Technology (MUT)'
+        "KwaZulu-Natal": [
+          "University of KwaZulu-Natal (UKZN)",
+          "Durban University of Technology (DUT)",
+          "Mangosuthu University of Technology (MUT)",
         ],
-        'Eastern Cape': [
-          'Rhodes University',
-          'Nelson Mandela University (NMU)',
-          'Walter Sisulu University (WSU)'
+        "Eastern Cape": [
+          "Rhodes University",
+          "Nelson Mandela University (NMU)",
+          "Walter Sisulu University (WSU)",
         ],
-        'Free State': [
-          'University of the Free State (UFS)',
-          'Central University of Technology (CUT)'
+        "Free State": [
+          "University of the Free State (UFS)",
+          "Central University of Technology (CUT)",
         ],
-        'North West': [
-          'North-West University (NWU)'
-        ],
-        'Limpopo': [
-          'University of Limpopo (UL)',
-          'University of Venda (UNIVEN)'
-        ],
-        'Mpumalanga': [
-          'University of Mpumalanga (UMP)'
-        ],
-        'Northern Cape': [
-          'Sol Plaatje University (SPU)'
-        ]
-      }
+        "North West": ["North-West University (NWU)"],
+        Limpopo: ["University of Limpopo (UL)", "University of Venda (UNIVEN)"],
+        Mpumalanga: ["University of Mpumalanga (UMP)"],
+        "Northern Cape": ["Sol Plaatje University (SPU)"],
+      },
     };
   },
 
@@ -477,106 +556,107 @@ export default {
     // ===== SIDE NAV =====
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
-      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
+      document.body.style.overflow = this.sideNavOpen ? "hidden" : "";
     },
 
     closeSideNav() {
       this.sideNavOpen = false;
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     },
 
     // ===== ROLE TEXT HELPERS =====
     getRoleTitle() {
       const titles = {
-        student: 'Student Verification',
-        provider: 'Service Provider Verification',
-        admin: 'Admin Access',
-        resmanager: 'Residence Manager Access'
+        student: "Student Verification",
+        provider: "Service Provider Verification",
+        admin: "Admin Access",
+        resmanager: "Residence Manager Access",
       };
-      return titles[this.role] || 'Verification';
+      return titles[this.role] || "Verification";
     },
 
     getRoleSubtitle() {
       const subtitles = {
         student: "Verify using your academic email to prove you're a student.",
-        provider: 'Verify using your professional work email.',
-        admin: 'Platform administration access. Please use your admin credentials.',
-        resmanager: 'Residence management access. Please use your credentials.'
+        provider: "Verify using your professional work email.",
+        admin:
+          "Platform administration access. Please use your admin credentials.",
+        resmanager: "Residence management access. Please use your credentials.",
       };
-      return subtitles[this.role] || 'Please verify your credentials.';
+      return subtitles[this.role] || "Please verify your credentials.";
     },
 
     getInstitutionLabel() {
       const labels = {
-        student: 'Select Your Tertiary Institution',
-        provider: 'Select Your Company / Organization',
-        admin: 'Select Your Institution',
-        resmanager: 'Select Your Institution'
+        student: "Select Your Tertiary Institution",
+        provider: "Select Your Company / Organization",
+        admin: "Select Your Institution",
+        resmanager: "Select Your Institution",
       };
-      return labels[this.role] || 'Select Institution';
+      return labels[this.role] || "Select Institution";
     },
 
     getEmailLabel() {
       const labels = {
-        student: 'Institution Email (Student Verification)',
-        provider: 'Work Email',
-        admin: 'Admin Email',
-        resmanager: 'Residence Manager Email'
+        student: "Institution Email (Student Verification)",
+        provider: "Work Email",
+        admin: "Admin Email",
+        resmanager: "Residence Manager Email",
       };
-      return labels[this.role] || 'Email';
+      return labels[this.role] || "Email";
     },
 
     getEmailPlaceholder() {
       const placeholders = {
-        student: 'student@myuct.ac.za',
-        provider: 'provider@work.co.za',
-        admin: 'admin@campusswap.co.za',
-        resmanager: 'resmanager@campusswap.co.za'
+        student: "student@myuct.ac.za",
+        provider: "provider@work.co.za",
+        admin: "admin@campusswap.co.za",
+        resmanager: "resmanager@campusswap.co.za",
       };
-      return placeholders[this.role] || 'Enter your email';
+      return placeholders[this.role] || "Enter your email";
     },
 
     // ===== REGISTRATION =====
     openRegistration() {
       this.showRegistration = true;
       this.regData = {
-        role: 'student',
-        fullName: '',
-        email: '',
-        studentNumber: '',
-        university: '',
-        company: '',
-        password: '',
-        confirmPassword: '',
+        role: "student",
+        fullName: "",
+        email: "",
+        studentNumber: "",
+        university: "",
+        company: "",
+        password: "",
+        confirmPassword: "",
         idFile: null,
-        agreeTerms: false
+        agreeTerms: false,
       };
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     },
 
     closeRegistration() {
       this.showRegistration = false;
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     },
 
     handleFileUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        if (!file.type.startsWith('image/')) {
+        if (!file.type.startsWith("image/")) {
           Swal.fire({
-            icon: 'error',
-            title: 'Invalid File',
-            text: 'Please upload an image file.',
-            confirmButtonColor: '#d33',
+            icon: "error",
+            title: "Invalid File",
+            text: "Please upload an image file.",
+            confirmButtonColor: "#d33",
           });
           return;
         }
         if (file.size > 5 * 1024 * 1024) {
           Swal.fire({
-            icon: 'error',
-            title: 'File Too Large',
-            text: 'File size must be less than 5MB.',
-            confirmButtonColor: '#d33',
+            icon: "error",
+            title: "File Too Large",
+            text: "File size must be less than 5MB.",
+            confirmButtonColor: "#d33",
           });
           return;
         }
@@ -587,37 +667,97 @@ export default {
     async handleRegistration() {
       // validation
       if (!this.regData.fullName) {
-        return Swal.fire({ icon: 'warning', title: 'Missing Information', text: 'Please enter your full name.', confirmButtonColor: '#f5b941' });
+        return Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please enter your full name.",
+          confirmButtonColor: "#f5b941",
+        });
       }
       if (!this.regData.email) {
-        return Swal.fire({ icon: 'warning', title: 'Missing Information', text: 'Please enter your email address.', confirmButtonColor: '#f5b941' });
+        return Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please enter your email address.",
+          confirmButtonColor: "#f5b941",
+        });
       }
-      if (!this.regData.email.includes('@')) {
-        return Swal.fire({ icon: 'error', title: 'Invalid Email', text: 'Please enter a valid email address.', confirmButtonColor: '#d33' });
+      if (!this.regData.email.includes("@")) {
+        return Swal.fire({
+          icon: "error",
+          title: "Invalid Email",
+          text: "Please enter a valid email address.",
+          confirmButtonColor: "#d33",
+        });
       }
-      if (this.regData.role === 'student' && !this.regData.studentNumber) {
-        return Swal.fire({ icon: 'warning', title: 'Missing Information', text: 'Please enter your student number.', confirmButtonColor: '#f5b941' });
+      if (this.regData.role === "student" && !this.regData.studentNumber) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please enter your student number.",
+          confirmButtonColor: "#f5b941",
+        });
       }
-      if ((this.regData.role === 'student' || this.regData.role === 'admin' || this.regData.role === 'resmanager') && !this.regData.university) {
-        return Swal.fire({ icon: 'warning', title: 'Missing Information', text: 'Please select your university.', confirmButtonColor: '#f5b941' });
+      if (
+        (this.regData.role === "student" ||
+          this.regData.role === "admin" ||
+          this.regData.role === "resmanager") &&
+        !this.regData.university
+      ) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please select your university.",
+          confirmButtonColor: "#f5b941",
+        });
       }
-      if (this.regData.role === 'provider' && !this.regData.company) {
-        return Swal.fire({ icon: 'warning', title: 'Missing Information', text: 'Please enter your company name.', confirmButtonColor: '#f5b941' });
+      if (this.regData.role === "provider" && !this.regData.company) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please enter your company name.",
+          confirmButtonColor: "#f5b941",
+        });
       }
       if (!this.regData.password) {
-        return Swal.fire({ icon: 'warning', title: 'Missing Information', text: 'Please create a password.', confirmButtonColor: '#f5b941' });
+        return Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please create a password.",
+          confirmButtonColor: "#f5b941",
+        });
       }
       if (this.regData.password.length < 6) {
-        return Swal.fire({ icon: 'error', title: 'Password Too Short', text: 'Password must be at least 6 characters long.', confirmButtonColor: '#d33' });
+        return Swal.fire({
+          icon: "error",
+          title: "Password Too Short",
+          text: "Password must be at least 6 characters long.",
+          confirmButtonColor: "#d33",
+        });
       }
       if (this.regData.password !== this.regData.confirmPassword) {
-        return Swal.fire({ icon: 'error', title: 'Passwords Do Not Match', text: 'Passwords do not match.', confirmButtonColor: '#d33' });
+        return Swal.fire({
+          icon: "error",
+          title: "Passwords Do Not Match",
+          text: "Passwords do not match.",
+          confirmButtonColor: "#d33",
+        });
       }
-      if (this.regData.role === 'student' && !this.regData.idFile) {
-        return Swal.fire({ icon: 'warning', title: 'Missing ID', text: 'Please upload your student ID image.', confirmButtonColor: '#f5b941' });
+      if (this.regData.role === "student" && !this.regData.idFile) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Missing ID",
+          text: "Please upload your student ID image.",
+          confirmButtonColor: "#f5b941",
+        });
       }
       if (!this.regData.agreeTerms) {
-        return Swal.fire({ icon: 'warning', title: 'Terms Not Accepted', text: 'Please agree to the Terms of Service and Privacy Policy.', confirmButtonColor: '#f5b941' });
+        return Swal.fire({
+          icon: "warning",
+          title: "Terms Not Accepted",
+          text: "Please agree to the Terms of Service and Privacy Policy.",
+          confirmButtonColor: "#f5b941",
+        });
       }
 
       // build payload the backend expects
@@ -629,7 +769,7 @@ export default {
         role: roleMap[this.regData.role],
         university: this.regData.university || null,
         company: this.regData.company || null,
-        phone: null
+        phone: null,
       };
 
       try {
@@ -637,10 +777,11 @@ export default {
 
         // grab the role-specific welcome message (backend role value)
         const backendRole = roleMap[this.regData.role];
-        const welcomeMsg = SUCCESS_MESSAGES[backendRole] || 'Welcome aboard.';
+
+        const welcomeMsg = SUCCESS_MESSAGES[backendRole] || "Welcome aboard.";
 
         await Swal.fire({
-          icon: 'success',
+          icon: "success",
           title: welcomeMsg,
           html: `
             <p><strong>Welcome, ${this.regData.fullName}!</strong></p>
@@ -648,39 +789,39 @@ export default {
             Email: ${this.regData.email}</p>
             <p>You can now login with your credentials.</p>
           `,
-          confirmButtonColor: '#2e7d5a',
+          confirmButtonColor: "#2e7d5a",
         });
 
         // prefill the login form
         this.role = this.regData.role;
         this.email = this.regData.email;
         this.password = this.regData.password;
-        this.selectedInstitution = this.regData.university || this.regData.company || '';
+        this.selectedInstitution =
+          this.regData.university || this.regData.company || "";
 
         this.closeRegistration();
 
         // ask if they want to login now
         const result = await Swal.fire({
-          title: 'Login Now?',
-          text: 'Would you like to login to your new account now?',
-          icon: 'question',
+          title: "Login Now?",
+          text: "Would you like to login to your new account now?",
+          icon: "question",
           showCancelButton: true,
-          confirmButtonColor: '#2e7d5a',
-          cancelButtonColor: '#6b7280',
-          confirmButtonText: 'Yes, login',
-          cancelButtonText: 'Later',
+          confirmButtonColor: "#2e7d5a",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Yes, login",
+          cancelButtonText: "Later",
         });
 
         if (result.isConfirmed) {
           this.handleLogin();
         }
-
       } catch (err) {
         await Swal.fire({
-          icon: 'error',
-          title: 'Registration Failed',
+          icon: "error",
+          title: "Registration Failed",
           text: err.message,
-          confirmButtonColor: '#d33',
+          confirmButtonColor: "#d33",
         });
       }
     },
@@ -689,10 +830,10 @@ export default {
     async handleLogin() {
       if (!this.email || !this.password || !this.selectedInstitution) {
         await Swal.fire({
-          icon: 'warning',
-          title: 'Incomplete Form',
-          text: 'Please fill in all fields.',
-          confirmButtonColor: '#f5b941',
+          icon: "warning",
+          title: "Incomplete Form",
+          text: "Please fill in all fields.",
+          confirmButtonColor: "#f5b941",
         });
         return;
       }
@@ -701,31 +842,35 @@ export default {
         const response = await authAPI.login(
           this.email,
           this.password,
-          roleMap[this.role]
+          roleMap[this.role],
         );
 
         session.save(response.user);
 
+        // save fallback flags so the bottom nav knows the auth state
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", response.user.role);
+
         // grab the role-specific welcome message (backend role value)
-        const welcomeMsg = SUCCESS_MESSAGES[response.user.role] || 'Welcome Back ;)';
+        const welcomeMsg =
+          SUCCESS_MESSAGES[response.user.role] || "Welcome Back ;)";
 
         await Swal.fire({
-          icon: 'success',
+          icon: "success",
           title: welcomeMsg,
           text: `Logged in as ${response.user.full_name}`,
           timer: 1800,
           showConfirmButton: false,
         });
 
-        const route = dashboardRoutes[response.user.role] || '/';
+        const route = dashboardRoutes[response.user.role] || "/";
         this.$router.push(route);
-
       } catch (err) {
         await Swal.fire({
-          icon: 'error',
-          title: 'Login Failed',
+          icon: "error",
+          title: "Login Failed",
           text: err.message,
-          confirmButtonColor: '#d33',
+          confirmButtonColor: "#d33",
         });
       }
     },
@@ -733,10 +878,26 @@ export default {
     // ===== QUICK TEST LOGIN =====
     async quickLogin(role) {
       const creds = {
-        student:    { email: 'thabo.m@myuct.ac.za',              password: 'hash_pass_401', institution: 'University of Cape Town (UCT)' },
-        provider:   { email: 'info@capeplumbing.co.za',          password: 'hash_pass_301', institution: 'Cape Town Express Plumbing' },
-        admin:      { email: 'lerato.admin@campusswap.co.za',    password: 'hash_pass_101', institution: 'University of Cape Town (UCT)' },
-        resmanager: { email: 'resmanager.uct@campusswap.co.za',  password: 'hash_pass_201', institution: 'University of Cape Town (UCT)' },
+        student: {
+          email: "thabo.m@myuct.ac.za",
+          password: "hash_pass_401",
+          institution: "University of Cape Town (UCT)",
+        },
+        provider: {
+          email: "info@capeplumbing.co.za",
+          password: "hash_pass_301",
+          institution: "Cape Town Express Plumbing",
+        },
+        admin: {
+          email: "lerato.admin@campusswap.co.za",
+          password: "hash_pass_101",
+          institution: "University of Cape Town (UCT)",
+        },
+        resmanager: {
+          email: "resmanager.uct@campusswap.co.za",
+          password: "hash_pass_201",
+          institution: "University of Cape Town (UCT)",
+        },
       };
 
       const c = creds[role];
@@ -750,14 +911,14 @@ export default {
 
     // ===== ADMIN LOGIN LINK =====
     async setAdminLogin() {
-      this.role = 'admin';
-      this.email = 'lerato.admin@campusswap.co.za';
-      this.password = 'hash_pass_101';
-      this.selectedInstitution = 'University of Cape Town (UCT)';
+      this.role = "admin";
+      this.email = "lerato.admin@campusswap.co.za";
+      this.password = "hash_pass_101";
+      this.selectedInstitution = "University of Cape Town (UCT)";
 
       this.handleLogin();
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -766,7 +927,7 @@ export default {
 .login-page {
   display: flex;
   min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #0d1b3d;
   color: #333;
 }
@@ -774,7 +935,7 @@ export default {
 /* ---------------- LEFT SIDE (Desktop) ---------------- */
 .login-left {
   flex: 1;
-  background-image: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200&h=800&fit=crop');
+  background-image: url("https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200&h=800&fit=crop");
   background-size: cover;
   background-position: center;
   position: relative;
@@ -786,13 +947,17 @@ export default {
 }
 
 .login-left::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, rgba(13, 27, 61, 0.7), rgba(13, 27, 61, 0.9));
+  background: linear-gradient(
+    to bottom,
+    rgba(13, 27, 61, 0.7),
+    rgba(13, 27, 61, 0.9)
+  );
 }
 
 .logo-area {
@@ -898,7 +1063,9 @@ export default {
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   min-width: 60px;
 }
 
@@ -995,7 +1162,9 @@ select.form-input {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.25s ease, transform 0.15s ease;
+  transition:
+    background-color 0.25s ease,
+    transform 0.15s ease;
 }
 
 .btn-primary {
@@ -1063,7 +1232,9 @@ select.form-input {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, opacity 0.2s;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
 }
 
 .quick-btn:hover {
@@ -1290,8 +1461,12 @@ select.form-input {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {

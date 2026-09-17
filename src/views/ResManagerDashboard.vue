@@ -1,32 +1,25 @@
 <template>
   <section class="res_manager-dash">
     <!-- TOP BAR -->
-
     <header class="top-bar">
 
       <div class="top-left">
 
         <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
-
           <span class="hamburger-icon">
             <AppIcon name="dashboard" />
           </span>
-
         </button>
-        
+
+        <router-link to="/" class="brand-link">
           <h2 class="brand">
-            CampusSwap
-            <span class="green-text">
-              SA
-            </span>
+            CampusSwap<span class="green-text">SA</span>
           </h2>
-        
+        </router-link>
       </div>
 
       <div class="top-center">
-
         <div class="search-wrap">
-
           <input
             type="text"
             class="search-input"
@@ -35,12 +28,10 @@
         </div>
       </div>
 
-      <!-- Added Alert Bell next to Avatar -->
       <div class="top-right">
-
         <div class="notification-bell" @click="alert('You have 3 new notifications!')">
           <span class="bell-icon"><AppIcon name="alert" /></span>
-          <span class="notification-dot"></span> <!-- Red Dot -->
+          <span class="notification-dot"></span>
         </div>
         <span class="avatar">{{ userInitials }}</span>
       </div>
@@ -54,48 +45,26 @@
     ></div>
 
     <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
+
       <div class="side-nav-header">
-
         <h3>
-          CampusSwap
-          <span class="green-text">
-            SA
-          </span>
+          CampusSwap<span class="green-text">SA</span>
         </h3>
-
-        <button class="close-side-btn" @click="closeSideNav">
-          &times;
-        </button>
-
+        <button class="close-side-btn" @click="closeSideNav">&times;</button>
       </div>
-      
-      <!-- Navigation Links (Home is visible for everyone) -->
 
       <ul class="side-nav-links">
-
         <li>
           <router-link to="/" @click="closeSideNav">
             Home
           </router-link>
         </li>
 
-        <!-- <li>
-          <router-link to="/academic" @click="closeSideNav" v-if="userRole === 'student'">
-            Academic Marketplace
-          </router-link>
-        </li> -->
-
         <li>
           <router-link to="/safehome" @click="closeSideNav">
             SafeHome
           </router-link>
-        </li> 
-
-        <li>
-          <router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">
-            Checkout
-          </router-link>
-        </li> 
+        </li>
 
         <li>
           <router-link to="/resmanager-dashboard" @click="closeSideNav">
@@ -103,157 +72,89 @@
           </router-link>
         </li>
 
+        <!-- still have to add the academic markertplace router link -->
       </ul>
 
-      <!-- Logout Button at bottom -->
       <div class="side-nav-logout">
-
         <button class="logout-btn" @click="logout">
           Logout
         </button>
-
       </div>
     </div>
 
     <!-- MAIN DASHBOARD CONTENT -->
     <div class="dashboard-container">
-      
+
       <!-- User Greeting -->
       <div class="greeting-block">
-
-        <h2 class="dashboard-title">
-          Hi, Siwaphiwe!
-        </h2>
-
-        <p class="university-text">
-          Smuts Hall Residence
-        </p>
-
+        <h2 class="dashboard-title">Hi, {{ user.full_name || 'Manager' }} 👋</h2>
+        <p class="university-text">Residence Manager</p>
       </div>
 
       <!-- Profile Stats Card -->
       <div class="card">
-
-        <h3 class="card-heading">
-          My Profile
-        </h3>
+        <h3 class="card-heading">My Profile</h3>
 
         <div class="stats-grid">
-
           <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
-
-            <span class="stat-title">
-              Active Repairs
-            </span>
-
-            <span class="stat-value" style="color: #2e7d5a;">
-              19
-            </span>
-
+            <span class="stat-title">Active Repairs</span>
+            <span class="stat-value" style="color: #2e7d5a;">{{ activeCount }}</span>
           </div>
 
           <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
-
-            <span class="stat-title">
-              Completed This month
-            </span>
-
-            <span class="stat-value" style="color: #00a6a6;">
-              13
-            </span>
-
+            <span class="stat-title">Completed</span>
+            <span class="stat-value" style="color: #00a6a6;">{{ completedCount }}</span>
           </div>
 
           <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
-
-            <span class="stat-title"> 
-              Total Maintenance Costs
-            </span>
-
-            <span class="stat-value" style="color: #f5b941;">
-              R28000
-            </span>
-
+            <span class="stat-title">Total Estimated Cost</span>
+            <span class="stat-value" style="color: #f5b941;">R{{ totalCost }}</span>
           </div>
         </div>
       </div>
 
       <!-- Account Management Card -->
-
       <div class="card">
-
-        <h3 class="card-heading">
-          Account Management
-        </h3>
+        <h3 class="card-heading">Account Management</h3>
 
         <div class="menu-item">
-
-          < <router-link to="/safehome" class="menu-link">
-            Track Repairs  
-
-            <span class="arrow">
-              &gt;
-            </span>
+          <router-link to="/safehome" class="menu-link">
+            Track Repairs <span class="arrow">&gt;</span>
           </router-link>
         </div>
 
         <div class="menu-item">
-
           <router-link to="/checkout" class="menu-link">
-            Checkout 
-
-            <span class="arrow">
-              &gt;
-            </span>
+            Checkout <span class="arrow">&gt;</span>
           </router-link>
         </div>
-        
+
         <div class="menu-item">
-          <router-link to="/dashboard" class="menu-link">
-            My Dashboard 
-            <span class="arrow">
-              &gt;
-            </span>
+          <router-link to="/resmanager-dashboard" class="menu-link">
+            My Dashboard <span class="arrow">&gt;</span>
           </router-link>
-        
-      </div>
-        
+        </div>
 
         <!-- Change Password Section -->
         <div class="password-section">
+          <h4 class="password-title">Change Password</h4>
 
-          <h4 class="password-title">
-            Change Password
-          </h4>
-
-          
           <div class="form-group">
-            <label>
-              Current Password
-            </label>
-
+            <label>Current Password</label>
             <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
           </div>
 
           <div class="form-group">
-            <label>
-              New Password
-            </label>
-
+            <label>New Password</label>
             <input type="password" v-model="newPassword" class="form-input" placeholder="Enter new password" />
           </div>
 
           <div class="form-group">
-            <label>
-              Confirm New Password
-            </label>
-
+            <label>Confirm New Password</label>
             <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
           </div>
 
-          <button class="btn-save" @click="changePassword">
-            Update Password
-          </button>
+          <button class="btn-save" @click="changePassword">Update Password</button>
         </div>
 
       </div>
@@ -266,6 +167,7 @@
 <script>
 import Swal from 'sweetalert2'
 import AppIcon from '../components/AppIcon.vue'
+import { dashAPI, authAPI, session } from '@/services/api';
 
 export default {
   name: 'ResManagerDashboard',
@@ -273,12 +175,30 @@ export default {
   data() {
     return {
       sideNavOpen: false,
-      userRole: ' res manager',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
+      user: {},
+      maintenanceRequests: []
     };
   },
+
+  async mounted() {
+    this.user = session.get() || {};
+
+    if (!this.user.id) {
+      this.$router.push('/login');
+      return;
+    }
+
+    try {
+      const data = await dashAPI.getResManager();
+      this.maintenanceRequests = data.maintenanceRequests || [];
+    } catch (err) {
+      console.error('Failed to load res manager dashboard:', err.message);
+    }
+  },
+
   computed: {
     userInitials() {
       return this.$store.getters['user/currentUser'].name
@@ -296,20 +216,36 @@ export default {
         month: 'long',
         day: 'numeric'
       });
+    },
+
+    activeCount() {
+      return this.maintenanceRequests.filter(
+        r => r.status === 'pending' || r.status === 'assigned' || r.status === 'in_progress'
+      ).length;
+    },
+
+    completedCount() {
+      return this.maintenanceRequests.filter(r => r.status === 'completed').length;
+    },
+
+    totalCost() {
+      return this.maintenanceRequests.reduce(
+        (sum, r) => sum + Number(r.estimated_cost || 0), 0
+      ).toFixed(2);
     }
   },
+
   methods: {
-    // Toggle side navigation 
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
     },
+
     closeSideNav() {
       this.sideNavOpen = false;
       document.body.style.overflow = '';
     },
 
-    // 
     async logout() {
       const result = await Swal.fire({
         title: 'Logout?',
@@ -321,13 +257,14 @@ export default {
         confirmButtonText: 'Yes, logout',
         cancelButtonText: 'Cancel',
       });
+
       if (result.isConfirmed) {
+        session.clear();
         await Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
         this.$router.push('/login');
       }
     },
 
-  
     async changePassword() {
       if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
         await Swal.fire({
@@ -359,20 +296,34 @@ export default {
         return;
       }
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'Password Updated!',
-        text: 'Your password has been changed successfully.',
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      try {
+        await authAPI.changePassword(
+          this.user.id,
+          this.currentPassword,
+          this.newPassword
+        );
 
-      this.currentPassword = '';
-      this.newPassword = '';
-      this.confirmPassword = '';
+        await Swal.fire({
+          icon: 'success',
+          title: 'Password Updated!',
+          text: 'Your password has been changed successfully.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        this.currentPassword = '';
+        this.newPassword = '';
+        this.confirmPassword = '';
+      } catch (err) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: err.message,
+          confirmButtonColor: '#d33',
+        });
+      }
     },
 
-    // -------- Quick Actions with SweetAlert --------
     async viewResidences() {
       await Swal.fire({
         icon: 'info',
@@ -393,7 +344,7 @@ export default {
       });
     },
 
-    async maintenanceRequests() {
+    async maintenanceRequestsMethod() {
       await Swal.fire({
         icon: 'info',
         title: 'Maintenance Requests',
@@ -414,12 +365,11 @@ export default {
     }
   }
 };
-
 </script>
 
 <style scoped>
 /* Base layout */
-.dashboard-page {
+.res_manager-dash {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f8f9fa;
   color: #333;
@@ -428,7 +378,7 @@ export default {
   min-height: 100vh;
 }
 
-/* Top Bar (Navy - Retained) */
+/* Top Bar */
 .top-bar {
   background-color: #0d1b3d;
   padding: 10px 24px;
@@ -466,7 +416,6 @@ export default {
   line-height: 1;
 }
 
-/* Make logo a link */
 .brand-link {
   text-decoration: none;
 }
@@ -520,7 +469,6 @@ export default {
   color: #9ca3af;
 }
 
-/* Top Right & Alert Bell */
 .top-right {
   display: flex;
   align-items: center;
@@ -564,7 +512,7 @@ export default {
   justify-content: center;
 }
 
-/* Side Nav (Navy - Retained) */
+/* Side Nav */
 .side-overlay {
   position: fixed;
   top: 0;
@@ -660,7 +608,6 @@ export default {
   border-left-color: #f5b941;
 }
 
-/* Logout Button at bottom (Gold on hover) */
 .side-nav-logout {
   margin-top: auto;
   padding-top: 20px;
@@ -725,18 +672,17 @@ export default {
   margin: 0 0 16px 0;
   font-weight: 700;
   padding-bottom: 10px;
-  border-bottom: 2px solid #6c4b6a; /* Purple accent */
+  border-bottom: 2px solid #6c4b6a;
 }
 
-/* Stats Grid - FIXED! No more huge vertical bars */
 .stats-grid {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
 .stat-card {
-  flex: 1 1 150px; /* Grow, shrink, but at least 150px wide */
+  flex: 1 1 150px;
   padding: 15px;
   border-radius: 12px;
   text-align: center;
@@ -863,10 +809,8 @@ export default {
     min-width: 0;
   }
   .top-right {
-    display: flex; 
+    display: flex;
   }
-  
-  /* No more stacking, just smaller gap */
   .stats-grid {
     gap: 8px;
   }
@@ -875,6 +819,3 @@ export default {
   }
 }
 </style>
-
-
-

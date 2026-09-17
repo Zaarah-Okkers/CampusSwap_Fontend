@@ -84,49 +84,40 @@ function formatDate(date) {
 </script>
 
 <style scoped>
-.provider-page { min-height: 100vh; padding: 42px 24px 120px; }
+.provider-page { min-height: 100vh; padding: 42px 24px 120px; background: #0a0e27; color: #333; }
 .provider-shell { width: min(1240px, 100%); margin: 0 auto; }
 .provider-header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+.provider-header h1 { color: #fff; }
+.provider-header .muted { color: #d1d5db; }
 .eyebrow { color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 h1 { font-size: clamp(2rem, 4vw, 3.4rem); margin: 6px 0; }
 h2 { font-size: 1.35rem; margin-top: 4px; }
-.muted, .stat-note { color: var(--text-muted); }
+.panel h2 { color: #0d1b3d; }
+.muted, .stat-note, td { color: #6b7280; }
 .button { border: 0; border-radius: 9px; cursor: pointer; display: inline-flex; font-weight: 700; padding: 12px 16px; white-space: nowrap; }
-.button-primary { background: var(--gold); color: var(--ink); }
+.button-primary { background: #f5b941; color: #0d1b3d; }
 .stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 22px; }
+.panel, .stat-card { background: #fff; border: 0; border-radius: 16px; }
 .stat-card { padding: 18px; min-height: 130px; display: flex; flex-direction: column; justify-content: space-between; }
-.stat-label { color: var(--text-muted); font-size: 12px; }
-.stat-card strong { color: var(--text); font-family: 'Fraunces', Georgia, serif; font-size: 2rem; }
+.stat-label { color: #64748b; font-size: 12px; }
+.stat-card strong { color: #0d1b3d; font-family: 'Fraunces', Georgia, serif; font-size: 2rem; }
 .stat-note { font-size: 11px; }
 .content-grid { display: grid; gap: 22px; }
 .panel { padding: 20px; min-width: 0; }
-.panel-heading { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.panel-heading { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 18px; border-bottom: 2px solid #6c4b6a; padding-bottom: 10px; }
 .rating-pill, .status { border-radius: 999px; font-size: 12px; font-weight: 700; padding: 5px 10px; }
 .rating-pill { background: var(--gold-soft); color: var(--gold); }
 .text-link { color: var(--gold); font-size: 13px; font-weight: 700; }
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; min-width: 760px; width: 100%; }
 th, td { border-bottom: 1px solid var(--glass-border); padding: 12px 10px; text-align: left; vertical-align: top; }
-th { color: var(--text-faint); font-size: 11px; font-weight: 700; text-transform: uppercase; }
-td { color: var(--text-muted); font-size: 13px; }
-td:first-child { color: var(--text); font-weight: 700; }
+th { color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+td { font-size: 13px; border-bottom-color: #eeeeee; }
+td:first-child { color: #0d1b3d; font-weight: 700; }
 .comment { max-width: 280px; }
 .stars { color: var(--gold); letter-spacing: 1px; white-space: nowrap; }
 .pay { color: var(--mint); font-weight: 700; white-space: nowrap; }
 .status-completed { background: var(--mint-soft); color: var(--mint); }
 @media (max-width: 900px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 640px) { .provider-page { padding: 24px 14px 110px; } .provider-header { align-items: start; flex-direction: column; } .button { width: 100%; justify-content: center; } .stat-grid { grid-template-columns: repeat(2, 1fr); } .stat-card { min-height: 112px; padding: 14px; } }
-.provider-page { background: #0a0e27; color: #333; }
-.provider-header h1 { color: #fff; }
-.panel, .stat-card { background: #fff; border: 0; border-radius: 16px; }
-.panel h2 { color: #0d1b3d; }
-.muted, .stat-note, td { color: #6b7280; }
-.stat-label { color: #64748b; }
-.stat-card strong { color: #0d1b3d; }
-.panel-heading { border-bottom: 2px solid #6c4b6a; padding-bottom: 10px; }
-th { color: #64748b; }
-td { border-bottom-color: #eeeeee; }
-td:first-child { color: #0d1b3d; }
-.button-primary { background: #f5b941; color: #0d1b3d; }
-.provider-header .muted { color: #d1d5db; }
 </style>

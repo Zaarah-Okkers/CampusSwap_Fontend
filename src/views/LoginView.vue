@@ -233,7 +233,7 @@
 
         <div class="form-options">
 
-          <a href="#" @click.prevent="alert('Password reset link sent!')" class="forgot-link">
+          <a href="#" @click.prevent="showPasswordResetNotice" class="forgot-link">
             Forgot Password?
           </a>
         </div>
@@ -531,10 +531,10 @@
             <label>
               <input type="checkbox" v-model="regData.agreeTerms" />
               I agree to the 
-              <a href="#" @click.prevent="alert('Terms and conditions coming soon!')">
+              <a href="#" @click.prevent="showTermsNotice" >
                 Terms of Service
               </a> and 
-              <a href="#" @click.prevent="alert('Privacy policy coming soon!')">Privacy Policy
+              <a href="#" @click.prevent="showPrivacyNotice">Privacy Policy
               </a>
             </label>
           </div>
@@ -560,6 +560,7 @@
 <script>
 import Swal from 'sweetalert2'
 import AppIcon from '../components/AppIcon.vue'
+import { authAPI, roleMap, dashboardRoutes, session } from '@/services/api'
 
 export default {
   name: 'LoginPage',
@@ -727,6 +728,34 @@ export default {
 
     openRoleLogin(role) {
       this.$router.push(`/login/${role}`)
+    },
+
+    // ===== SMALL NOTICE HELPERS (replaces native alert() for consistency with SweetAlert2) =====
+    showPasswordResetNotice() {
+      Swal.fire({
+        icon: 'success',
+        title: 'Check Your Email',
+        text: 'Password reset link sent!',
+        confirmButtonColor: '#2e7d5a',
+      });
+    },
+
+    showTermsNotice() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Terms of Service',
+        text: 'Terms and conditions coming soon!',
+        confirmButtonColor: '#f5b941',
+      });
+    },
+
+    showPrivacyNotice() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Privacy Policy',
+        text: 'Privacy policy coming soon!',
+        confirmButtonColor: '#f5b941',
+      });
     },
 
     // ===== REGISTRATION METHODS =====
@@ -949,7 +978,9 @@ export default {
 
     // ===== LOGIN HANDLER =====
     async handleLogin() {
-      const requiresInstitution = this.role === 'student'
+      // Institution field is shown for every role except admin, so it must be
+      // required for every role except admin too.
+      const requiresInstitution = this.role !== 'admin'
       if (!this.email || !this.password || (requiresInstitution && !this.selectedInstitution)) {
         await Swal.fire({
           icon: 'warning',

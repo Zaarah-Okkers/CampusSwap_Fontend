@@ -285,104 +285,36 @@
 
         <div class="featured-grid">
 
-          <div class="featured-item">
-
-            <div class="item-image">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="12" rx="1"></rect>
-                <line x1="2" y1="20" x2="22" y2="20"></line>
-              </svg>
+          <!-- dynamic products from backend -->
+          <div v-for="product in featuredProducts" :key="product.id" class="featured-item">
+            <img
+              v-if="product.image"
+              :src="product.image"
+              :alt="product.name"
+              class="product-img"
+            />
+            <div v-else class="item-image">
+              📱
             </div>
 
             <h4>
-              HP EliteBook 840 G5
+              {{ product.name }}
             </h4>
 
             <p class="item-price">
-              R4,500
+              R{{ product.price ? Number(product.price).toFixed(2) : 'Swap' }}
             </p>
 
             <span class="item-badge">
-              Used Like New
+              {{ product.condition_label }}
             </span>
-
           </div>
 
-          <div class="featured-item">
-
-            <div class="item-image">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-              </svg>
-            </div>
-
-            <h4>
-              Calculus MAM1000W Guide
-            </h4>
-
-            <p class="item-price">
-              R350
-            </p>
-
-            <span class="item-badge">
-              UCT Guide
-            </span>
-
+          <!-- shown only when there is no data from the backend yet -->
+          <div v-if="!featuredProducts.length" class="empty-state">
+            No featured items nearby just yet — check back soon.
           </div>
 
-          <div class="featured-item">
-
-            <div class="item-image">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="2" width="16" height="20" rx="2"></rect>
-                <line x1="8" y1="7" x2="16" y2="7"></line>
-                <line x1="8" y1="11" x2="8.01" y2="11"></line>
-                <line x1="12" y1="11" x2="12.01" y2="11"></line>
-                <line x1="16" y1="11" x2="16.01" y2="11"></line>
-                <line x1="8" y1="15" x2="8.01" y2="15"></line>
-                <line x1="12" y1="15" x2="12.01" y2="15"></line>
-                <line x1="16" y1="15" x2="16.01" y2="15"></line>
-                <line x1="8" y1="19" x2="16" y2="19"></line>
-              </svg>
-            </div>
-
-            <h4>
-              TI-Plus Graphing Calc
-            </h4>
-
-            <p class="item-price">
-              R1,200
-            </p>
-
-            <span class="item-badge">
-              ACT Rewards
-            </span>
-
-          </div>
-
-          <div class="featured-item">
-
-            <div class="item-image">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-              </svg>
-            </div>
-
-            <h4>
-              Sony ANC Headphones
-            </h4>
-
-            <p class="item-price">
-              R1,800
-            </p>
-
-            <span class="item-badge">
-              Use Now
-            </span>
-
-          </div>
         </div>
       </div>
 
@@ -481,8 +413,8 @@
 
 <script>
 import Swal from 'sweetalert2'
-import UserSwitch from '../components/UserSwitch.vue'
-import AppIcon from '../components/AppIcon.vue'
+import UserSwitch from '@/components/UserSwitch.vue'
+import AppIcon from '@/components/AppIcon.vue'
 
 export default {
 
@@ -494,13 +426,25 @@ export default {
   data() {
     return {
       isLoggedIn: false,
+      sideNavOpen: false,
       user: {
         name: 'Myles N.',
         university: 'University of Cape Town'
-      }
+      },
+      featuredProducts: []
     };
   },
+  mounted() {
+    this.loadFeaturedProducts();
+  },
   methods: {
+    async loadFeaturedProducts() {
+      // TODO: replace with real API call, e.g.
+      // const res = await fetch('/api/products/featured');
+      // this.featuredProducts = await res.json();
+      this.featuredProducts = [];
+    },
+
     async handleBrowseDeals() {
       if (this.isLoggedIn) {
         await Swal.fire({
@@ -539,7 +483,8 @@ export default {
           this.isLoggedIn = false;
           Swal.fire('Logged Out', 'You have been logged out.', 'success');
         }
-      } else {
+      } 
+      else {
         // If logging in, just toggle (or you could show a success message)
         this.isLoggedIn = true;
         Swal.fire({
@@ -705,9 +650,7 @@ export default {
     height: 36px;
   }
 
-  /* ================================================================
-     HERO SECTION
-     ================================================================ */
+  /* HERO SECTION */
   .hero {
     background-color: #0d1b3d;
     color: #ffffff;
@@ -792,9 +735,7 @@ export default {
     object-fit: cover;
   }
 
-  /* ================================================================
-     CORE SERVICES
-     ================================================================ */
+  /* CORE SERVICES */
   .core-services {
     background-color: #f8f9fa;
     padding-top: 40px;
@@ -894,9 +835,7 @@ export default {
     color: #0d1b3d;
   }
 
-  /* ================================================================
-     TUTORIAL
-     ================================================================ */
+  /* TUTORIAL*/
   .tutorial-section {
     background-color: #f0f2f5;
     padding-top: 40px;
@@ -1108,9 +1047,7 @@ export default {
     margin-top: 6px;
   }
 
-  /* ================================================================
-     SCROLL INDICATOR
-     ================================================================ */
+  /* SCROLL INDICATOR */
   .scroll-indicator {
     position: absolute;
     bottom: 28px;
@@ -1153,9 +1090,7 @@ export default {
     }
   }
 
-  /* ================================================================
-     FOOTER
-     ================================================================ */
+  /* FOOTER */
   footer {
     background-color: #050c1e;
     color: #ffffff;
@@ -1212,9 +1147,7 @@ export default {
     color: #ffffff;
   }
 
-  /* ================================================================
-     RESPONSIVE
-     ================================================================ */
+  /* RESPONSIVE */
   @media (max-width: 992px) {
     .hero-title {
       font-size: 32px;
@@ -1415,4 +1348,21 @@ export default {
       grid-template-columns: 1fr;
     }
   }
+  /* makes product images fit inside the card nicely */
+  .product-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  /* message shown when there are no products */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #64748b;
+    font-size: 15px;
+    padding: 30px 0;
+  }
+
 </style>

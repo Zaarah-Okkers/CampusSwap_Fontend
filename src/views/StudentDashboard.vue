@@ -151,11 +151,11 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
       <div class="greeting-block">
 
         <h2 class="dashboard-title">
-          Hi, Myles 
+          Hi, {{ user.full_name || 'Student' }} 👋
         </h2>
 
         <p class="university-text">
-          University of Cape Town
+          {{ user.role === 'student' ? 'CampusSwap Student' : 'Welcome back' }}
         </p>
 
       </div>
@@ -172,38 +172,25 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
 
           <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
 
-            <span class="stat-title">
-              Seller Rating
-            </span>
-
-            <span class="stat-value" style="color: #2e7d5a;">
-              4.9
-            </span>
+            <span class="stat-title">My Listings</span>
+            <span class="stat-value" style="color: #2e7d5a;">{{ myListings.length }}</span>
           </div>
 
           <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
 
-            <span class="stat-title">
-              Active Listings
-            </span>
-
-            <span class="stat-value" style="color: #00a6a6;">
-              3
-            </span>
+            <span class="stat-title">My Orders</span>
+            <span class="stat-value" style="color: #00a6a6;">{{ myOrders.length }}</span>
           </div>
 
           <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
-
-            <span class="stat-title">
-              Saved Total
-            </span>
-
+            <span class="stat-title">Total Spent</span>
             <span class="stat-value" style="color: #f5b941;">
-              R1,200
+            R{{ myOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0).toFixed(2) }}
             </span>
-
           </div>
         </div>
+
+          
       </div>
 
       <!-- Account Management Card -->
@@ -307,16 +294,46 @@ import AppIcon from '../components/AppIcon.vue'
 export default {
   name: 'StudentDashboard',
   components: { AppIcon },
+import { dashAPI, authAPI, session } from '@/services/api';
+
+export default {
+  name: 'StudentDashboard',
+
   data() {
     return {
       sideNavOpen: false,
-      userRole: 'student',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      
+      // real data from backend
+      user: {},
+      myListings: [],
+      myOrders: [],
+      loading: true
     };
   },
+
+  // runs when page loads — fetch data for the logged-in user
+  async mounted() {
+    this.user = session.get() || {};
+
+    // if not logged in, kick them to login page
+    if (!this.user.id) {
+      this.$router.push('/login');
+      return;
+    }
+
+    try {
+      const data = await dashAPI.getStudent(this.user.id);
+      this.myListings = data.mylistings || [];
+      this.myOrders = data.myOrders || [];
+    } catch (err) {
+      console.error('Failed to load student dashboard:', err.message);
+    } finally {
+      this.loading = false;
+    }
+  },
+
   computed: {
     userInitials() {
       return this.$store.getters['user/currentUser'].name
@@ -336,18 +353,19 @@ export default {
       });
     }
   },
+
   methods: {
-    
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen;
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
     },
+
     closeSideNav() {
       this.sideNavOpen = false;
       document.body.style.overflow = '';
     },
 
-    
+    // logout — clears the session so next login starts fresh
     async logout() {
       const result = await Swal.fire({
         title: 'Logout?',
@@ -359,14 +377,17 @@ export default {
         confirmButtonText: 'Yes, logout',
         cancelButtonText: 'Cancel',
       });
+
       if (result.isConfirmed) {
+        session.clear();
         await Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
         this.$router.push('/login');
       }
     },
 
-  
+    // change password — hits the real backend
     async changePassword() {
+      // validation
       if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
         await Swal.fire({
           icon: 'warning',
@@ -397,20 +418,36 @@ export default {
         return;
       }
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'Password Updated!',
-        text: 'Your password has been changed successfully.',
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      // hit the real backend
+      try {
+        await authAPI.changePassword(
+          this.user.id,
+          this.currentPassword,
+          this.newPassword
+        );
 
-      this.currentPassword = '';
-      this.newPassword = '';
-      this.confirmPassword = '';
+        await Swal.fire({
+          icon: 'success',
+          title: 'Password Updated!',
+          text: 'Your password has been changed successfully.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        this.currentPassword = '';
+        this.newPassword = '';
+        this.confirmPassword = '';
+      } catch (err) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: err.message,
+          confirmButtonColor: '#d33',
+        });
+      }
     },
 
-    
+    // placeholder methods — pages not built yet
     async viewOrders() {
       await Swal.fire({
         icon: 'info',
@@ -452,7 +489,6 @@ export default {
     }
   }
 };
-
 </script>
 
 <style scoped>

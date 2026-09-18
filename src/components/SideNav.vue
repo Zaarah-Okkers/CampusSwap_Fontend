@@ -41,6 +41,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import { handleLogout } from '../utils/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -68,7 +69,7 @@ const publicTabs = [
 
 const studentTabs = [
   { key: 'marketplace', label: 'Marketplace', path: '/marketplace', icon: 'M3 3h18v18H3z M3 9h18 M9 21V9' },
-  { key: 'messages', label: 'Chats', path: '/chat', icon: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z' },
+  { key: 'swaps', label: 'Swaps', path: '/swap-requests', icon: 'M7 16V4 M3 8l4-4 4 4 M17 8v12 M13 16l4 4 4-4' },
   { key: 'safehome', label: 'SafeHome', path: '/safehome', icon: 'M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z M9 12l2 2 4-4' },
   { key: 'residence', label: 'Residence', path: '/student-residence', icon: 'M3 3h18v18H3z M3 9h18 M9 21V9' },
   { key: 'checkout', label: 'Checkout', path: '/checkout', icon: 'M2 7h20v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z M2 11h20 M6 15h4' },
@@ -99,12 +100,15 @@ const resmanagerTabs = [
 ]
 
 const loginTab = { key: 'login', label: 'Login', path: '/login', icon: 'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4 M10 17l5-5-5-5 M15 12H3' }
+// Shown to every signed-in user regardless of role. `action` runs instead of
+// navigating, because logging out is not a route.
+const logoutTab = { key: 'logout', label: 'Logout', action: 'logout', icon: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9' }
 const authenticatedPublicTabs = publicTabs.filter(tab => tab.key === 'home')
 
 const visibleTabs = computed(() => {
   if (!isLoggedIn.value) return [...publicTabs, loginTab]
   const roleTabs = { student: studentTabs, service_provider: providerTabs, admin: adminTabs, resmanager: resmanagerTabs }
-  return [...authenticatedPublicTabs, ...(roleTabs[store.getters['user/currentUser'].role] || studentTabs)]
+  return [...authenticatedPublicTabs, ...(roleTabs[store.getters['user/currentUser'].role] || studentTabs), logoutTab]
 })
 
 watch(() => route.path, (newPath) => {
@@ -119,6 +123,10 @@ watch(() => route.path, (newPath) => {
 function selectTab(key) {
   const tab = visibleTabs.value.find(t => t.key === key)
   if (!tab || tab.disabled) return
+  if (tab.action === 'logout') {
+    handleLogout()
+    return
+  }
   active.value = key
   router.push(tab.path)
 }

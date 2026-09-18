@@ -165,7 +165,14 @@ export const session = {
   },
   get: () => {
     const raw = localStorage.getItem('user');
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      // A malformed or stale browser value must not prevent the app loading.
+      localStorage.removeItem('user');
+      return null;
+    }
   },
   clear: () => {
     localStorage.removeItem('user');

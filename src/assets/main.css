@@ -20,8 +20,15 @@
   --gold: #E8B54D;
   --gold-soft: rgba(232, 181, 77, 0.16);
   --mint: #4ADE80;
+  --mint-soft: rgba(74, 222, 128, 0.16);
   --coral: #FF8577;
   --sky: #6FA8FF;
+
+  /* status and listing badges */
+  --badge-mint-bg: rgba(74, 222, 128, 0.9);
+  --badge-mint-text: #072614;
+  --badge-fair-bg: rgba(232, 181, 77, 0.92);
+  --badge-fair-text: #261a03;
 
   /* text */
   --text: #F4F2FF;
@@ -44,8 +51,14 @@ body,
   margin: 0;
   padding: 0;
   height: 100%;
-  background-color: #F4F6F8;
-  color: #1E293B;
+  background-color: var(--ink);
+  color: var(--text);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 /* body font — Inter */
@@ -57,6 +70,30 @@ body {
     "Segoe UI",
     Roboto,
     sans-serif;
+  min-width: 320px;
+  line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(232, 181, 77, 0.7);
+  outline-offset: 3px;
 }
 
 /* headings — Fraunces */
@@ -72,6 +109,10 @@ h4 {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+img {
+  max-width: 100%;
 }
 
 /* Shared Logo */

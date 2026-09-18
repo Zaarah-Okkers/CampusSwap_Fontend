@@ -9,7 +9,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'submit-review'])
+const emit = defineEmits(['close', 'submit-review', 'add-to-cart', 'request-swap'])
 
 const productRatingInput = ref(0)
 const sellerRatingInput = ref(0)
@@ -35,6 +35,14 @@ function submitReview() {
     comment: reviewText.value
   })
   submitted.value = true
+}
+
+function addToCart() {
+  emit('add-to-cart', props.product)
+}
+
+function alertSellerForSwap() {
+  emit('request-swap', props.product)
 }
 </script>
 
@@ -84,7 +92,20 @@ function submitReview() {
           </span>
         </div>
 
-        <button class="message-seller-btn">Message seller</button>
+        <!-- Swap listings can't be bought, so the seller is alerted instead. -->
+        <button
+          v-if="product.listingType === 'swap'"
+          class="swap-alert-btn"
+          @click="alertSellerForSwap"
+        >
+          <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Alert seller for swap
+        </button>
+
+        <button v-else class="add-to-cart-btn" @click="addToCart">
+          <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Add to cart
+        </button>
 
         <div class="rate-section" v-if="!submitted">
           <h4 class="desc-heading">Leave Feedback</h4>
@@ -364,22 +385,60 @@ function submitReview() {
   color: var(--text-muted);
 }
 
-.message-seller-btn {
+.add-to-cart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  color: var(--text);
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  color: var(--ink);
   border-radius: 12px;
   padding: 13px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
   cursor: pointer;
   margin-bottom: 18px;
   transition: all 0.2s ease;
 }
 
-.message-seller-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+.add-to-cart-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.add-to-cart-btn .cart-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.swap-alert-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: var(--gold-soft);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  border-radius: 12px;
+  padding: 13px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 18px;
+  transition: all 0.2s ease;
+}
+
+.swap-alert-btn:hover {
+  background: rgba(232, 181, 77, 0.22);
+  transform: translateY(-1px);
+}
+
+.swap-alert-btn .cart-icon {
+  width: 17px;
+  height: 17px;
 }
 
 .rate-section {

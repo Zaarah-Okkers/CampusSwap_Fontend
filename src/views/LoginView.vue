@@ -139,7 +139,7 @@
 
         <!-- Institution Selection -->
 
-        <div v-if="role !== 'admin'" class="form-group">
+        <div v-if="role === 'student' || role === 'resmanager'" class="form-group">
 
           <label>
             {{ getInstitutionLabel() }}
@@ -156,9 +156,9 @@
                 Select your institution
               </option>
               
-              <!-- Students, Admins, Res Managers see universities -->
+              <!-- Students and residence managers select a university. -->
               <template 
-              v-if="role === 'student' || role === 'admin' || role === 'resmanager'">
+              v-if="role === 'student' || role === 'resmanager'">
 
                 <optgroup v-for="(unis, province) in universities" :key="province" :label="province">
                   <option v-for="uni in unis" :key="uni" :value="uni">
@@ -168,30 +168,6 @@
                 </optgroup>
               </template>
               
-              <!-- Providers see companies -->
-              <template v-else>
-
-                <option value="Cape Town Express Plumbing">
-                  Cape Town Express Plumbing
-                </option>
-
-                <option value="Sipho Electrical Solutions">
-                  Sipho Electrical Solutions
-                </option>
-
-                <option value="Campus Handy Helpers">
-                  Campus Handy Helpers
-                </option>
-
-                <option value="QuickFix Appliance Repair">
-                  QuickFix Appliance Repair
-                </option>
-
-                <option value="Dorm Assembly & Carpentry">
-                  Dorm Assembly & Carpentry
-                </option>
-
-              </template>
             </select>
           </div>
         </div>
@@ -367,11 +343,11 @@
             <input v-model="regData.email" type="email" class="form-input" placeholder="your.email@example.com" />
           </div>
 
-          <!-- Student Number (for students) -->
+          <!-- Optional profile detail; not required to create an account. -->
 
           <div v-if="regData.role === 'student'" class="form-group">
             <label>
-              Student Number
+              Student Number (optional)
             </label>
 
             <input v-model="regData.studentNumber" type="text" class="form-input" placeholder="e.g., ST1001" />
@@ -379,7 +355,7 @@
 
           <!-- University Selection -->
 
-          <div v-if="regData.role === 'student' || regData.role === 'admin' || regData.role === 'resmanager'" class="form-group">
+          <div v-if="regData.role === 'student' || regData.role === 'resmanager'" class="form-group">
             <label>
               University
             </label>
@@ -407,51 +383,21 @@
             </div>
           </div>
 
-          <!-- Company Selection (for providers) -->
-
+          <!-- Provider service category -->
           <div v-if="regData.role === 'provider'" class="form-group">
-
-            <label>
-              Company / Organization
-            </label>
-
+            <label for="provider-service">Primary service offered</label>
             <div class="select-wrap">
-
-              <span class="input-icon">
-                <AppIcon name="briefcase" />
-              </span>
-
-              <select v-model="regData.company" class="form-input">
-
-                <option value="" disabled>
-                  -- Select Your Company --
-                </option>
-
-                <option value="Cape Town Express Plumbing">
-                  Cape Town Express Plumbing
-                </option>
-
-                <option value="Sipho Electrical Solutions">
-                  Sipho Electrical Solutions
-                </option>
-
-                <option value="Campus Handy Helpers">
-                  Campus Handy Helpers
-                </option>
-
-
-                <option value="QuickFix Appliance Repair">
-                  QuickFix Appliance Repair
-                </option>
-
-                <option value="Dorm Assembly & Carpentry">
-                  Dorm Assembly & Carpentry
-                </option>
-
-                <option value="Other">
-                  And other...
-                </option>
-
+              <span class="input-icon"><AppIcon name="tools" /></span>
+              <select id="provider-service" v-model="regData.serviceType" class="form-input">
+                <option value="" disabled>-- Select a service type --</option>
+                <option value="plumbing">Plumbing</option>
+                <option value="electrical">Electrical</option>
+                <option value="cleaning">Cleaning</option>
+                <option value="repairs">Appliance and general repairs</option>
+                <option value="carpentry">Carpentry and furniture assembly</option>
+                <option value="moving">Moving and delivery help</option>
+                <option value="technology">Technology support</option>
+                <option value="other">Other campus service</option>
               </select>
             </div>
           </div>
@@ -482,7 +428,7 @@
 
           <div v-if="regData.role === 'student'" class="form-group">
             <label>
-              Upload Student ID
+              Upload Student ID (optional)
             </label>
 
             <div class="file-upload-wrapper">
@@ -506,7 +452,7 @@
 
               </label>
               <p class="file-hint">
-                Upload a photo of your student ID card for verification
+                You may upload a photo of your student ID card for later verification.
               </p>
 
             </div>
@@ -531,11 +477,10 @@
             <label>
               <input type="checkbox" v-model="regData.agreeTerms" />
               I agree to the 
-              <a href="#" @click.prevent="showTermsNotice" >
+              <router-link :to="{ name: 'terms' }">
                 Terms of Service
-              </a> and 
-              <a href="#" @click.prevent="showPrivacyNotice">Privacy Policy
-              </a>
+              </router-link> and
+              <router-link :to="{ name: 'privacy' }">Privacy Policy</router-link>
             </label>
           </div>
 
@@ -562,6 +507,15 @@ import Swal from 'sweetalert2'
 import AppIcon from '../components/AppIcon.vue'
 import { authAPI, roleMap, dashboardRoutes, session } from '@/services/api'
 
+// Role-specific welcome title shown after a successful login/registration.
+// Keyed by the backend role value, so the same map works for both flows.
+const SUCCESS_MESSAGES = {
+  student: 'Certified user moment.',
+  service_provider: 'Access granted, chief.',
+  admin: 'Level unlocked.',
+  res_manager: 'Player 1 has entered.'
+}
+
 export default {
   name: 'LoginPage',
   components: { AppIcon },
@@ -587,7 +541,7 @@ export default {
       email: '',
       password: '',
       selectedInstitution: '',
-      
+
       showRegistration: false,
       regData: {
         role: 'student',
@@ -596,6 +550,7 @@ export default {
         studentNumber: '',
         university: '',
         company: '',
+        serviceType: '',
         password: '',
         confirmPassword: '',
         idFile: null,
@@ -603,7 +558,7 @@ export default {
       },
 
       registeredUsers: [],
-      
+
       universities: {
         'Western Cape': [
           'University of Cape Town (UCT)',
@@ -675,7 +630,7 @@ export default {
       };
       return titles[this.role] || 'Verification';
     },
-    
+
     getRoleSubtitle() {
       const subtitles = {
         student: 'Verify using your academic email to prove you\'re a student.',
@@ -685,7 +640,7 @@ export default {
       };
       return subtitles[this.role] || 'Please verify your credentials.';
     },
-    
+
     getInstitutionLabel() {
       const labels = {
         student: 'Select Your Tertiary Institution',
@@ -695,7 +650,7 @@ export default {
       };
       return labels[this.role] || 'Select Institution';
     },
-    
+
     getEmailLabel() {
       const labels = {
         student: 'Institution Email (Student Verification)',
@@ -705,7 +660,7 @@ export default {
       };
       return labels[this.role] || 'Email';
     },
-    
+
     getEmailPlaceholder() {
       const placeholders = {
         student: 'student@myuct.ac.za',
@@ -728,6 +683,25 @@ export default {
 
     openRoleLogin(role) {
       this.$router.push(`/login/${role}`)
+    },
+
+    persistLogin(user, role) {
+      const storeRole = role === 'provider' ? 'service_provider' : role
+      const account = {
+        id: user.id ?? user.email,
+        name: user.fullName || user.name,
+        email: user.email,
+        role: storeRole,
+        avatar: user.avatar || `https://placehold.co/100x100/6C5CE7/FFFFFF?text=${encodeURIComponent((user.fullName || user.name || 'U').charAt(0))}`,
+        university: user.university || '',
+        verified: user.verified ?? true,
+        online: true,
+        isPremium: user.isPremium ?? false
+      }
+      this.$store.commit('user/setCurrentUser', account)
+      this.$store.commit('user/setLoggedIn', true)
+      session.save(account)
+      localStorage.setItem('isLoggedIn', 'true')
     },
 
     // ===== SMALL NOTICE HELPERS (replaces native alert() for consistency with SweetAlert2) =====
@@ -768,6 +742,7 @@ export default {
         studentNumber: '',
         university: '',
         company: '',
+        serviceType: '',
         password: '',
         confirmPassword: '',
         idFile: null,
@@ -835,16 +810,7 @@ export default {
         });
         return;
       }
-      if (this.regData.role === 'student' && !this.regData.studentNumber) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Missing Information',
-          text: 'Please enter your student number.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
-      }
-      if ((this.regData.role === 'student' || this.regData.role === 'admin' || this.regData.role === 'resmanager') && !this.regData.university) {
+      if ((this.regData.role === 'student' || this.regData.role === 'resmanager') && !this.regData.university) {
         await Swal.fire({
           icon: 'warning',
           title: 'Missing Information',
@@ -853,11 +819,11 @@ export default {
         });
         return;
       }
-      if (this.regData.role === 'provider' && !this.regData.company) {
+      if (this.regData.role === 'provider' && !this.regData.serviceType) {
         await Swal.fire({
           icon: 'warning',
-          title: 'Missing Information',
-          text: 'Please enter your company name.',
+          title: 'Choose a service type',
+          text: 'Select the primary service you will provide.',
           confirmButtonColor: '#f5b941',
         });
         return;
@@ -889,15 +855,6 @@ export default {
         });
         return;
       }
-      if (this.regData.role === 'student' && !this.regData.idFile) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Missing ID',
-          text: 'Please upload your student ID image.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
-      }
       if (!this.regData.agreeTerms) {
         await Swal.fire({
           icon: 'warning',
@@ -924,14 +881,15 @@ export default {
         fullName: this.regData.fullName,
         email: this.regData.email,
         studentNumber: this.regData.studentNumber || '',
-        university: this.regData.university || this.regData.company || '',
+        university: this.regData.university || '',
+        serviceType: this.regData.serviceType || '',
         password: this.regData.password,
         idFile: this.regData.idFile ? this.regData.idFile.name : null,
         registeredAt: new Date().toLocaleString()
       };
 
       this.registeredUsers.push(newUser);
-      
+
       const roleNames = {
         student: 'Student',
         provider: 'Service Provider',
@@ -939,10 +897,12 @@ export default {
         resmanager: 'Residence Manager'
       };
 
-      
+      const welcomeMsg =
+        SUCCESS_MESSAGES[roleMap[this.regData.role]] || 'Registration Successful!';
+
       await Swal.fire({
         icon: 'success',
-        title: 'Registration Successful!',
+        title: welcomeMsg,
         html: `
           <p><strong>Welcome, ${this.regData.fullName}!</strong></p>
           <p>Role: ${roleNames[this.regData.role]}<br>
@@ -955,7 +915,7 @@ export default {
       this.role = this.regData.role;
       this.email = this.regData.email;
       this.password = this.regData.password;
-      this.selectedInstitution = this.regData.university || this.regData.company || '';
+      this.selectedInstitution = this.regData.university || '';
 
       this.closeRegistration();
 
@@ -980,7 +940,7 @@ export default {
     async handleLogin() {
       // Institution field is shown for every role except admin, so it must be
       // required for every role except admin too.
-      const requiresInstitution = this.role !== 'admin'
+      const requiresInstitution = this.role === 'student' || this.role === 'resmanager'
       if (!this.email || !this.password || (requiresInstitution && !this.selectedInstitution)) {
         await Swal.fire({
           icon: 'warning',
@@ -996,20 +956,20 @@ export default {
       );
 
       if (registeredUser) {
-        this.$store.commit('user/loginAsRole', registeredUser.role);
-        this.$store.commit('user/setLoggedIn', true);
-        localStorage.setItem('isLoggedIn', 'true');
+        this.persistLogin(registeredUser, registeredUser.role);
         const routes = {
           student: '/student-dashboard',
           provider: '/provider-dashboard',
           admin: '/admin',
           resmanager: '/resmanager-dashboard'
         };
+        const welcomeMsg =
+          SUCCESS_MESSAGES[roleMap[registeredUser.role]] || 'Welcome back!'
         await Swal.fire({
           icon: 'success',
-          title: 'Welcome Back! ',
-          text: `Welcome back, ${registeredUser.fullName}!`,
-          timer: 1500,
+          title: welcomeMsg,
+          text: `Logged in as ${registeredUser.fullName}`,
+          timer: 1800,
           showConfirmButton: false,
         });
         this.$router.push(routes[registeredUser.role] || '/student-dashboard');
@@ -1024,10 +984,11 @@ export default {
       };
 
       const creds = credentials[this.role];
-      
+
       if (this.email === creds.email && this.password === creds.password) {
         this.$store.commit('user/loginAsRole', this.role);
         this.$store.commit('user/setLoggedIn', true);
+        session.save(this.$store.getters['user/currentUser']);
         localStorage.setItem('isLoggedIn', 'true');
         const roleNames = {
           student: 'Student',
@@ -1035,11 +996,13 @@ export default {
           admin: 'Administrator',
           resmanager: 'Residence Manager'
         };
+        const welcomeMsg =
+          SUCCESS_MESSAGES[roleMap[this.role]] || 'Login Successful!';
         await Swal.fire({
           icon: 'success',
-          title: 'Login Successful!',
+          title: welcomeMsg,
           text: `${roleNames[this.role]} logged in successfully!`,
-          timer: 1500,
+          timer: 1800,
           showConfirmButton: false,
         });
         this.$router.push(creds.route);
@@ -1069,8 +1032,8 @@ export default {
       this.role = role;
       const credentials = {
         student: { email: 'student@myuct.ac.za', password: 'student123', institution: 'University of Cape Town (UCT)' },
-        provider: { email: 'provider@work.co.za', password: 'provider123', institution: 'Cape Town Express Plumbing' },
-        admin: { email: 'admin@campusswap.co.za', password: 'admin123', institution: 'University of Cape Town (UCT)' },
+        provider: { email: 'provider@work.co.za', password: 'provider123', institution: '' },
+        admin: { email: 'admin@campusswap.co.za', password: 'admin123', institution: '' },
         resmanager: { email: 'resmanager@campusswap.co.za', password: 'res123', institution: 'University of Cape Town (UCT)' }
       };
       const creds = credentials[role];
@@ -1094,7 +1057,7 @@ export default {
       this.role = 'admin';
       this.email = 'admin@campusswap.co.za';
       this.password = 'admin123';
-      this.selectedInstitution = 'University of Cape Town (UCT)';
+      this.selectedInstitution = '';
       
       await Swal.fire({
         icon: 'info',

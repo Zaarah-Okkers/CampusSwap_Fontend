@@ -52,7 +52,9 @@
           </p>
 
           <h1 class="hero-title">
-            One Campus. Endless Possibilities.<br />All In One Place.
+            One Campus.
+            <span class="gold-text">Endless Possibilities.</span><br />
+            All In One Place.
           </h1>
 
           <p class="hero-desc">
@@ -64,7 +66,7 @@
             Browse Active Campus Deals
           </button>
 
-        </div> 
+        </div>
 
         <div class="hero-image">
           <img
@@ -115,9 +117,9 @@
             Buy &amp; rent textbooks, tech, and study materials from fellow students.
           </p>
 
-          <!-- <button class="card-btn" @click="goToAcademic">
+          <button class="card-btn" @click="goToAcademic">
             Browse Marketplace
-          </button> -->
+          </button>
 
         </div>
 
@@ -230,13 +232,17 @@
 
         <div class="tutorial-actions" v-if="isLoggedIn">
 
-          <!-- <button class="btn-outline-gold" @click="goToAcademic">
+          <button class="btn-outline-gold" @click="goToAcademic">
             Browse Academic Marketplace
-          </button> -->
+          </button>
 
           <button class="btn-outline-green" @click="goToSafeHome">
             Book SafeHome Repairs
-          </button> 
+          </button>
+
+          <button class="btn-outline-green" @click="$router.push(dashboardRoute)">
+            Go to My Dashboard
+          </button>
 
         </div>
 
@@ -251,9 +257,9 @@
               </svg>
             </span>
 
-            <a href="#" @click.prevent="toggleLogin">
+            <a href="#" @click.prevent="goToLogin">
               Log in
-            </a> 
+            </a>
             with your university email to access all features.
           </p>
 
@@ -261,7 +267,7 @@
       </div>
 
       <div class="scroll-indicator scroll-indicator-light">
-        
+
         <span>
           Scroll
         </span>
@@ -302,7 +308,16 @@
             </h4>
 
             <p class="item-price">
-              R{{ product.price ? Number(product.price).toFixed(2) : 'Swap' }}
+              <template v-if="product.listing_type === 'rent'">
+                R{{ Number(product.price).toFixed(2)
+                }}<span class="per-period"> / {{ product.rent_period }}</span>
+              </template>
+              <template v-else-if="product.listing_type === 'swap'">
+                Swap
+              </template>
+              <template v-else>
+                R{{ Number(product.price).toFixed(2) }}
+              </template>
             </p>
 
             <span class="item-badge">
@@ -415,6 +430,7 @@
 import Swal from 'sweetalert2'
 import UserSwitch from '@/components/UserSwitch.vue'
 import AppIcon from '@/components/AppIcon.vue'
+import { homeAPI, dashboardRoutes, session } from '@/services/api'
 
 export default {
 
@@ -427,95 +443,142 @@ export default {
     return {
       isLoggedIn: false,
       sideNavOpen: false,
+      featuredProducts: [],
+      categories: [],
+      universities: [],
       user: {
-        name: 'Myles N.',
-        university: 'University of Cape Town'
-      },
-      featuredProducts: []
+        name: 'Guest',
+        role: '',
+        university: ''
+      }
     };
   },
-  mounted() {
-    this.loadFeaturedProducts();
+
+  async created() {
+    // Check if someone is logged in.
+    const stored = session.get();
+    if (stored) {
+      this.isLoggedIn = true;
+      this.user.name = stored.full_name || stored.name || 'Student';
+      this.user.role = stored.role || '';
+      this.user.university = stored.university || '';
+    }
+
+    // Grab real data from the DB.
+    try {
+      const data = await homeAPI.getHomeData();
+      this.featuredProducts = data.featuredProducts || [];
+      this.categories = data.categories || [];
+      this.universities = data.universities || [];
+    } catch (err) {
+      console.error('Home data failed to load:', err.message);
+    }
   },
+
+  computed: {
+    initials() {
+      if (!this.user.name || this.user.name === 'Guest') return 'GS';
+      return this.user.name
+        .split(' ')
+        .map((w) => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+    },
+
+    // Friendly role label.
+    roleLabel() {
+      const labels = {
+        student: 'Student',
+        service_provider: 'Service Provider',
+        res_manager: 'Residence Manager',
+        admin: 'Administrator'
+      };
+      return labels[this.user.role] || 'Student';
+    },
+
+    // Where the Dashboard link should go based on the user's role.
+    dashboardRoute() {
+      return dashboardRoutes[this.user.role] || '/login';
+    },
+
+    // Who sees Checkout? Students, admins and res managers (not providers).
+    showCheckout() {
+      return ['student', 'admin', 'res_manager'].includes(this.user.role);
+    }
+  },
+
   methods: {
-    async loadFeaturedProducts() {
-      // TODO: replace with real API call, e.g.
-      // const res = await fetch('/api/products/featured');
-      // this.featuredProducts = await res.json();
-      this.featuredProducts = [];
+    toggleSideNav() {
+      this.sideNavOpen = !this.sideNavOpen;
+      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
+    },
+
+    closeSideNav() {
+      this.sideNavOpen = false;
+      document.body.style.overflow = '';
     },
 
     async handleBrowseDeals() {
       if (this.isLoggedIn) {
-        await Swal.fire({
-          icon: 'info',
-          title: 'Navigating...',
-          text: 'You are being redirected to Campus Deals.',
-          timer: 1500,
-          showConfirmButton: false,
-        });
-        
+        this.$router.push('/marketplace');
       } else {
         await Swal.fire({
           icon: 'warning',
           title: 'Login Required',
           text: 'Please log in with your university email to view deals.',
-          confirmButtonColor: '#f5b941',
+          confirmButtonColor: '#f5b941'
         });
       }
     },
 
-    //  3. Toggle login with a confirmation 
-    async toggleLogin() {
-      if (this.isLoggedIn) {
-        // If they are about to log out, ask for confirmation
-        const result = await Swal.fire({
-          title: 'Logout?',
-          text: 'Are you sure you want to log out?',
-          icon: 'question',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Yes, logout',
-          cancelButtonText: 'Cancel',
-        });
-        if (result.isConfirmed) {
-          this.isLoggedIn = false;
-          Swal.fire('Logged Out', 'You have been logged out.', 'success');
-        }
-      } 
-      else {
-        // If logging in, just toggle (or you could show a success message)
-        this.isLoggedIn = true;
-        Swal.fire({
+    // Tutorial section login button.
+    goToLogin() {
+      this.$router.push('/login');
+    },
+
+    // Logout from the tutorial / dashboard shortcut area.
+    async logout() {
+      const result = await Swal.fire({
+        title: 'Logout?',
+        text: 'Are you sure you want to log out?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, logout',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        session.clear();
+        localStorage.removeItem('isLoggedIn');
+
+        this.isLoggedIn = false;
+        this.user.name = 'Guest';
+        this.user.role = '';
+        this.user.university = '';
+
+        await Swal.fire({
           icon: 'success',
-          title: 'Welcome!',
-          text: 'You are now logged in.',
-          timer: 1500,
-          showConfirmButton: false,
+          title: 'Logged out.',
+          timer: 1800,
+          showConfirmButton: false
         });
+
+        this.closeSideNav();
+        this.$router.push('/login');
       }
     },
 
-    // -------- 4. Academic and SafeHome buttons --------
-    async goToAcademic() {
-      await Swal.fire({
-        icon: 'info',
-        title: 'Academic Marketplace',
-        text: 'Navigating to browse textbooks, tech, and study materials.',
-        timer: 1500,
-        showConfirmButton: false,
-      });
+    // Redirect to the marketplace route.
+    goToAcademic() {
+      this.$router.push('/marketplace');
     },
 
-    async goToSafeHome() {
-      await Swal.fire({
-        icon: 'info',
-        title: 'SafeHome',
-        text: 'Navigating to book handyman services.',
-        timer: 1500,
-        showConfirmButton: false,
-      });
+    // Redirect to the SafeHome route.
+    goToSafeHome() {
+      this.$router.push('/safehome');
     }
   }
 }; 
@@ -578,6 +641,10 @@ export default {
   .brand .green-text,
   .green-text {
     color: #2e7d5a;
+  }
+
+  .gold-text {
+    color: #f5b941;
   }
 
   .top-center {
@@ -1034,6 +1101,12 @@ export default {
     font-weight: 700;
     color: #2e7d5a;
     margin: 4px 0px;
+  }
+
+  .per-period {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
   }
 
   .item-badge {

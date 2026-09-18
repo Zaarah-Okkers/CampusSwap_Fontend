@@ -28,22 +28,17 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
       </div>
 
       <div class="top-center">
-        <div class="search-wrap">
+        <form class="search-wrap" @submit.prevent="goToMarketplace">
           <input
             type="text"
             class="search-input"
             placeholder="Search books, services, and more..."
+            aria-label="Search the marketplace"
           />
-        </div>
+        </form>
       </div>
 
       <div class="top-right">
-        <div class="notification-bell" @click="showBellNotifications">
-          <span class="bell-icon">
-            <AppIcon name="alert" />
-          </span>
-          <span class="notification-dot"></span>
-        </div>
         <span class="avatar">{{ userInitials }}</span>
       </div>
     </header>
@@ -80,13 +75,13 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
         </li>
 
         <li>
-          <router-link to="/checkout" @click="closeSideNav" v-if="userRole === 'student'">
+          <router-link to="/checkout" @click="closeSideNav" v-if="isStudent">
             Checkout
           </router-link>
         </li>
 
         <li>
-          <router-link to="/dashboard" @click="closeSideNav">Dashboard</router-link>
+          <router-link to="/student-dashboard" @click="closeSideNav">Dashboard</router-link>
         </li>
       </ul>
 
@@ -99,17 +94,58 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
     <div class="dashboard-container">
 
       <div class="greeting-block">
-        <h2 class="dashboard-title">
-          Hi, {{ user.full_name || 'Student' }} 👋
-        </h2>
-        <p class="university-text">
-          {{ user.role === 'student' ? 'CampusSwap Student' : 'Welcome back' }}
-        </p>
+        <div>
+          <h2 class="dashboard-title">
+            Hi, {{ user.full_name || user.name || 'Student' }} 👋
+          </h2>
+          <p class="university-text">
+            {{ isStudent ? (user.university || 'CampusSwap Student') : 'Welcome back' }}
+          </p>
+        </div>
+        <span class="greeting-date">{{ formattedDate }}</span>
+      </div>
+
+      <div class="dashboard-grid">
+
+      <!-- Profile Details Card -->
+      <div class="card profile-overview-card grid-full" id="student-profile-section">
+        <div class="profile-header-flex">
+          <div class="profile-avatar-large">
+            {{ userInitials }}
+          </div>
+          <div class="profile-header-info">
+            <h3 class="profile-name">{{ user.full_name || user.name || 'Zaarah K.' }}</h3>
+            <p class="profile-meta">{{ user.email || 'zaarah@campus.co.za' }} · {{ user.university || 'University of Cape Town (UCT)' }}</p>
+            <div class="profile-badges">
+              <span class="badge-student"><AppIcon name="graduationCap" /> Verified Student</span>
+              <span class="badge-campus"><AppIcon name="building" /> On-Campus Resident</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Student ID</span>
+            <strong>{{ user.studentNumber || 'STU-2026-0941' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Institution</span>
+            <strong>{{ user.university || 'University of Cape Town (UCT)' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            <strong class="status-active"><AppIcon name="check" /> Active Member</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Residence</span>
+            <strong>Smuts Hall · Room 204</strong>
+          </div>
+        </div>
       </div>
 
       <!-- Profile Stats Card -->
-      <div class="card">
-        <h3 class="card-heading">My Profile</h3>
+      <div class="card grid-full">
+        <h3 class="card-heading">Activity Overview</h3>
 
         <div class="stats-grid">
           <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
@@ -131,13 +167,118 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
         </div>
       </div>
 
-      <!-- Account Management Card -->
+      <!-- Student Residence Card -->
       <div class="card">
+        <h3 class="card-heading">Student Residence</h3>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-icon"><AppIcon name="building" /></span>
+            <h4 class="feature-title">Find Accommodation</h4>
+            <p class="feature-text">Browse verified on-campus and off-campus rooms near your institution.</p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon"><AppIcon name="home" /></span>
+            <h4 class="feature-title">My Residence Booking</h4>
+            <p class="feature-text">View your current room allocation, lease dates and move-in details.</p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon"><AppIcon name="cart" /></span>
+            <h4 class="feature-title">Pay Residence Fees</h4>
+            <p class="feature-text">Settle rent and deposits securely with escrow-protected payments.</p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon"><AppIcon name="check" /></span>
+            <h4 class="feature-title">Maintenance Requests</h4>
+            <p class="feature-text">Log faults and track repairs with your residence manager.</p>
+          </div>
+        </div>
+
+        <button class="btn-card-action" @click="goToResidence">
+          <AppIcon name="building" />
+          {{ isStudent ? 'Go to Residence Portal' : 'Log in to access Residence Portal' }}
+        </button>
+      </div>
+
+      <!-- Marketplace Card -->
+      <div class="card">
+        <h3 class="card-heading">Academic Marketplace</h3>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-icon"><AppIcon name="book" /></span>
+            <h4 class="feature-title">Textbooks &amp; Study Notes</h4>
+            <p class="feature-text">Buy and sell prescribed textbooks, past papers and study guides.</p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon"><AppIcon name="cart" /></span>
+            <h4 class="feature-title">Buy Campus Gear</h4>
+            <p class="feature-text">Shop electronics, stationery and dorm essentials from fellow students.</p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon"><AppIcon name="dashboard" /></span>
+            <h4 class="feature-title">Sell Your Items</h4>
+            <p class="feature-text">List your used items in minutes and reach buyers on your campus.</p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon"><AppIcon name="alert" /></span>
+            <h4 class="feature-title">Track Orders</h4>
+            <p class="feature-text">Follow your purchases from checkout to delivery with escrow protection.</p>
+          </div>
+        </div>
+
+        <button class="btn-card-action" @click="goToMarketplace">
+          <AppIcon name="cart" />
+          {{ isStudent ? 'Go to Marketplace' : 'Log in to access Marketplace' }}
+        </button>
+      </div>
+
+      <!-- Quick Services Card -->
+      <div class="card grid-full">
+        <h3 class="card-heading">Campus Services</h3>
+
+        <div class="menu-item">
+          <router-link to="/marketplace" class="menu-link">
+            <span><AppIcon name="book" /> Academic Marketplace</span>
+            <span class="arrow">&gt;</span>
+          </router-link>
+        </div>
+
+        <div class="menu-item">
+          <router-link to="/student-residence" class="menu-link">
+            <span><AppIcon name="building" /> Student Residence Portal</span>
+            <span class="arrow">&gt;</span>
+          </router-link>
+        </div>
+
+        <div class="menu-item">
+          <router-link to="/safehome" class="menu-link">
+            <span><AppIcon name="home" /> SafeHome Bookings</span>
+            <span class="arrow">&gt;</span>
+          </router-link>
+        </div>
+
+        <div class="menu-item">
+          <router-link to="/checkout" class="menu-link">
+            <span><AppIcon name="cart" /> Checkout &amp; Escrow</span>
+            <span class="arrow">&gt;</span>
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Account Management Card -->
+      <div class="card grid-full">
         <h3 class="card-heading">Account Management</h3>
 
         <div class="menu-item">
-          <router-link to="/academic" class="menu-link">
-            Active Orders
+          <router-link to="/marketplace" class="menu-link">
+            <span>Active Orders</span>
             <span class="arrow">&gt;</span>
           </router-link>
         </div>
@@ -175,13 +316,14 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
             <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
           </div>
 
-          <button class="btn-save" @click="changePassword">Update Password</button>
-        </div>
-      </div>
+                              <button class="btn-save" @click="changePassword">Update Password</button>
+                            </div>
+                          </div>
 
-    </div>
-  </div>
-</template>
+                          </div>
+                        </div>
+                     </div>
+                    </template>
 
 <script>
 import Swal from 'sweetalert2'
@@ -225,6 +367,9 @@ export default {
   },
 
   computed: {
+    isStudent() {
+      return this.user.role === 'student'
+    },
     userInitials() {
       const name = this.user.full_name || this.user.name || ''
       if (!name) return ''
@@ -247,6 +392,23 @@ export default {
   },
 
   methods: {
+    // Residency / Marketplace gating:
+    // - logged-in student -> straight to the page
+    // - anything else (not logged in, or another role) -> login page with a redirect back
+    goToStudentPage(path) {
+      // not a logged-in student: send them to login, remembering where they wanted to go
+      const redirectQuery = { path: '/login', query: { redirect: path } }
+      this.$router.push(this.isStudent ? path : redirectQuery)
+    },
+
+    goToResidence() {
+      this.goToStudentPage('/student-residence')
+    },
+
+    goToMarketplace() {
+      this.goToStudentPage('/marketplace')
+    },
+
     toggleSideNav() {
       this.sideNavOpen = !this.sideNavOpen
       document.body.style.overflow = this.sideNavOpen ? 'hidden' : ''
@@ -447,29 +609,6 @@ export default {
   gap: 15px;
 }
 
-.notification-bell {
-  position: relative;
-  cursor: pointer;
-  font-size: 24px;
-  color: #fff;
-  transition: color 0.3s ease;
-}
-
-.notification-bell:hover {
-  color: #f5b941;
-}
-
-.notification-dot {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 10px;
-  height: 10px;
-  background-color: #ff4d4f;
-  border-radius: 50%;
-  border: 2px solid #0d1b3d;
-}
-
 .avatar {
   background-color: #f5b941;
   color: #0d1b3d;
@@ -605,27 +744,58 @@ export default {
 
 /* Dashboard Content */
 .dashboard-container {
-  max-width: 650px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 30px 20px;
 }
 
+/* Two-column responsive grid: cards stack on small screens, flow into
+   columns on desktop. `.grid-full` cards span both columns. */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.dashboard-grid .card {
+  margin-bottom: 0;
+}
+
+.grid-full {
+  grid-column: 1 / -1;
+}
+
 .greeting-block {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
   margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .dashboard-title {
-  color: #ffffff;
+  color: #0d1b3d;
   font-size: 26px;
   font-weight: 700;
   margin: 0 0 6px 0;
 }
 
 .university-text {
-  color: #d1d5db;
+  color: #64748b;
   font-size: 15px;
   font-weight: 500;
   margin: 0;
+}
+
+.greeting-date {
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* Cards */
@@ -644,6 +814,110 @@ export default {
   font-weight: 700;
   padding-bottom: 10px;
   border-bottom: 2px solid #6c4b6a;
+}
+
+/* Profile overview card */
+.profile-header-flex {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #eef1f5;
+  flex-wrap: wrap;
+}
+
+.profile-avatar-large {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #2e7d5a;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-header-info {
+  flex: 1;
+  min-width: 180px;
+}
+
+.profile-name {
+  color: #0d1b3d;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.profile-meta {
+  color: #64748b;
+  font-size: 13.5px;
+  margin: 0 0 10px 0;
+  word-break: break-word;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge-student,
+.badge-campus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.badge-student {
+  background-color: #e6f4ee;
+  color: #2e7d5a;
+}
+
+.badge-campus {
+  background-color: #fff6e0;
+  color: #b5811a;
+}
+
+.profile-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  padding-top: 18px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.detail-item strong {
+  color: #0d1b3d;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.status-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #2e7d5a;
 }
 
 .stats-grid {
@@ -671,6 +945,77 @@ export default {
   font-weight: bold;
   font-size: 22px;
   display: block;
+}
+
+/* Feature cards (Residence / Marketplace) */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.feature-card {
+  background-color: #f8f9fa;
+  border: 1px solid #eceff3;
+  border-radius: 12px;
+  padding: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(13, 27, 61, 0.08);
+  border-color: #2e7d5a;
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background-color: #e6f4ee;
+  color: #2e7d5a;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.feature-title {
+  color: #0d1b3d;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.feature-text {
+  color: #64748b;
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.btn-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background-color: #0d1b3d;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.btn-card-action:hover {
+  background-color: #2e7d5a;
+  transform: translateY(-2px);
 }
 
 /* Menu items */
@@ -779,11 +1124,24 @@ export default {
   .top-right {
     display: flex;
   }
+  .dashboard-container {
+    padding: 20px 14px;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
   .stats-grid {
     gap: 8px;
   }
   .stat-card {
     padding: 10px;
+  }
+  .greeting-block {
+    align-items: flex-start;
+  }
+  .dashboard-title {
+    font-size: 22px;
   }
 }
 </style>

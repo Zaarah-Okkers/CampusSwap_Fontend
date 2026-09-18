@@ -11,6 +11,7 @@ const emit = defineEmits(['update:modelValue'])
 const categories = [
   { key: 'all', label: 'All' },
   { key: 'sell', label: 'Textbooks & Tech' },
+  { key: 'furniture', label: 'Furniture & Res Decor' },
   { key: 'rent', label: 'Rentals' },
   { key: 'swap', label: 'Swaps' }
 ]

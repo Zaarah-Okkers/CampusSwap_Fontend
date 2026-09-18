@@ -31,6 +31,16 @@ const router = createRouter({
       component: ContactView,
     },
     {
+      path: '/terms',
+      name: 'terms',
+      component: () => import('../views/TermsView.vue'),
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('../views/PrivacyView.vue'),
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginView,
@@ -60,19 +70,19 @@ const router = createRouter({
       meta: { loginRole: 'resmanager' },
     },
     {
-      path: '/chat',
-      name: 'chat',
-      component: () => import('../views/ChatView.vue'),
-    },
-    {
       path: '/books',
       name: 'books',
-      component: () => import('../views/Bookstore.vue'),
+      redirect: { path: '/marketplace', query: { tab: 'books' } },
     },
     {
       path: '/marketplace',
       name: 'marketplace',
       component: () => import('../views/MarketplaceView.vue'),
+    },
+    {
+      path: '/swap-requests',
+      name: 'swap-requests',
+      component: () => import('../views/SwapRequestsView.vue'),
     },
     {
       path: '/sell-item',
@@ -193,7 +203,7 @@ const router = createRouter({
   ],
 })
 
-const privatePrefixes = ['/student-dashboard', '/student-profile', '/provider-', '/admin', '/books', '/marketplace', '/sell-item', '/chat', '/checkout', '/safehome', '/notifications']
+const privatePrefixes = ['/student-dashboard', '/student-profile', '/student-residence', '/provider-', '/admin', '/resmanager-', '/books', '/marketplace', '/sell-item', '/checkout', '/safehome', '/notifications', '/swap-requests']
 
 router.beforeEach((to) => {
   const requiresLogin = privatePrefixes.some(prefix => prefix.endsWith('-') ? to.path.startsWith(prefix) : to.path === prefix || to.path.startsWith(`${prefix}/`))

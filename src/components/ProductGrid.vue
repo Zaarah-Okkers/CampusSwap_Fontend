@@ -1,9 +1,6 @@
 <script setup>
 import ProductCard from './ProductCard.vue'
 import CategoryPills from './CategoryPills.vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
 
 defineProps({
   products: {
@@ -22,21 +19,9 @@ defineProps({
 
 const emit = defineEmits(['select', 'open-sell', 'update:category', 'toggle-save'])
 
-// Handle product click - navigate to chat for swap items
+// Handle product click — swap items open the product detail like everything else
 function handleProductClick(product) {
-  if (product.listingType === 'swap') {
-    // Navigate to chat with the seller
-    router.push({
-      path: '/chat',
-      query: {
-        userId: product.sellerName || 'Unknown',
-        productName: product.name,
-        productId: product.id
-      }
-    })
-  } else {
-    emit('select', product)
-  }
+  emit('select', product)
 }
 
 // Handle card click from ProductCard

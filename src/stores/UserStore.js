@@ -143,6 +143,9 @@ export default {
     setLoggedIn(state, value) {
       state.isLoggedIn = value
     },
+    setCurrentUser(state, user) {
+      state.currentUser = user
+    },
     logout(state) {
       state.isLoggedIn = false
       state.currentUser = {
@@ -195,6 +198,7 @@ export default {
     logout({ commit }) {
       commit('logout')
       localStorage.removeItem('isLoggedIn')
+      localStorage.removeItem('user')
     },
     switchUser({ commit, state }, userId) {
       const userExists = state.users.some(user => user.id === userId)

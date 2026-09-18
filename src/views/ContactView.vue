@@ -1,8 +1,8 @@
 <template>
   <main class="page">
     <header class="head">
-      <p class="eyebrow">Contact</p>
-      <h1>Talk to a human</h1>
+      <h1>Contact</h1>
+      <h2 class="head-title">Talk to a human</h2>
       <p class="lede">
         We read everything that comes through here. Order problems usually get
         a reply the same day; everything else within two working days.
@@ -138,17 +138,18 @@ async function submit() {
   padding: 40px 20px 140px;
   color: var(--text);
 }
-.eyebrow {
-  color: var(--gold);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin: 0 0 12px;
-}
 .head h1 {
-  font-size: clamp(26px, 4vw, 34px);
-  margin: 0 0 12px;
+  color: var(--gold);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  margin: 0;
+}
+.head-title {
+  color: var(--text);
+  font-family: inherit;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 8px 0 12px;
 }
 .lede {
   color: var(--text-faint);

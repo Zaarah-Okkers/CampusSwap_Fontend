@@ -89,15 +89,22 @@ function handleSubmit() {
             <div class="form-group">
               <label>Looking to swap for</label>
               <input v-model="form.swapFor" type="text" placeholder="e.g. Organic Chemistry textbook" required />
+              <small class="field-hint">We will check Marketplace availability before sending your swap request.</small>
             </div>
           </template>
 
           <div class="form-group">
             <label>Condition</label>
             <select v-model="form.condition">
+              <option>Brand New</option>
+              <option>New (unused)</option>
               <option>Used: Like New</option>
               <option>Like New</option>
+              <option>Excellent</option>
+              <option>Good</option>
               <option>Fair Condition</option>
+              <option>Well Loved</option>
+              <option>For parts or repair</option>
             </select>
           </div>
 
@@ -260,6 +267,13 @@ label {
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 6px;
+}
+
+.field-hint {
+  color: var(--text-faint);
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 6px;
 }
 
 input,

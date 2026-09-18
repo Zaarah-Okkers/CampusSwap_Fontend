@@ -1,5 +1,5 @@
 <template>
-  <div class="book-store">
+  <div class="book-store" :class="{ embedded }">
     <div class="hero glass-panel">
       <span class="hero-eyebrow">Booksphere</span>
       <h2><AppIcon name="book" /> Study material, sorted</h2>
@@ -61,6 +61,13 @@
 import { ref, computed } from 'vue'
 import AppIcon from '../components/AppIcon.vue'
 import Swal from 'sweetalert2'
+
+defineProps({
+  embedded: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const format = ref('all')
 
@@ -149,6 +156,32 @@ const books = ref([
     formatLabel: 'Audiobook',
     formatClass: 'audiobook',
     cover: 'https://placehold.co/300x400/9B59B6/FFFFFF?text=Stats+Audio'
+  },
+  {
+    id: 7,
+    title: 'Academic Writing Toolkit',
+    author: 'Compiled by Zanele P.',
+    description: 'A practical guide to research, referencing, editing, and structuring assignments for first-year students.',
+    price: 50,
+    size: '12 MB · PDF',
+    module: 'GEN101',
+    formatKey: 'guide',
+    formatLabel: 'Study Guide',
+    formatClass: 'guide',
+    cover: 'https://placehold.co/300x400/3D5A80/FFFFFF?text=Writing+Toolkit'
+  },
+  {
+    id: 8,
+    title: 'Introduction to Psychology',
+    author: 'Compiled by Mia D.',
+    description: 'A concise eBook that pairs key psychology theories with clear case studies and self-test questions.',
+    price: 75,
+    size: '15 MB · EPUB',
+    module: 'PSY101',
+    formatKey: 'ebook',
+    formatLabel: 'eBook',
+    formatClass: 'ebook',
+    cover: 'https://placehold.co/300x400/EF8354/FFFFFF?text=Psychology'
   }
 ])
 
@@ -164,7 +197,14 @@ function downloadBook(book) {
 
 <style scoped>
 .book-store {
-  padding: 16px 0 120px;
+  background: var(--ink);
+  min-height: 100vh;
+  padding: 42px max(24px, calc((100% - 1100px) / 2)) 120px;
+}
+
+.book-store.embedded {
+  min-height: 0;
+  padding: 16px 0 0;
 }
 
 .hero {
@@ -404,6 +444,12 @@ function downloadBook(book) {
 }
 
 @media (max-width: 640px) {
+  .book-store {
+    padding: 24px 14px 110px;
+  }
+  .book-store.embedded {
+    padding: 12px 0 0;
+  }
   .book-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;

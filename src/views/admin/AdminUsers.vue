@@ -60,6 +60,7 @@
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import AppIcon from '../../components/AppIcon.vue'
+import Swal from 'sweetalert2'
 
 const store = useStore()
 const searchQuery = ref('')
@@ -83,19 +84,19 @@ function togglePremium(userId) {
   const user = users.value.find(u => u.id === userId)
   if (user) {
     user.isPremium = !user.isPremium
-    alert(`${user.name} is now ${user.isPremium ? 'Premium' : 'Free'} user`)
+    Swal.fire(`${user.name} is now ${user.isPremium ? 'Premium' : 'Free'} user`)
   }
 }
 
 function verifyUser(userId) {
   store.commit('user/verifyUser', userId)
-  alert('User verified!')
+  Swal.fire('User verified!')
 }
 
 function banUser(userId) {
   if (confirm('Ban this user?')) {
     store.commit('user/banUser', userId)
-    alert('User banned!')
+    Swal.fire('User banned!')
   }
 }
 </script>

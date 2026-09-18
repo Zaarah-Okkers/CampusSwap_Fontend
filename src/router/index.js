@@ -130,6 +130,11 @@ const router = createRouter({
       component: () => import('../views/ResidencePortal.vue'),
     },
     {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('../views/NotificationsView.vue'),
+    },
+    {
       path: '/safehome',
       name: 'safehome',
       component: SafeHomeView,
@@ -183,12 +188,12 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: HomeView,
+      component: () => import('../views/NotFoundView.vue'),
     },
   ],
 })
 
-const privatePrefixes = ['/student-dashboard', '/student-profile', '/provider-', '/admin', '/books', '/marketplace', '/sell-item', '/chat', '/checkout', '/safehome']
+const privatePrefixes = ['/student-dashboard', '/student-profile', '/provider-', '/admin', '/books', '/marketplace', '/sell-item', '/chat', '/checkout', '/safehome', '/notifications']
 
 router.beforeEach((to) => {
   const requiresLogin = privatePrefixes.some(prefix => prefix.endsWith('-') ? to.path.startsWith(prefix) : to.path === prefix || to.path.startsWith(`${prefix}/`))

@@ -52,6 +52,7 @@
 <script setup>
 import AppIcon from '../../components/AppIcon.vue'
 import { ref } from 'vue'
+import Swal from 'sweetalert2'
 
 const newAd = ref({
   title: '',
@@ -79,7 +80,7 @@ const ads = ref([
 
 function pushAd() {
   if (!newAd.value.title || !newAd.value.description) {
-    alert('Please fill in all required fields')
+    Swal.fire('Please fill in all required fields')
     return
   }
   
@@ -92,7 +93,7 @@ function pushAd() {
     link: newAd.value.link
   })
   
-  alert('Ad pushed successfully!')
+  Swal.fire('Ad pushed successfully!')
   newAd.value = { title: '', description: '', target: 'all', link: '' }
 }
 

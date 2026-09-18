@@ -38,7 +38,7 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
       </div>
 
       <div class="top-right">
-        <div class="notification-bell" @click="alert('You have 3 new notifications!')">
+        <div class="notification-bell" @click="showBellNotifications">
           <span class="bell-icon">
             <AppIcon name="alert" />
           </span>

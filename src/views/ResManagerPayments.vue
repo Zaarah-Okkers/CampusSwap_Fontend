@@ -29,7 +29,12 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 import AppIcon from '../components/AppIcon.vue'
+import { confirmThenRun, swalTheme } from '../utils/swalTheme'
+import { resolveResidentId } from '../utils/notifyUsers'
+
+const store = useStore()
 
 const paymentFilter = ref('all')
 const payments = ref([
@@ -51,9 +56,64 @@ const summary = computed(() => [
   { label: 'Available rooms', value: availableResidences.value.reduce((total, residence) => total + residence.rooms, 0), icon: 'building' }
 ])
 function statusLabel(status) { return status === 'upcoming' ? 'Coming up' : status.charAt(0).toUpperCase() + status.slice(1) }
-function notify(payment) { window.alert(`Payment notice prepared for ${payment.resident}.`) }
-function resolveRequest(request, decision) { extensionRequests.value = extensionRequests.value.filter(item => item.id !== request.id); window.alert(`${decision === 'approved' ? 'Extension approved for' : 'Extension declined for'} ${request.resident}.`) }
-function sendNotice(moveOut) { window.alert(moveOut.refuses ? `Authorities alert prepared for ${moveOut.resident}.` : `Move-out notice sent to ${moveOut.resident}.`) }
+
+async function notify(payment) {
+  await confirmThenRun({
+    confirmTitle: 'Send payment notice?',
+    confirmText: `Send a payment reminder to ${payment.resident}?`,
+    confirmButtonText: 'Send notice',
+    successTitle: 'Payment notice sent',
+    successText: `Payment notice prepared for ${payment.resident}.`,
+    action: () => {
+      store.dispatch('notifications/create', {
+        userId: resolveResidentId(store, payment.resident),
+        type: 'payment',
+        title: 'Payment reminder',
+        message: `Your residence payment of R${payment.amount.toLocaleString()} is due on ${payment.dueDate}.`,
+        actionUrl: '/student-residence',
+        metadata: { residence: payment.residence, amount: payment.amount, dueDate: payment.dueDate }
+      })
+    }
+  })
+}
+
+function resolveRequest(request, decision) {
+  extensionRequests.value = extensionRequests.value.filter(item => item.id !== request.id)
+  swalTheme.fire({
+    title: decision === 'approved' ? 'Extension approved' : 'Extension declined',
+    text: `${decision === 'approved' ? 'Extension approved for' : 'Extension declined for'} ${request.resident}.`,
+    icon: decision === 'approved' ? 'success' : 'info'
+  })
+}
+
+async function sendNotice(moveOut) {
+  if (moveOut.refuses) {
+    await swalTheme.fire({
+      title: 'Authorities alert prepared',
+      text: `Authorities alert prepared for ${moveOut.resident}.`,
+      icon: 'warning'
+    })
+    return
+  }
+  await confirmThenRun({
+    confirmTitle: 'Send move-out notice?',
+    confirmText: `Send a move-out notice to ${moveOut.resident}?`,
+    confirmButtonText: 'Send notice',
+    icon: 'warning',
+    successTitle: 'Move-out notice sent',
+    successText: `Move-out notice sent to ${moveOut.resident}.`,
+    action: () => {
+      store.dispatch('notifications/create', {
+        userId: resolveResidentId(store, moveOut.resident),
+        type: 'move_out',
+        title: 'Move-out notice',
+        message: 'You have received a move-out notice from your residence manager. Please review your move-out details and required next steps.',
+        actionUrl: '/student-residence',
+        metadata: { residence: moveOut.residence }
+      })
+    }
+  })
+}
 </script>
 
 <style scoped>

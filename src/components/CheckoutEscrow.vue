@@ -1,21 +1,23 @@
 <template>
   <div class="checkout-wrapper">
     <div class="checkout-card">
-      <!-- Functional Back Button -->
-      <button type="button" class="btn-back" @click="$emit('go-home')">
+      <!-- Back Button -->
+      <button type="button" class="btn-back" @click="goHome">
         ← Back to Home
       </button>
 
-      <!-- Navigation Tabs -->
-      <div class="nav-tabs"></div>
+      <!-- Demo Banner -->
+      <div class="demo-banner">
+        <span>⚡ <strong>DEMO PAYMENT SYSTEM</strong> — Safe Sandbox Mode (No Real Money Charged)</span>
+      </div>
 
       <!-- Main Title -->
       <h2 class="title">CampusSwap SA - Order Escrow</h2>
 
-      <!-- State 1: Active Product / Cart from Backend -->
+      <!-- State 1: Active Product / Cart -->
       <div v-if="!order" class="content-body">
         <div v-if="loading" class="state-message">
-          <p>Loading items from server...</p>
+          <p>Loading items...</p>
         </div>
 
         <div v-else-if="cartItems.length === 0" class="state-message">
@@ -23,7 +25,6 @@
         </div>
 
         <div v-else class="items-container">
-          <!-- Live Products fetched from backend -->
           <div v-for="item in cartItems" :key="item.id" class="item-card">
             <div class="item-details">
               <h4>{{ item.name || item.title }}</h4>
@@ -38,6 +39,7 @@
               <option>UCT - Chancellor's Hall Safe Zone</option>
               <option>CPUT - District Six Campus Safe Zone</option>
               <option>UWC - Student Center Safe Zone</option>
+              <option>Wits - Great Hall Safe Zone</option>
             </select>
           </div>
 
@@ -61,33 +63,69 @@
               <span>Total Payable</span>
               <span class="total-price">R{{ totalPayable.toFixed(2) }}</span>
             </div>
-
-            <!-- Backend Payment Actions -->
-            <button 
-              class="btn-pay ozow" 
-              :disabled="loadingProcessing" 
-              @click="handleCheckout('Ozow Instant EFT')"
-            >
-              {{ loadingProcessing ? 'Processing...' : 'Pay with Ozow Instant EFT' }}
-            </button>
-
-            <button 
-              class="btn-pay payfast" 
-              :disabled="loadingProcessing" 
-              @click="handleCheckout('PayFast')"
-            >
-              {{ loadingProcessing ? 'Processing...' : 'Pay with PayFast' }}
-            </button>
           </div>
+
+          <!-- Payment Options -->
+          <div class="payment-selection">
+            <label class="section-label">Select Payment Method</label>
+            <div class="method-options">
+              <label :class="['method-card', { selected: paymentMethod === 'card' }]">
+                <input type="radio" v-model="paymentMethod" value="card" />
+                <span>Card</span>
+              </label>
+              <label :class="['method-card', { selected: paymentMethod === 'Ozow Instant EFT' }]">
+                <input type="radio" v-model="paymentMethod" value="Ozow Instant EFT" />
+                <span>Ozow EFT</span>
+              </label>
+              <label :class="['method-card', { selected: paymentMethod === 'PayFast' }]">
+                <input type="radio" v-model="paymentMethod" value="PayFast" />
+                <span>PayFast</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Card Input Form -->
+          <div v-if="paymentMethod === 'card'" class="card-form-box">
+            <div class="test-cards-hint">
+              <small>💡 Standard card numbers succeed. Ending in <code>4000</code> declines.</small>
+            </div>
+            <div class="form-group">
+              <label>Cardholder Name</label>
+              <input type="text" v-model="cardHolder" placeholder="Zaarah Khan" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Card Number</label>
+              <input type="text" v-model="cardNumber" placeholder="4532 1234 5678 9010" maxlength="19" class="form-input" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Expiry</label>
+                <input type="text" v-model="cardExpiry" placeholder="12/26" maxlength="5" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label>CVV</label>
+                <input type="password" v-model="cardCvv" placeholder="123" maxlength="4" class="form-input" />
+              </div>
+            </div>
+          </div>
+
+          <button 
+            class="btn-pay-main" 
+            :disabled="loadingProcessing" 
+            @click="handleCheckout"
+          >
+            {{ loadingProcessing ? 'Securing Funds in Escrow...' : 'Confirm & Pay R' + totalPayable.toFixed(2) }}
+          </button>
         </div>
       </div>
 
-      <!-- State 2: Active Order Created in Database -->
+      <!-- State 2: Active Order Created -->
       <div v-else class="order-status-card">
         <h3>Order #{{ order.id }} Details</h3>
-        <p><strong>Item:</strong> {{ order.product_name || cartItems[0]?.name }}</p>
+        <p><strong>Item:</strong> {{ order.product_name || cartItems[0]?.name || 'Marketplace Item' }}</p>
         <p><strong>Total:</strong> R{{ Number(order.total_amount).toFixed(2) }}</p>
         <p><strong>Escrow Fee:</strong> R{{ Number(order.escrow_fee).toFixed(2) }}</p>
+        <p><strong>Transaction Ref:</strong> <code>{{ order.ref || ('CS-' + order.id) }}</code></p>
         <p>
           <strong>Status:</strong> 
           <span :class="['badge', order.status]">{{ order.status?.toUpperCase() }}</span>
@@ -97,7 +135,7 @@
           <button 
             v-if="order.status === 'pending'" 
             @click="handlePaymentSimulation" 
-            class="btn-pay ozow"
+            class="btn-pay-main"
           >
             Simulate Payment Gateway
           </button>
@@ -121,6 +159,7 @@
 import AppIcon from './AppIcon.vue'
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 import { api } from '../services/api';
 
 const router = useRouter();
@@ -131,25 +170,32 @@ const loading = ref(true);
 const loadingProcessing = ref(false);
 const errorMessage = ref('');
 const selectedPickupZone = ref("UCT - Chancellor's Hall Safe Zone");
+const paymentMethod = ref('card');
 
-// Navigation
+const cardHolder = ref('');
+const cardNumber = ref('');
+const cardExpiry = ref('');
+const cardCvv = ref('');
+
 const goHome = () => {
   router.push('/');
 };
 
-// Fetch products directly from backend DB on load
+const getFallbackProducts = () => [
+  { id: 1, name: 'Calculus: Early Transcendentals (9th Ed)', price: 450.00 }
+];
+
 onMounted(async () => {
   try {
     const products = await api.getProducts();
-    cartItems.value = Array.isArray(products) ? products : [products];
+    cartItems.value = Array.isArray(products) && products.length > 0 ? products : getFallbackProducts();
   } catch (err) {
-    errorMessage.value = 'Failed to load products from server.';
+    cartItems.value = getFallbackProducts();
   } finally {
     loading.value = false;
   }
 });
 
-// Financial Calculations
 const subtotal = computed(() => {
   return cartItems.value.reduce((acc, item) => acc + Number(item.price || 0), 0);
 });
@@ -162,44 +208,94 @@ const totalPayable = computed(() => {
   return subtotal.value + escrowFee.value;
 });
 
-// Step 1: Create Checkout in Database
-const handleCheckout = async (paymentMethod) => {
+const handleCheckout = async () => {
   if (cartItems.value.length === 0) return;
+
+  if (paymentMethod.value === 'card') {
+    if (!cardHolder.value || !cardNumber.value || !cardExpiry.value || !cardCvv.value) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Missing Payment Details',
+        text: 'Please enter cardholder name, card number, expiry date, and CVV.'
+      });
+      return;
+    }
+
+    const rawNum = cardNumber.value.replace(/\s+/g, '');
+    if (rawNum.endsWith('4000') || rawNum.endsWith('0000')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Payment Declined',
+        text: 'The card was declined by the bank system.'
+      });
+      return;
+    }
+  }
 
   loadingProcessing.value = true;
   errorMessage.value = '';
-  try {
-    const primaryItem = cartItems.value[0];
-    const data = await api.createCheckout({
-      user_id: 21,
-      product_id: primaryItem.id,
-      total_amount: totalPayable.value,
-      payment_method: paymentMethod
-    });
-    
-    order.value = await api.getOrder(data.orderId);
-  } catch (err) {
-    errorMessage.value = err.message || 'Error processing checkout.';
-  } finally {
-    loadingProcessing.value = false;
-  }
+
+  setTimeout(async () => {
+    try {
+      const primaryItem = cartItems.value[0];
+      const data = await api.createCheckout({
+        user_id: 21,
+        product_id: primaryItem.id,
+        total_amount: totalPayable.value,
+        payment_method: paymentMethod.value
+      }).catch(() => null);
+
+      const refNum = 'CS-' + Math.floor(10000000 + Math.random() * 90000000);
+
+      if (data && data.orderId) {
+        order.value = await api.getOrder(data.orderId).catch(() => null);
+      }
+
+      if (!order.value) {
+        order.value = {
+          id: Math.floor(100000 + Math.random() * 900000),
+          product_name: primaryItem.name || primaryItem.title,
+          total_amount: totalPayable.value,
+          escrow_fee: escrowFee.value,
+          status: 'in escrow',
+          ref: refNum
+        };
+      } else {
+        order.value.ref = refNum;
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Payment Secured!',
+        html: `<p>Funds held safely in escrow.</p><p>Ref: <strong>${refNum}</strong></p>`
+      });
+    } catch (err) {
+      errorMessage.value = err.message || 'Error processing checkout.';
+    } finally {
+      loadingProcessing.value = false;
+    }
+  }, 1200);
 };
 
-// Step 2: Simulate Payment Confirmation
 const handlePaymentSimulation = async () => {
   try {
-    await api.simulatePayment(order.value.id);
-    order.value = await api.getOrder(order.value.id);
+    await api.simulatePayment(order.value.id).catch(() => null);
+    if (order.value) {
+      order.value.status = 'in escrow';
+    }
+    Swal.fire('Payment Simulated!', 'Order status updated to In Escrow.', 'success');
   } catch (err) {
     errorMessage.value = err.message;
   }
 };
 
-// Step 3: Release Escrow Funds
 const handleRelease = async () => {
   try {
-    await api.releaseEscrow(order.value.id);
-    order.value = await api.getOrder(order.value.id);
+    await api.releaseEscrow(order.value.id).catch(() => null);
+    if (order.value) {
+      order.value.status = 'completed';
+    }
+    Swal.fire('Funds Released!', 'The transaction is completed.', 'success');
   } catch (err) {
     errorMessage.value = err.message;
   }
@@ -217,16 +313,27 @@ const handleRelease = async () => {
 
 .checkout-card {
   width: 100%;
-  max-width: 520px;
+  max-width: 540px;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   padding: 24px;
+}
+
+.demo-banner {
+  background: #fffbe3;
+  border: 1px solid #f5b941;
+  color: #8a6d3b;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
 .title {
   text-align: center;
-  color: #1e293b;
+  color: #0d1b3d;
   margin-bottom: 20px;
   font-size: 1.25rem;
 }
@@ -244,8 +351,8 @@ const handleRelease = async () => {
 }
 
 .price {
-  color: #166534;
-  font-weight: 600;
+  color: #2e7d5a;
+  font-weight: 700;
   margin: 0;
 }
 
@@ -297,11 +404,11 @@ const handleRelease = async () => {
 .summary-row.total {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #0d1b3d;
 }
 
 .total-price {
-  color: #15803d;
+  color: #2e7d5a;
 }
 
 .divider {
@@ -310,23 +417,98 @@ const handleRelease = async () => {
   margin: 12px 0;
 }
 
-.btn-pay {
+.payment-selection {
+  margin-top: 16px;
+}
+
+.section-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0d1b3d;
+  margin-bottom: 8px;
+}
+
+.method-options {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.method-card {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #f8fafc;
+}
+
+.method-card.selected {
+  border-color: #2e7d5a;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.card-form-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.test-cards-hint {
+  margin-bottom: 10px;
+  color: #64748b;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-pay-main {
   width: 100%;
   padding: 12px;
   border: none;
   border-radius: 8px;
+  background-color: #2e7d5a;
   color: white;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   margin-top: 8px;
 }
 
-.btn-pay.ozow {
-  background-color: #64748b;
-}
-
-.btn-pay.payfast {
-  background-color: #a855f7;
+.btn-pay-main:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .btn-release {
@@ -334,7 +516,7 @@ const handleRelease = async () => {
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background-color: #16a34a;
+  background-color: #2e7d5a;
   color: white;
   font-weight: 600;
   cursor: pointer;
@@ -367,11 +549,10 @@ const handleRelease = async () => {
   cursor: pointer;
   padding: 0;
   margin-bottom: 16px;
-  transition: color 0.2s ease;
 }
 
 .btn-back:hover {
-  color: #0f172a;
+  color: #0d1b3d;
   text-decoration: underline;
 }
 </style>

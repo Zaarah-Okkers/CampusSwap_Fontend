@@ -9,6 +9,7 @@
     </div>
 
     <SideNav />
+    <NotificationBell v-if="isLoggedIn" />
 
     <FilterSidebar
       v-if="showFilters && !isAdminRoute"
@@ -22,14 +23,19 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 import SideNav from './components/SideNav.vue'
 import FilterSidebar from './components/FilterSidebar.vue'
+import NotificationBell from './components/NotificationBell.vue'
 
 const route = useRoute()
+const store = useStore()
 
 const isAdminRoute = computed(() => {
   return route.path.startsWith('/admin')
 })
+
+const isLoggedIn = computed(() => store.getters['user/isLoggedIn'] || localStorage.getItem('isLoggedIn') === 'true')
 
 const searchQuery = ref('')
 const showFilters = ref(false)

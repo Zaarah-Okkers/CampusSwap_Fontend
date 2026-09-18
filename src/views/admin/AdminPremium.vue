@@ -48,6 +48,7 @@
 import AppIcon from '../../components/AppIcon.vue'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import Swal from 'sweetalert2'
 
 const store = useStore()
 
@@ -69,13 +70,13 @@ function removePremium(userId) {
     const user = users.value.find(u => u.id === userId)
     if (user) {
       user.isPremium = false
-      alert('Premium status removed!')
+      Swal.fire('Premium status removed!')
     }
   }
 }
 
 function viewUser(userId) {
-  alert(`Viewing user ${userId}`)
+  Swal.fire(`Viewing user ${userId}`)
 }
 </script>
 

@@ -1,5 +1,11 @@
 <template>
-  <nav class="bottom-nav glass-panel">
+  <nav
+    id="site-bottom-nav"
+    class="bottom-nav glass-panel"
+    :class="{ 'is-collapsed': isCollapsed }"
+    :aria-hidden="isCollapsed"
+    :inert="isCollapsed"
+  >
     <button
       v-for="tab in visibleTabs"
       :key="`${tab.key}-${tab.path}`"
@@ -15,6 +21,20 @@
       <span>{{ tab.label }}</span>
     </button>
   </nav>
+
+  <button
+    class="nav-toggle"
+    :class="{ 'is-collapsed': isCollapsed }"
+    @click="toggleNav"
+    :aria-expanded="!isCollapsed"
+    aria-controls="site-bottom-nav"
+    :aria-label="isCollapsed ? 'Open navigation' : 'Close navigation'"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path v-if="isCollapsed" d="M21 12V7H5a2 2 0 0 1 0-4h14v4 M3 5v14a2 2 0 0 0 2 2h16v-5 M18 12a2 2 0 0 0 0 4h4v-4Z" />
+      <path v-else d="M18 6L6 18 M6 6l12 12" />
+    </svg>
+  </button>
 </template>
 
 <script setup>
@@ -26,6 +46,14 @@ const router = useRouter()
 const route = useRoute()
 const store = useStore()
 const active = ref('home')
+
+const NAV_COLLAPSE_KEY = 'sidenav-collapsed'
+const isCollapsed = ref(localStorage.getItem(NAV_COLLAPSE_KEY) === 'true')
+
+function toggleNav() {
+  isCollapsed.value = !isCollapsed.value
+  localStorage.setItem(NAV_COLLAPSE_KEY, String(isCollapsed.value))
+}
 
 // TEMP: no real auth flag exists in the store yet.
 // Set localStorage.setItem('isLoggedIn', 'true') on successful login,
@@ -100,7 +128,6 @@ function selectTab(key) {
 .bottom-nav {
   position: fixed;
   left: 50%;
-  transform: translateX(-50%);
   bottom: 20px;
   z-index: 1000;
   border-radius: 22px;
@@ -119,6 +146,14 @@ function selectTab(key) {
   scrollbar-width: none;
   visibility: visible;
   opacity: 1;
+  transform: translateX(-50%);
+  transition: opacity 0.3s ease 0.05s, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bottom-nav.is-collapsed {
+  opacity: 0;
+  transform: translateX(-50%) translateY(24px) scale(0.94);
+  pointer-events: none;
 }
 
 .bottom-nav::-webkit-scrollbar {
@@ -160,6 +195,17 @@ function selectTab(key) {
   transform: scale(1.05);
 }
 
+.tab span {
+  transition: opacity 0.15s ease, max-height 0.15s ease;
+  opacity: 1;
+  max-height: 20px;
+}
+
+.bottom-nav.is-collapsed .tab span {
+  opacity: 0;
+  max-height: 0;
+}
+
 .tab.active {
   color: var(--gold);
   background: var(--gold-soft);
@@ -173,6 +219,49 @@ function selectTab(key) {
   cursor: default;
   opacity: 0.35;
   pointer-events: none;
+}
+
+.nav-toggle {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 1001;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink-elevated);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  transform: translateX(-50%) translateY(-54px);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
+}
+
+.nav-toggle.is-collapsed {
+  transform: translateX(-50%) translateY(0);
+}
+
+.nav-toggle:hover {
+  background: var(--ink-soft);
+}
+
+.nav-toggle:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.nav-toggle svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.15s ease;
+}
+
+.nav-toggle:active svg {
+  transform: scale(0.9);
 }
 
 @media (max-width: 640px) {
@@ -194,6 +283,19 @@ function selectTab(key) {
   .tab svg {
     width: 16px;
     height: 16px;
+  }
+  .nav-toggle {
+    width: 40px;
+    height: 40px;
+    bottom: 12px;
+    transform: translateX(-50%) translateY(-46px);
+  }
+  .nav-toggle.is-collapsed {
+    transform: translateX(-50%) translateY(0);
+  }
+  .nav-toggle svg {
+    width: 18px;
+    height: 18px;
   }
 }
 

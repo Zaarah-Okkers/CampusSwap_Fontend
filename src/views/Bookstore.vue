@@ -60,6 +60,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import AppIcon from '../components/AppIcon.vue'
+import Swal from 'sweetalert2'
 
 const format = ref('all')
 
@@ -157,7 +158,7 @@ const filteredBooks = computed(() => {
 })
 
 function downloadBook(book) {
-  alert(`Downloading "${book.title}"...\n\nDownload feature coming soon!`)
+  Swal.fire(`Downloading "${book.title}"...\n\nDownload feature coming soon!`)
 }
 </script>
 

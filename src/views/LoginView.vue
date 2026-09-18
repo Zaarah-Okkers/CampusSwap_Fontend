@@ -9,7 +9,7 @@
 
 
 <template>
-  <div class="login-page">
+  <div class="login-page" :class="`login-${role}`">
 
     
     <div class="login-left">
@@ -46,7 +46,7 @@
         <div class="badge">
 
           <span class="badge-icon">
-            &#128737;
+            <AppIcon name="shield" />
           </span> EduID Verified
 
         </div>
@@ -54,7 +54,7 @@
         <div class="badge">
 
           <span class="badge-icon">
-            &#128274;
+            <AppIcon name="lock" />
           </span> Ozow Secure Escrow
 
         </div>
@@ -71,7 +71,7 @@
           <div class="mobile-logo-circle">
 
             <span class="mobile-user-icon">
-              &#128100;
+              <AppIcon name="user" />
             </span>
 
           </div>
@@ -93,7 +93,7 @@
         </div>
 
         <!-- Role Toggle - 4 BUTTONS -->
-        <div class="role-toggle">
+        <div v-if="!dedicatedRole" class="role-toggle">
 
           <button 
             :class="{ 'role-btn-active': role === 'student' }" 
@@ -106,7 +106,7 @@
           <button 
             :class="{ 'role-btn-active': role === 'provider' }" 
             class="role-btn" 
-            @click="role = 'provider'"
+            @click="openRoleLogin('provider')"
           >
             Provider
           </button>
@@ -114,7 +114,7 @@
           <button 
             :class="{ 'role-btn-active': role === 'admin' }" 
             class="role-btn" 
-            @click="role = 'admin'"
+            @click="openRoleLogin('admin')"
           >
             Admin
           </button>
@@ -122,7 +122,7 @@
           <button 
             :class="{ 'role-btn-active': role === 'resmanager' }" 
             class="role-btn" 
-            @click="role = 'resmanager'"
+            @click="openRoleLogin('resmanager')"
           >
             Res Mgr
           </button>
@@ -139,7 +139,7 @@
 
         <!-- Institution Selection -->
 
-        <div class="form-group">
+        <div v-if="role !== 'admin'" class="form-group">
 
           <label>
             {{ getInstitutionLabel() }}
@@ -148,7 +148,7 @@
           <div class="select-wrap">
 
             <span class="input-icon">
-              &#127963;
+              <AppIcon name="building" />
             </span>
 
             <select v-model="selectedInstitution" class="form-input">
@@ -233,7 +233,7 @@
 
         <div class="form-options">
 
-          <a href="#" @click.prevent="alert('Password reset link sent!')" class="forgot-link">
+          <a href="#" @click.prevent="showPasswordResetNotice" class="forgot-link">
             Forgot Password?
           </a>
         </div>
@@ -241,7 +241,7 @@
         <!-- Submit Button -->
 
         <button class="btn btn-primary" @click="handleLogin">
-          Verify & Enter CampusSwap
+          {{ getSubmitLabel() }}
         </button>
         
         <p class="new-user">
@@ -253,7 +253,7 @@
 
         <!-- Hidden Admin Login Link -->
 
-        <p class="admin-link">
+        <p v-if="!dedicatedRole" class="admin-link">
 
           <a href="#" @click.prevent="setAdminLogin" class="hidden-admin-link">
             Admin Login
@@ -261,21 +261,21 @@
         </p>
 
         <!-- Quick Test Buttons at the buttom -->
-        <div class="quick-test-section">
+        <div v-if="!dedicatedRole" class="quick-test-section">
 
           <p style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">Quick Test Login:</p>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-            <button @click="quickLogin('student')" class="quick-btn student-btn">🎓 Student</button>
-            <button @click="quickLogin('provider')" class="quick-btn provider-btn">🔧 Provider</button>
-            <button @click="quickLogin('admin')" class="quick-btn admin-btn">👑 Admin</button>
-            <button @click="quickLogin('resmanager')" class="quick-btn resmanager-btn">🏠 Res Mgr</button>
+            <button @click="quickLogin('student')" class="quick-btn student-btn"><AppIcon name="graduationCap" /> Student</button>
+            <button @click="quickLogin('provider')" class="quick-btn provider-btn"><AppIcon name="tools" /> Provider</button>
+            <button @click="quickLogin('admin')" class="quick-btn admin-btn"><AppIcon name="dashboard" /> Admin</button>
+            <button @click="quickLogin('resmanager')" class="quick-btn resmanager-btn"><AppIcon name="home" /> Res Mgr</button>
           </div>
         </div>
 
         <!-- Mobile Footer -->
         <div class="mobile-footer">
           <p>
-            &#128274; 
+            <AppIcon name="lock" />
             Ozow Escrow Protected 
             &bull; 
             Secured by EduID
@@ -387,7 +387,7 @@
             <div class="select-wrap">
 
               <span class="input-icon">
-                &#127963;
+                <AppIcon name="building" />
               </span>
 
               <select v-model="regData.university" class="form-input">
@@ -418,7 +418,7 @@
             <div class="select-wrap">
 
               <span class="input-icon">
-                &#128188;
+                <AppIcon name="briefcase" />
               </span>
 
               <select v-model="regData.company" class="form-input">
@@ -501,7 +501,7 @@
                 </span>
 
                 <span v-else>
-                  ✅ {{ regData.idFile.name }}
+                  <AppIcon name="check" /> {{ regData.idFile.name }}
                 </span>
 
               </label>
@@ -531,10 +531,10 @@
             <label>
               <input type="checkbox" v-model="regData.agreeTerms" />
               I agree to the 
-              <a href="#" @click.prevent="alert('Terms and conditions coming soon!')">
+              <a href="#" @click.prevent="showTermsNotice" >
                 Terms of Service
               </a> and 
-              <a href="#" @click.prevent="alert('Privacy policy coming soon!')">Privacy Policy
+              <a href="#" @click.prevent="showPrivacyNotice">Privacy Policy
               </a>
             </label>
           </div>
@@ -559,9 +559,27 @@
 
 <script>
 import Swal from 'sweetalert2'
+import AppIcon from '../components/AppIcon.vue'
+import { authAPI, roleMap, dashboardRoutes, session } from '@/services/api'
 
 export default {
   name: 'LoginPage',
+  components: { AppIcon },
+  created() {
+    const role = this.$route.meta.loginRole || this.$route.query.role
+    if (role) {
+      this.role = role
+    }
+  },
+  watch: {
+    '$route'(to) {
+      const role = to.meta.loginRole || to.query.role || 'student'
+      this.role = role
+      this.email = ''
+      this.password = ''
+      this.selectedInstitution = ''
+    }
+  },
   data() {
     return {
       sideNavOpen: false,
@@ -631,6 +649,11 @@ export default {
       }
     };
   },
+  computed: {
+    dedicatedRole() {
+      return Boolean(this.$route.meta.loginRole || this.$route.query.role)
+    }
+  },
   methods: {
     // ===== SIDE NAV =====
     toggleSideNav() {
@@ -693,6 +716,48 @@ export default {
       return placeholders[this.role] || 'Enter your email';
     },
 
+    getSubmitLabel() {
+      const labels = {
+        student: 'Verify & Enter CampusSwap',
+        provider: 'Enter Provider Workspace',
+        admin: 'Enter Admin Console',
+        resmanager: 'Enter Residence Workspace'
+      }
+      return labels[this.role] || 'Continue'
+    },
+
+    openRoleLogin(role) {
+      this.$router.push(`/login/${role}`)
+    },
+
+    // ===== SMALL NOTICE HELPERS (replaces native alert() for consistency with SweetAlert2) =====
+    showPasswordResetNotice() {
+      Swal.fire({
+        icon: 'success',
+        title: 'Check Your Email',
+        text: 'Password reset link sent!',
+        confirmButtonColor: '#2e7d5a',
+      });
+    },
+
+    showTermsNotice() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Terms of Service',
+        text: 'Terms and conditions coming soon!',
+        confirmButtonColor: '#f5b941',
+      });
+    },
+
+    showPrivacyNotice() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Privacy Policy',
+        text: 'Privacy policy coming soon!',
+        confirmButtonColor: '#f5b941',
+      });
+    },
+
     // ===== REGISTRATION METHODS =====
     openRegistration() {
       this.showRegistration = true;
@@ -742,7 +807,7 @@ export default {
     },
 
     async handleRegistration() {
-      // ✅ All alerts replaced with SweetAlert2
+      // All alerts use SweetAlert2.
       if (!this.regData.fullName) {
         await Swal.fire({
           icon: 'warning',
@@ -913,7 +978,10 @@ export default {
 
     // ===== LOGIN HANDLER =====
     async handleLogin() {
-      if (!this.email || !this.password || !this.selectedInstitution) {
+      // Institution field is shown for every role except admin, so it must be
+      // required for every role except admin too.
+      const requiresInstitution = this.role !== 'admin'
+      if (!this.email || !this.password || (requiresInstitution && !this.selectedInstitution)) {
         await Swal.fire({
           icon: 'warning',
           title: 'Incomplete Form',
@@ -928,10 +996,13 @@ export default {
       );
 
       if (registeredUser) {
+        this.$store.commit('user/loginAsRole', registeredUser.role);
+        this.$store.commit('user/setLoggedIn', true);
+        localStorage.setItem('isLoggedIn', 'true');
         const routes = {
           student: '/student-dashboard',
           provider: '/provider-dashboard',
-          admin: '/admin-dashboard',
+          admin: '/admin',
           resmanager: '/resmanager-dashboard'
         };
         await Swal.fire({
@@ -948,13 +1019,16 @@ export default {
       const credentials = {
         student: { email: 'student@myuct.ac.za', password: 'student123', route: '/student-dashboard' },
         provider: { email: 'provider@work.co.za', password: 'provider123', route: '/provider-dashboard' },
-        admin: { email: 'admin@campusswap.co.za', password: 'admin123', route: '/admin-dashboard' },
+        admin: { email: 'admin@campusswap.co.za', password: 'admin123', route: '/admin' },
         resmanager: { email: 'resmanager@campusswap.co.za', password: 'res123', route: '/resmanager-dashboard' }
       };
 
       const creds = credentials[this.role];
       
       if (this.email === creds.email && this.password === creds.password) {
+        this.$store.commit('user/loginAsRole', this.role);
+        this.$store.commit('user/setLoggedIn', true);
+        localStorage.setItem('isLoggedIn', 'true');
         const roleNames = {
           student: 'Student',
           provider: 'Service Provider',
@@ -963,7 +1037,7 @@ export default {
         };
         await Swal.fire({
           icon: 'success',
-          title: 'Login Successful! 🎉',
+          title: 'Login Successful!',
           text: `${roleNames[this.role]} logged in successfully!`,
           timer: 1500,
           showConfirmButton: false,
@@ -1047,6 +1121,16 @@ export default {
   color: #333;
 }
 
+.login-provider .login-right { border-top: 4px solid #6FA8FF; }
+.login-provider .btn-primary { background: #6FA8FF; color: #0d1b3d; }
+.login-provider .gold-text { color: #6FA8FF; }
+.login-admin .login-right { border-top: 4px solid #FF6B6B; }
+.login-admin .btn-primary { background: #FF6B6B; color: #fff; }
+.login-admin .gold-text { color: #FF6B6B; }
+.login-resmanager .login-right { border-top: 4px solid #4ADE80; }
+.login-resmanager .btn-primary { background: #4ADE80; color: #0d1b3d; }
+.login-resmanager .gold-text { color: #4ADE80; }
+
 /* ---------------- LEFT SIDE (Desktop) ---------------- */
 .login-left {
   flex: 1;
@@ -1068,7 +1152,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, rgba(13, 27, 61, 0.7), rgba(13, 27, 61, 0.9));
+  background: rgba(13, 27, 61, 0.84);
 }
 
 .logo-area {

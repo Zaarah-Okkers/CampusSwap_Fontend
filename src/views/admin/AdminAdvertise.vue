@@ -1,7 +1,7 @@
 <template>
   <div class="admin-advertise">
     <div class="page-header">
-      <h2>📢 Push Advertisements</h2>
+      <h2><AppIcon name="megaphone" /> Push Advertisements</h2>
       <span class="subtitle">Push ads to premium users</span>
     </div>
 
@@ -28,7 +28,7 @@
           <label>Link URL (optional)</label>
           <input v-model="newAd.link" type="url" placeholder="https://example.com" />
         </div>
-        <button type="submit" class="push-btn">🚀 Push Ad</button>
+        <button type="submit" class="push-btn"><AppIcon name="rocket" /> Push Ad</button>
       </form>
     </div>
 
@@ -42,7 +42,7 @@
         <p class="ad-description">{{ ad.description }}</p>
         <div class="ad-footer">
           <span class="ad-target">🎯 {{ ad.target }}</span>
-          <button class="delete-btn" @click="deleteAd(ad.id)">🗑️</button>
+          <button class="delete-btn" @click="deleteAd(ad.id)" aria-label="Delete advertisement"><AppIcon name="trash" /></button>
         </div>
       </div>
     </div>
@@ -50,7 +50,9 @@
 </template>
 
 <script setup>
+import AppIcon from '../../components/AppIcon.vue'
 import { ref } from 'vue'
+import Swal from 'sweetalert2'
 
 const newAd = ref({
   title: '',
@@ -78,7 +80,7 @@ const ads = ref([
 
 function pushAd() {
   if (!newAd.value.title || !newAd.value.description) {
-    alert('Please fill in all required fields')
+    Swal.fire('Please fill in all required fields')
     return
   }
   
@@ -91,7 +93,7 @@ function pushAd() {
     link: newAd.value.link
   })
   
-  alert('✅ Ad pushed successfully!')
+  Swal.fire('Ad pushed successfully!')
   newAd.value = { title: '', description: '', target: 'all', link: '' }
 }
 

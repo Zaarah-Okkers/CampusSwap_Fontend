@@ -2,7 +2,7 @@
   <div class="book-store">
     <div class="hero glass-panel">
       <span class="hero-eyebrow">Booksphere</span>
-      <h2>📚 Study material, sorted</h2>
+      <h2><AppIcon name="book" /> Study material, sorted</h2>
       <p class="hero-sub">eBooks, audiobooks and compiled study guides made by students, for students.</p>
     </div>
 
@@ -59,6 +59,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import AppIcon from '../components/AppIcon.vue'
+import Swal from 'sweetalert2'
 
 const format = ref('all')
 
@@ -156,7 +158,7 @@ const filteredBooks = computed(() => {
 })
 
 function downloadBook(book) {
-  alert(`⬇️ Downloading "${book.title}"...\n\nDownload feature coming soon!`)
+  Swal.fire(`Downloading "${book.title}"...\n\nDownload feature coming soon!`)
 }
 </script>
 
@@ -169,7 +171,7 @@ function downloadBook(book) {
   border-radius: 22px;
   padding: 32px 28px;
   margin-bottom: 20px;
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.35), rgba(232, 181, 77, 0.12));
+  background: var(--ink-elevated);
 }
 
 .hero-eyebrow {

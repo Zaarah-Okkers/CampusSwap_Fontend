@@ -2,10 +2,15 @@
   <div class="checkout-wrapper">
     <div class="checkout-card">
       
-      <!-- Back Button triggering custom emit -->
-       <button type="button" class="btn-back" @click="goHome" aria-label="Back to home">
+      <!-- Back Button -->
+      <button type="button" class="btn-back" @click="goHome" aria-label="Back to home">
         ← Back to Home
       </button>
+
+      <!-- Demo Banner -->
+      <div class="demo-banner">
+        <span>⚡ <strong>DEMO PAYMENT SYSTEM</strong> — Safe Sandbox Mode (No Real Money Charged)</span>
+      </div>
 
       <!-- Navigation Tabs -->
       <div class="nav-tabs">
@@ -13,23 +18,23 @@
           :class="['tab-btn', { active: activeTab === 'cart' }]" 
           @click="activeTab = 'cart'"
         >
-          🛒 Cart ({{ cartItems.length }})
+          <AppIcon name="cart" /> Cart ({{ cartItems.length }})
         </button>
         <button 
           :class="['tab-btn', { active: activeTab === 'repairs' }]" 
           @click="activeTab = 'repairs'"
         >
-          🛠️ SafeHome (Repairs)
+          <AppIcon name="tools" /> SafeHome (Repairs)
         </button>
         <button 
           :class="['tab-btn', { active: activeTab === 'orders' }]" 
           @click="activeTab = 'orders'"
         >
-          📦 My Orders ({{ orders.length }})
+          <AppIcon name="package" /> My Orders ({{ orders.length }})
         </button>
       </div>
 
-      <!-- TAB 1: MARKETPLACE CART -->
+      <!-- TAB 1: MARKETPLACE CART & CHECKOUT -->
       <div v-if="activeTab === 'cart'" class="tab-body">
         <h2 class="title">Marketplace Cart</h2>
 
@@ -43,10 +48,10 @@
               <h4>{{ item.title || item.name }}</h4>
               <p class="price">R{{ Number(item.price).toFixed(2) }}</p>
             </div>
-            <button class="btn-remove" @click="removeItem(item.id)">&times;</button>
+            <button class="btn-remove" @click="removeItem(item.id)" title="Remove item">&times;</button>
           </div>
 
-          <!-- Dynamic Pickup Zone fetched from Database -->
+          <!-- Dynamic Pickup Zone -->
           <div class="pickup-box">
             <label>📍 Secure On-Campus Pickup Zone</label>
             <select v-model="selectedCampus" class="select-input">
@@ -58,7 +63,7 @@
 
           <!-- Escrow Protection Banner -->
           <div class="escrow-banner">
-            🛡️ <strong>Escrow Protection Active:</strong> Funds are held safely by CampusSwap SA until you verify receipt.
+            <AppIcon name="shield" /> <strong>Escrow Protection Active:</strong> Funds are held safely by CampusSwap SA until you verify receipt.
           </div>
 
           <!-- Summary Breakdown -->
@@ -76,18 +81,61 @@
               <span>Total Payable</span>
               <span class="total-price">R{{ totalPayable.toFixed(2) }}</span>
             </div>
-
-            <button class="btn-pay ozow" @click="handlePayment('Ozow Instant EFT')">
-              Pay with Ozow Instant EFT
-            </button>
-            <button class="btn-pay payfast" @click="handlePayment('PayFast')">
-              Pay with PayFast
-            </button>
           </div>
+
+          <!-- Payment Method Selection -->
+          <div class="payment-selection">
+            <label class="section-label">Select Payment Method</label>
+            <div class="method-options">
+              <label :class="['method-card', { selected: paymentMethod === 'card' }]">
+                <input type="radio" v-model="paymentMethod" value="card" />
+                <span>Credit / Debit Card</span>
+              </label>
+              <label :class="['method-card', { selected: paymentMethod === 'ozow' }]">
+                <input type="radio" v-model="paymentMethod" value="ozow" />
+                <span>Ozow Instant EFT</span>
+              </label>
+              <label :class="['method-card', { selected: paymentMethod === 'payfast' }]">
+                <input type="radio" v-model="paymentMethod" value="payfast" />
+                <span>PayFast</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Card Payment Form -->
+          <div v-if="paymentMethod === 'card'" class="card-form-box">
+            <div class="test-cards-hint">
+              <small>💡 <strong>Test Cards:</strong> Use standard 16 digits for Success. End in <code>4000</code> or <code>0000</code> to test Declined state.</small>
+            </div>
+            <div class="form-group">
+              <label>Cardholder Name</label>
+              <input type="text" v-model="cardForm.holder" placeholder="e.g. Zaarah Khan" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Card Number</label>
+              <input type="text" v-model="cardForm.number" placeholder="4532 1234 5678 9010" maxlength="19" class="form-input" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Expiry (MM/YY)</label>
+                <input type="text" v-model="cardForm.expiry" placeholder="12/26" maxlength="5" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label>CVV</label>
+                <input type="password" v-model="cardForm.cvv" placeholder="123" maxlength="4" class="form-input" />
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-pay-main" :disabled="isProcessing" @click="processPayment">
+            <span v-if="isProcessing" class="spinner-text">Processing Payment...</span>
+            <span v-else>Pay R{{ totalPayable.toFixed(2) }} Now</span>
+          </button>
+
         </div>
       </div>
 
-      <!-- TAB 2: SAFEHOME REPAIRS (DB Integration) -->
+      <!-- TAB 2: SAFEHOME REPAIRS -->
       <div v-if="activeTab === 'repairs'" class="tab-body">
         <h2 class="title">SafeHome Repairs</h2>
         
@@ -103,8 +151,8 @@
               <p class="location-tag">📍 {{ repair.residence_name }} - {{ repair.room_number }}</p>
               <p class="price">Estimated Cost: R{{ Number(repair.estimated_cost).toFixed(2) }}</p>
             </div>
-            <button class="btn-pay ozow btn-sm" @click="handleRepairPayment(repair)">
-              Book Repair (Escrow)
+            <button class="btn-pay-main btn-sm" :disabled="isProcessing" @click="handleRepairPayment(repair)">
+              Book Repair into Escrow
             </button>
           </div>
         </div>
@@ -123,6 +171,7 @@
               <span :class="['badge', ord.status === 'Completed' ? 'success' : 'escrow']">{{ ord.status }}</span>
             </div>
             <p><strong>Total:</strong> R{{ ord.total.toFixed(2) }}</p>
+            <p v-if="ord.ref" class="ref-text"><strong>Ref:</strong> <code>{{ ord.ref }}</code></p>
             <button v-if="ord.status === 'In Escrow'" class="btn-release" @click="releaseFunds(ord.id)">
               Confirm Delivery & Release Funds
             </button>
@@ -135,6 +184,7 @@
 </template>
 
 <script setup>
+import AppIcon from './AppIcon.vue'
 import { ref, computed, onMounted } from 'vue';
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';
@@ -145,49 +195,35 @@ const universities = ref([]);
 const repairs = ref([]);
 const orders = ref([]);
 const selectedCampus = ref('');
+const paymentMethod = ref('card');
+const isProcessing = ref(false);
+
+const cardForm = ref({
+  holder: '',
+  number: '',
+  expiry: '',
+  cvv: ''
+});
+
 const emit = defineEmits(['go-home']);
 const router = useRouter();
 
-const handleBack = () => {
-  emit('go-home');
-};
 const goHome = () => {
   router.push('/');
 };
 
-// Fetch database records from Express API
-const loadBackendData = async () => {
-  try {
-    // 1. Fetch Products
-    const prodRes = await fetch('http://localhost:3000/api/products');
-    if (prodRes.ok) {
-      cartItems.value = await prodRes.json();
-    }
+const getFallbackUniversities = () => [
+  { id: 1, name: 'University of Cape Town (UCT)', province: 'Western Cape' },
+  { id: 2, name: 'University of the Witwatersrand (Wits)', province: 'Gauteng' },
+  { id: 3, name: 'Stellenbosch University (SU)', province: 'Western Cape' },
+  { id: 4, name: 'Cape Peninsula University of Technology (CPUT)', province: 'Western Cape' }
+];
 
-    // 2. Fetch Universities DB table (UCT, Wits, SU, CPUT, UWC)
-    const uniRes = await fetch('http://localhost:3000/api/universities');
-    if (uniRes.ok) {
-      universities.value = await uniRes.json();
-      if (universities.value.length > 0) {
-        selectedCampus.value = universities.value[0].name;
-      }
-    }
+const getFallbackCartItems = () => [
+  { id: 101, title: 'Calculus: Early Transcendentals (9th Ed)', price: 450.00 },
+  { id: 102, title: 'Unisex Campus Hoodie (Size L)', price: 320.00 }
+];
 
-    // 3. Fetch Repairs DB table
-    const repairRes = await fetch('http://localhost:3000/api/repairs');
-    if (repairRes.ok) {
-      const data = await repairRes.json();
-      repairs.value = Array.isArray(data) && data.length > 0 ? data : getFallbackRepairs();
-    } else {
-      repairs.value = getFallbackRepairs();
-    }
-  } catch (err) {
-    console.error('API loading error:', err);
-    repairs.value = getFallbackRepairs();
-  }
-};
-
-// Fallback matching your MySQL workbench rows
 const getFallbackRepairs = () => [
   {
     id: 1,
@@ -209,12 +245,44 @@ const getFallbackRepairs = () => [
   }
 ];
 
+const loadBackendData = async () => {
+  try {
+    const prodRes = await fetch('http://localhost:3000/api/products').catch(() => null);
+    if (prodRes && prodRes.ok) {
+      cartItems.value = await prodRes.json();
+    } else {
+      cartItems.value = getFallbackCartItems();
+    }
+
+    const uniRes = await fetch('http://localhost:3000/api/universities').catch(() => null);
+    if (uniRes && uniRes.ok) {
+      universities.value = await uniRes.json();
+    } else {
+      universities.value = getFallbackUniversities();
+    }
+    if (universities.value.length > 0) {
+      selectedCampus.value = universities.value[0].name;
+    }
+
+    const repairRes = await fetch('http://localhost:3000/api/repairs').catch(() => null);
+    if (repairRes && repairRes.ok) {
+      const data = await repairRes.json();
+      repairs.value = Array.isArray(data) && data.length > 0 ? data : getFallbackRepairs();
+    } else {
+      repairs.value = getFallbackRepairs();
+    }
+  } catch (err) {
+    cartItems.value = getFallbackCartItems();
+    universities.value = getFallbackUniversities();
+    selectedCampus.value = universities.value[0].name;
+    repairs.value = getFallbackRepairs();
+  }
+};
 
 onMounted(() => {
   loadBackendData();
 });
 
-// Financial Calculations
 const subtotal = computed(() => {
   return cartItems.value.reduce((acc, item) => acc + Number(item.price || 0), 0);
 });
@@ -239,77 +307,99 @@ const removeItem = (id) => {
   });
 };
 
-// Checkout SweetAlert
-const handlePayment = (method) => {
+const processPayment = async () => {
   if (cartItems.value.length === 0) return;
 
-  Swal.fire({
-    title: 'Confirm Escrow Payment',
-    text: `Pay R${totalPayable.value.toFixed(2)} via ${method} for campus pickup at ${selectedCampus.value}?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#16a34a',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Proceed to Pay'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const orderId = Math.floor(100000 + Math.random() * 900000);
-      orders.value.unshift({
-        id: orderId,
-        title: 'Marketplace Cart Order',
-        total: totalPayable.value,
-        status: 'In Escrow'
+  if (paymentMethod.value === 'card') {
+    if (!cardForm.value.holder || !cardForm.value.number || !cardForm.value.expiry || !cardForm.value.cvv) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Missing Payment Details',
+        text: 'Please fill in all card details before proceeding.'
       });
-
-      cartItems.value = [];
-      activeTab.value = 'orders';
-
-      Swal.fire(
-        'Payment Secured!',
-        `Your funds are safely held in escrow for ${selectedCampus.value}.`,
-        'success'
-      );
+      return;
     }
-  });
+
+    const rawNum = cardForm.value.number.replace(/\s+/g, '');
+    if (rawNum.length < 12) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Card Number',
+        text: 'Please enter a valid card number.'
+      });
+      return;
+    }
+  }
+
+  isProcessing.value = true;
+
+  setTimeout(() => {
+    isProcessing.value = false;
+
+    const rawNum = cardForm.value.number.replace(/\s+/g, '');
+    if (paymentMethod.value === 'card' && (rawNum.endsWith('4000') || rawNum.endsWith('0000'))) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Payment Declined',
+        text: 'Your card was declined by the simulated bank. Please try another card.'
+      });
+      return;
+    }
+
+    const refNum = 'CS-' + Math.floor(10000000 + Math.random() * 90000000);
+    const orderId = Math.floor(100000 + Math.random() * 900000);
+
+    orders.value.unshift({
+      id: orderId,
+      title: 'Marketplace Cart Order',
+      total: totalPayable.value,
+      status: 'In Escrow',
+      ref: refNum
+    });
+
+    cartItems.value = [];
+    activeTab.value = 'orders';
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Payment Secured in Escrow!',
+      html: `<p>Transaction Ref: <strong>${refNum}</strong></p><p>Pickup Location: <strong>${selectedCampus.value}</strong></p>`,
+      confirmButtonColor: '#2e7d5a'
+    });
+  }, 1500);
 };
 
-// SafeHome Repair Booking SweetAlert
 const handleRepairPayment = (repair) => {
-  Swal.fire({
-    title: 'Book SafeHome Repair?',
-    text: `Deposit R${Number(repair.estimated_cost).toFixed(2)} into Escrow for "${repair.title}"?`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#16a34a',
-    confirmButtonText: 'Confirm Escrow Deposit'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      orders.value.unshift({
-        id: Math.floor(100000 + Math.random() * 900000),
-        title: `Repair: ${repair.title}`,
-        total: Number(repair.estimated_cost),
-        status: 'In Escrow'
-      });
+  isProcessing.value = true;
+  setTimeout(() => {
+    isProcessing.value = false;
+    const refNum = 'CS-REP-' + Math.floor(100000 + Math.random() * 900000);
+    orders.value.unshift({
+      id: Math.floor(100000 + Math.random() * 900000),
+      title: `Repair: ${repair.title}`,
+      total: Number(repair.estimated_cost),
+      status: 'In Escrow',
+      ref: refNum
+    });
 
-      activeTab.value = 'orders';
+    activeTab.value = 'orders';
 
-      Swal.fire(
-        'Repair Booked!',
-        'Funds held in escrow. Release them only when the job is completed.',
-        'success'
-      );
-    }
-  });
+    Swal.fire({
+      icon: 'success',
+      title: 'Repair Escrow Booked!',
+      text: `Funds (R${Number(repair.estimated_cost).toFixed(2)}) safely deposited under Ref ${refNum}.`,
+      confirmButtonColor: '#2e7d5a'
+    });
+  }, 1000);
 };
 
-// Release Escrow SweetAlert
 const releaseFunds = (orderId) => {
   Swal.fire({
     title: 'Release Funds to Seller/Provider?',
-    text: 'Only confirm if you have received your item or inspected the repair work.',
+    text: 'Only confirm if you have received your item or verified repair completion.',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#16a34a',
+    confirmButtonColor: '#2e7d5a',
     confirmButtonText: 'Yes, Release Funds'
   }).then((result) => {
     if (result.isConfirmed) {
@@ -327,18 +417,29 @@ const releaseFunds = (orderId) => {
 .checkout-wrapper {
   display: flex;
   justify-content: center;
-  padding: 30px 15px;
+  padding: 30px 15px 120px 15px;
   background-color: #f8fafc;
   min-height: 100vh;
 }
 
 .checkout-card {
   width: 100%;
-  max-width: 540px;
+  max-width: 560px;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   padding: 24px;
+}
+
+.demo-banner {
+  background: #fffbe3;
+  border: 1px solid #f5b941;
+  color: #8a6d3b;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
 .nav-tabs {
@@ -346,30 +447,31 @@ const releaseFunds = (orderId) => {
   gap: 8px;
   background: #f1f5f9;
   padding: 6px;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 20px;
 }
 
 .tab-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 10px 8px;
   border: none;
   background: transparent;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .tab-btn.active {
-  background: #1e293b;
+  background: #0d1b3d;
   color: #ffffff;
 }
 
 .title {
   font-size: 1.25rem;
-  color: #0f172a;
+  color: #0d1b3d;
   margin-bottom: 16px;
 }
 
@@ -409,7 +511,7 @@ const releaseFunds = (orderId) => {
 
 .price {
   font-weight: 700;
-  color: #059669;
+  color: #2e7d5a;
   margin: 0;
 }
 
@@ -469,11 +571,11 @@ const releaseFunds = (orderId) => {
 .summary-row.total {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #0d1b3d;
 }
 
 .total-price {
-  color: #059669;
+  color: #2e7d5a;
 }
 
 .divider {
@@ -482,23 +584,103 @@ const releaseFunds = (orderId) => {
   margin: 12px 0;
 }
 
-.btn-pay {
+.payment-selection {
+  margin-top: 16px;
+}
+
+.section-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0d1b3d;
+  margin-bottom: 8px;
+}
+
+.method-options {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.method-card {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #f8fafc;
+}
+
+.method-card.selected {
+  border-color: #2e7d5a;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.card-form-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.test-cards-hint {
+  margin-bottom: 12px;
+  color: #64748b;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-pay-main {
   width: 100%;
   padding: 12px;
   border: none;
   border-radius: 8px;
+  background-color: #2e7d5a;
   color: white;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
-  margin-top: 8px;
+  transition: background-color 0.2s ease;
 }
 
-.btn-pay.ozow {
-  background-color: #475569;
+.btn-pay-main:hover {
+  background-color: #235f45;
 }
 
-.btn-pay.payfast {
-  background-color: #a855f7;
+.btn-pay-main:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .btn-sm {
@@ -511,7 +693,7 @@ const releaseFunds = (orderId) => {
   padding: 10px;
   border: none;
   border-radius: 6px;
-  background-color: #059669;
+  background-color: #2e7d5a;
   color: white;
   font-weight: 600;
   cursor: pointer;
@@ -535,6 +717,12 @@ const releaseFunds = (orderId) => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
+}
+
+.ref-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 4px 0 8px 0;
 }
 
 .badge {
@@ -569,7 +757,7 @@ const releaseFunds = (orderId) => {
 }
 
 .btn-back:hover {
-  color: #0f172a;
+  color: #0d1b3d;
   text-decoration: underline;
 }
 </style>

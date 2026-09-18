@@ -1,14 +1,15 @@
 <script setup>
 import { ref } from 'vue'
+import AppIcon from './AppIcon.vue'
 
 const toasts = ref([])
 
 // Toast types with icons
 const toastIcons = {
-  success: '✅',
-  error: '❌',
-  warning: '⚠️',
-  info: 'ℹ️'
+  success: 'check',
+  error: 'alert',
+  warning: 'alert',
+  info: 'info'
 }
 
 // Toast colors
@@ -68,9 +69,9 @@ function getToastClass(type) {
       :style="{ borderColor: toastColors[toast.type] }"
       @click="removeToast(toast.id)"
     >
-      <span class="toast-icon">{{ toastIcons[toast.type] }}</span>
+      <AppIcon class="toast-icon" :name="toastIcons[toast.type]" />
       <span class="toast-message">{{ toast.message }}</span>
-      <button class="toast-close" @click.stop="removeToast(toast.id)">✕</button>
+      <button class="toast-close" @click.stop="removeToast(toast.id)" aria-label="Close notification"><AppIcon name="close" /></button>
     </div>
   </div>
 </template>

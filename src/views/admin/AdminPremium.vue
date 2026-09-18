@@ -1,12 +1,12 @@
 <template>
   <div class="admin-premium">
     <div class="page-header">
-      <h2>⭐ Premium Users</h2>
+      <h2><AppIcon name="star" /> Premium Users</h2>
       <span class="count">{{ premiumUsers.length }} Premium Users</span>
     </div>
 
     <div v-if="premiumUsers.length === 0" class="empty-state">
-      <span class="empty-icon">⭐</span>
+      <span class="empty-icon"><AppIcon name="star" /></span>
       <h3>No Premium Users Yet</h3>
       <p>Upgrade users to premium to see them here</p>
     </div>
@@ -19,7 +19,7 @@
             <div class="premium-name">{{ user.name }}</div>
             <div class="premium-role">{{ getRoleDisplay(user.role) }}</div>
           </div>
-          <span class="premium-badge">⭐ Premium</span>
+          <span class="premium-badge"><AppIcon name="star" /> Premium</span>
         </div>
         <div class="premium-details">
           <div class="detail-item">
@@ -27,7 +27,7 @@
             <span class="detail-value">{{ user.email }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">🏛️ University</span>
+            <span class="detail-label"><AppIcon name="building" /> University</span>
             <span class="detail-value">{{ user.university || 'N/A' }}</span>
           </div>
           <div class="detail-item">
@@ -45,8 +45,10 @@
 </template>
 
 <script setup>
+import AppIcon from '../../components/AppIcon.vue'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import Swal from 'sweetalert2'
 
 const store = useStore()
 
@@ -68,13 +70,13 @@ function removePremium(userId) {
     const user = users.value.find(u => u.id === userId)
     if (user) {
       user.isPremium = false
-      alert('Premium status removed!')
+      Swal.fire('Premium status removed!')
     }
   }
 }
 
 function viewUser(userId) {
-  alert(`Viewing user ${userId}`)
+  Swal.fire(`Viewing user ${userId}`)
 }
 </script>
 

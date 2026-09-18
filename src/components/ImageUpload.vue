@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
+import Swal from 'sweetalert2'
 
 const props = defineProps({
   modelValue: {
@@ -59,13 +60,13 @@ function processFile(file) {
   // Validate file type
   const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
   if (!validTypes.includes(file.type)) {
-    alert('Please upload a valid image file (JPEG, PNG, GIF, WEBP, or SVG)')
+    Swal.fire('Please upload a valid image file (JPEG, PNG, GIF, WEBP, or SVG)')
     return
   }
   
   // Validate file size (max 5MB)
   if (file.size > 5 * 1024 * 1024) {
-    alert('Image size must be less than 5MB')
+    Swal.fire('Image size must be less than 5MB')
     return
   }
   

@@ -1,7 +1,7 @@
 <template>
   <div class="admin-users">
     <div class="page-header">
-      <h2>👥 User Management</h2>
+      <h2><AppIcon name="users" /> User Management</h2>
       <div class="header-actions">
         <input type="text" v-model="searchQuery" placeholder="Search users..." class="search-input" />
       </div>
@@ -37,16 +37,16 @@
               {{ user.online ? 'Online' : 'Offline' }}
             </td>
             <td>
-              <span v-if="user.isPremium" class="premium-badge">⭐ Premium</span>
+              <span v-if="user.isPremium" class="premium-badge"><AppIcon name="star" /> Premium</span>
               <span v-else class="free-badge">Free</span>
             </td>
             <td>
               <div class="action-buttons">
                 <button class="action-btn" @click="togglePremium(user.id)" :title="user.isPremium ? 'Remove Premium' : 'Make Premium'">
-                  {{ user.isPremium ? '⭐' : '☆' }}
+                  <AppIcon :name="user.isPremium ? 'star' : 'user'" />
                 </button>
-                <button class="action-btn" @click="verifyUser(user.id)" v-if="!user.verified">✅</button>
-                <button class="action-btn danger" @click="banUser(user.id)" v-if="!user.banned">🚫</button>
+                <button class="action-btn" @click="verifyUser(user.id)" v-if="!user.verified" title="Verify user"><AppIcon name="check" /></button>
+                <button class="action-btn danger" @click="banUser(user.id)" v-if="!user.banned" title="Ban user"><AppIcon name="alert" /></button>
               </div>
             </td>
           </tr>
@@ -59,6 +59,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
+import AppIcon from '../../components/AppIcon.vue'
+import Swal from 'sweetalert2'
 
 const store = useStore()
 const searchQuery = ref('')
@@ -82,19 +84,19 @@ function togglePremium(userId) {
   const user = users.value.find(u => u.id === userId)
   if (user) {
     user.isPremium = !user.isPremium
-    alert(`${user.name} is now ${user.isPremium ? '⭐ Premium' : 'Free'} user`)
+    Swal.fire(`${user.name} is now ${user.isPremium ? 'Premium' : 'Free'} user`)
   }
 }
 
 function verifyUser(userId) {
   store.commit('user/verifyUser', userId)
-  alert('User verified!')
+  Swal.fire('User verified!')
 }
 
 function banUser(userId) {
   if (confirm('Ban this user?')) {
     store.commit('user/banUser', userId)
-    alert('User banned!')
+    Swal.fire('User banned!')
   }
 }
 </script>

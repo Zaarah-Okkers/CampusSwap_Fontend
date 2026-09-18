@@ -1,0 +1,851 @@
+<template>
+  <div class="student-dash">
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="dashboard-container">
+
+      <!-- User Greeting -->
+      <div class="greeting-block">
+        <h2 class="dashboard-title">Hi, {{ user.full_name || 'Student' }}</h2>
+        <p class="university-text">
+          {{ roleLabel }}<span v-if="user.university_name"> &middot; {{ user.university_name }}</span>
+        </p>
+      </div>
+
+      <!-- Profile Stats Card -->
+      <div class="card">
+        <h3 class="card-heading">My Profile</h3>
+
+        <div class="stats-grid">
+          <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
+            <span class="stat-title">My Listings</span>
+            <span class="stat-value" style="color: #2e7d5a;">{{ myListings.length }}</span>
+          </div>
+
+          <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
+            <span class="stat-title">My Orders</span>
+            <span class="stat-value" style="color: #00a6a6;">{{ myOrders.length }}</span>
+          </div>
+
+          <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
+            <span class="stat-title">Total Spent</span>
+            <span class="stat-value" style="color: #f5b941;">
+              R{{ myOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0).toFixed(2) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Management Card -->
+      <div class="card">
+        <h3 class="card-heading">Account Management</h3>
+
+        <!-- Link-style rows with popups -->
+        <div class="menu-item">
+          <button class="menu-link" @click="viewOrders">
+            Active Orders <span class="arrow">&gt;</span>
+          </button>
+        </div>
+
+        <div class="menu-item">
+          <button class="menu-link" @click="manageListings">
+            My Listings <span class="arrow">&gt;</span>
+          </button>
+        </div>
+
+        <div class="menu-item">
+          <button class="menu-link" @click="viewWishlist">
+            Wishlist <span class="arrow">&gt;</span>
+          </button>
+        </div>
+
+        <div class="menu-item">
+          <button class="menu-link" @click="messages">
+            Messages <span class="arrow">&gt;</span>
+          </button>
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="password-section">
+          <h4 class="password-title">Change Password</h4>
+
+          <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
+          </div>
+
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" v-model="newPassword" class="form-input" placeholder="Enter new password" />
+          </div>
+
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
+          </div>
+
+          <button class="btn-save" @click="changePassword">Update Password</button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<script>
+import Swal from 'sweetalert2'
+import { dashAPI, authAPI, session, LOGOUT_MESSAGES } from '@/services/api'
+
+export default {
+  name: 'StudentDashboard',
+
+  data() {
+    return {
+      sideNavOpen: false,
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+      user: {},
+      myListings: [],
+      myOrders: [],
+      loading: true
+    };
+  },
+
+  async mounted() {
+    this.user = session.get() || {};
+
+    if (!this.user.id) {
+      this.$router.push('/login');
+      return;
+    }
+
+    try {
+      const data = await dashAPI.getStudent(this.user.id);
+      this.myListings = data.mylistings || [];
+      this.myOrders = data.myOrders || [];
+    } catch (err) {
+      console.error('Failed to load student dashboard:', err.message);
+    } finally {
+      this.loading = false;
+    }
+  },
+
+  computed: {
+    formattedDate() {
+      const now = new Date();
+      return now.toLocaleDateString('en-ZA', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    },
+
+    // avatar initials — "Thabo M." becomes "TM"
+    initials() {
+      if (!this.user.full_name) return 'ST';
+      return this.user.full_name
+        .split(' ')
+        .map(w => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+    },
+
+    // friendly label for the backend role ENUM
+    roleLabel() {
+      const labels = {
+        student: 'Student',
+        service_provider: 'Service Provider',
+        res_manager: 'Residence Manager',
+        admin: 'Administrator'
+      };
+      return labels[this.user.role] || 'Student';
+    },
+
+    // students CAN see the academic marketplace
+    canSeeAcademic() {
+      return ['student', 'admin'].includes(this.user.role);
+    },
+
+    // students CAN see checkout
+    canSeeCheckout() {
+      return ['student', 'admin', 'res_manager'].includes(this.user.role);
+    },
+
+    // own dashboard route
+    myDashboard() {
+      const routes = {
+        student: '/student-dashboard',
+        service_provider: '/provider-dashboard',
+        admin: '/admin-dashboard',
+        res_manager: '/resmanager-dashboard'
+      };
+      return routes[this.user.role] || '/login';
+    }
+  },
+
+  methods: {
+    toggleSideNav() {
+      this.sideNavOpen = !this.sideNavOpen;
+      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
+    },
+
+    closeSideNav() {
+      this.sideNavOpen = false;
+      document.body.style.overflow = '';
+    },
+
+    // notification bell
+    notifyClick() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Notifications',
+        text: 'You have 3 new notifications.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+
+    // logout — role-specific message + clears session
+    async logout() {
+      const result = await Swal.fire({
+        title: 'Logout?',
+        text: 'Are you sure you want to log out of your student account?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, logout',
+        cancelButtonText: 'Cancel',
+      });
+
+      if (result.isConfirmed) {
+        const message = LOGOUT_MESSAGES[this.user.role] || 'Logged out.';
+        session.clear();
+        await Swal.fire({
+          icon: 'success',
+          title: message,
+          timer: 1800,
+          showConfirmButton: false
+        });
+        this.$router.push('/login');
+      }
+    },
+
+    // change password — hits the real backend
+    async changePassword() {
+      if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Incomplete',
+          text: 'Please fill in all password fields.',
+          confirmButtonColor: '#f5b941',
+        });
+        return;
+      }
+
+      if (this.newPassword !== this.confirmPassword) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Passwords Do Not Match',
+          text: 'New password and confirmation must match.',
+          confirmButtonColor: '#d33',
+        });
+        return;
+      }
+
+      if (this.newPassword.length < 6) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Password Too Short',
+          text: 'Password must be at least 6 characters long.',
+          confirmButtonColor: '#d33',
+        });
+        return;
+      }
+
+      try {
+        await authAPI.changePassword(
+          this.user.id,
+          this.currentPassword,
+          this.newPassword
+        );
+
+        await Swal.fire({
+          icon: 'success',
+          title: 'Password Updated!',
+          text: 'Your password has been changed successfully.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        this.currentPassword = '';
+        this.newPassword = '';
+        this.confirmPassword = '';
+      } catch (err) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: err.message,
+          confirmButtonColor: '#d33',
+        });
+      }
+    },
+
+    // -------- Account Management popups --------
+
+    // view orders — shows real orders from the DB
+    async viewOrders() {
+      if (this.myOrders.length === 0) {
+        await Swal.fire({
+          icon: 'info',
+          title: 'No Orders Yet',
+          text: 'You have not placed any orders on CampusSwap.',
+          confirmButtonColor: '#f5b941',
+        });
+        return;
+      }
+
+      const listHtml = this.myOrders
+        .map(o => `
+          <div style="text-align:left; margin-bottom:8px; padding:8px; border-bottom:1px solid #eee;">
+            <strong>Order #${o.id}</strong><br>
+            Type: ${o.order_type}<br>
+            Amount: R${Number(o.total_amount).toFixed(2)}<br>
+            Status: ${o.status}
+          </div>
+        `)
+        .join('');
+
+      await Swal.fire({
+        icon: 'info',
+        title: 'My Orders',
+        html: listHtml,
+        confirmButtonColor: '#2e7d5a',
+      });
+    },
+
+    // manage listings — shows real listings from the DB
+    async manageListings() {
+      if (this.myListings.length === 0) {
+        await Swal.fire({
+          icon: 'info',
+          title: 'No Listings Yet',
+          text: 'You have not listed anything on CampusSwap.',
+          confirmButtonColor: '#f5b941',
+        });
+        return;
+      }
+
+      const listHtml = this.myListings
+        .map(p => `
+          <div style="text-align:left; margin-bottom:8px; padding:8px; border-bottom:1px solid #eee;">
+            <strong>${p.name}</strong><br>
+            Price: R${p.price ? Number(p.price).toFixed(2) : 'Swap'}<br>
+            Condition: ${p.condition_label}
+          </div>
+        `)
+        .join('');
+
+      await Swal.fire({
+        icon: 'info',
+        title: 'My Listings',
+        html: listHtml,
+        confirmButtonColor: '#2e7d5a',
+      });
+    },
+
+    // wishlist — no backend yet
+    async viewWishlist() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Wishlist',
+        text: 'Wishlist feature coming soon.',
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    },
+
+    // messages — no backend yet
+    async messages() {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Messages',
+        text: 'Messaging feature coming soon.',
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    }
+  }
+};
+</script>
+
+<style scoped>
+.dashboard-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+.top-bar {
+  background-color: #0d1b3d;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  flex-wrap: wrap;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger-icon {
+  font-size: 28px;
+  color: #fff;
+  line-height: 1;
+}
+
+.brand-link {
+  text-decoration: none;
+}
+
+.brand {
+  color: #fff;
+  font-size: 22px;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.brand .green-text,
+.green-text {
+  color: #2e7d5a;
+}
+
+.top-center {
+  flex: 1;
+  min-width: 160px;
+  max-width: 520px;
+}
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.search-wrap:hover,
+.search-wrap:focus-within {
+  background-color: rgba(255, 255, 255, 0.20);
+  border-color: rgba(245, 185, 65, 0.4);
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  padding: 8px 0;
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 15px;
+}
+
+.notification-bell {
+  position: relative;
+  cursor: pointer;
+  font-size: 24px;
+  color: #fff;
+  transition: color 0.3s ease;
+}
+
+.notification-bell:hover {
+  color: #f5b941;
+}
+
+.notification-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: #ff4d4f;
+  border-radius: 50%;
+  border: 2px solid #0d1b3d;
+}
+
+.avatar {
+  background-color: #f5b941;
+  color: #0d1b3d;
+  font-weight: 700;
+  font-size: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.side-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.side-overlay-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.side-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100%;
+  background-color: #0d1b3d;
+  z-index: 300;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  padding: 20px 24px;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-nav-open {
+  transform: translateX(0);
+}
+
+.side-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.side-nav-header h3 {
+  color: #fff;
+  font-size: 20px;
+  margin: 0;
+}
+
+.close-side-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.close-side-btn:hover {
+  color: #f5b941;
+}
+
+.side-nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.side-nav-links li {
+  margin-bottom: 4px;
+}
+
+.side-nav-links li a {
+  display: block;
+  color: #d1d5db;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.side-nav-links li a:hover {
+  background-color: rgba(245, 185, 65, 0.12);
+  color: #f5b941;
+  border-left-color: #f5b941;
+}
+
+/* user footer with inline logout */
+.side-nav-user {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+}
+
+.side-nav-user p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.side-user-uni {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.side-logout-btn {
+  margin-top: 12px;
+  width: 100%;
+  background: transparent;
+  border: 2px solid #f5b941;
+  color: #f5b941;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.side-logout-btn:hover {
+  background-color: #f5b941;
+  color: #0d1b3d;
+}
+
+.dashboard-container {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.greeting-block {
+  margin-bottom: 24px;
+}
+
+.dashboard-title {
+  color: #0d1b3d;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.university-text {
+  color: #6c4b6a;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-heading {
+  color: #0d1b3d;
+  font-size: 18px;
+  margin: 0 0 16px 0;
+  font-weight: 700;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #6c4b6a;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1 1 150px;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat-title {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-weight: bold;
+  font-size: 22px;
+  display: block;
+}
+
+.menu-item {
+  border-bottom: 1px solid #eeeeee;
+  padding: 12px 0;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+/* menu-link styled like a link but works as a button */
+.menu-link {
+  color: #0d1b3d;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: color 0.25s ease;
+
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+}
+
+.menu-link:hover {
+  color: #2e7d5a;
+}
+
+.menu-link:hover .arrow {
+  transform: translateX(4px);
+}
+
+.arrow {
+  font-weight: bold;
+  color: #9ca3af;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.menu-link:hover .arrow {
+  color: #2e7d5a;
+}
+
+.password-section {
+  margin-top: 20px;
+  border-top: 2px dashed #e5e7eb;
+  padding-top: 20px;
+}
+
+.password-title {
+  color: #6c4b6a;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0d1b3d;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #00a6a6;
+}
+
+.btn-save {
+  width: 100%;
+  background-color: #f5b941;
+  color: #0d1b3d;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.btn-save:hover {
+  background-color: #e0a330;
+}
+
+@media (max-width: 768px) {
+  .top-center {
+    order: 3;
+    flex-basis: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .top-right {
+    display: flex;
+  }
+  .stats-grid {
+    gap: 8px;
+  }
+  .stat-card {
+    padding: 10px;
+  }
+}
+</style>

@@ -1,9 +1,14 @@
 import Swal from 'sweetalert2'
-import store from '../stores'
-import router from '../router'
 import { session } from '../services/api'
 
+// NOTE: `store` and `router` are imported lazily inside handleLogout().
+// Importing them at module scope created a cycle
+// (main -> App -> SideNav -> auth -> router/stores -> views) that stopped the
+// dev server ever finishing module evaluation, leaving a blank screen.
 export async function handleLogout(confirm = true) {
+  const { default: store } = await import('../stores')
+  const { default: router } = await import('../router')
+
   if (confirm) {
     const result = await Swal.fire({
       title: 'Logout?',

@@ -24,6 +24,9 @@ import ProductGrid from '../components/ProductGrid.vue'
 import ProductModal from '../components/ProductModal.vue'
 import Bookstore from './Bookstore.vue'
 import swalTheme from '../utils/swalTheme'
+// Listings come from the shared dummy dataset so the marketplace and the
+// homepage featured grid always show the same items.
+import { marketplaceListings } from '../services/mockData'
 
 const router = useRouter()
 const route = useRoute()
@@ -32,21 +35,7 @@ const activeTab = ref(route.query.tab === 'books' ? 'books' : 'marketplace')
 const category = ref('all')
 const selectedProduct = ref(null)
 const savedIds = ref(new Set())
-const products = ref([
-  { id: 1, name: 'Organic Chemistry Lecture Notes', price: 65, rating: 4.8, condition: 'Like New', listingType: 'sell', sellerName: 'Aisha K.', sellerRating: 4.8, university: 'University of Cape Town', category: 'sell', image: 'https://placehold.co/600x400/6C5CE7/FFFFFF?text=Chemistry+Notes' },
-  { id: 2, name: 'Scientific Calculator', price: 240, rating: 4.6, condition: 'Used: Like New', listingType: 'sell', sellerName: 'Sipho D.', sellerRating: 4.6, university: 'University of Cape Town', category: 'sell', image: 'https://placehold.co/600x400/E8B54D/FFFFFF?text=Calculator' },
-  { id: 3, name: 'Calculus Textbook', price: 40, rating: 4.9, condition: 'Fair Condition', conditionClass: 'fair', listingType: 'rent', rentPeriod: 'week', sellerName: 'Naledi S.', sellerRating: 4.9, university: 'University of Cape Town', category: 'rent', image: 'https://placehold.co/600x400/4ADE80/0A0E27?text=Calculus' },
-  { id: 4, name: 'LED Study Desk Lamp', price: 180, rating: 4.7, condition: 'Like New', listingType: 'sell', sellerName: 'Thabo M.', sellerRating: 4.7, university: 'Stellenbosch University', category: 'sell', image: 'https://placehold.co/600x400/6FA8FF/0A0E27?text=Study+Lamp' },
-  { id: 5, name: 'Mini Fridge for Residence', price: 125, rating: 4.5, condition: 'Good', listingType: 'rent', rentPeriod: 'month', sellerName: 'Lerato M.', sellerRating: 4.5, university: 'University of the Western Cape', category: 'furniture', image: 'https://placehold.co/600x400/FF8577/FFFFFF?text=Mini+Fridge' },
-  { id: 6, name: 'Noise-cancelling Headphones', price: 450, rating: 4.9, condition: 'Like New', listingType: 'sell', sellerName: 'Karabo N.', sellerRating: 4.9, university: 'University of Pretoria', category: 'sell', image: 'https://placehold.co/600x400/9B59B6/FFFFFF?text=Headphones' },
-  { id: 7, name: 'Dorm Storage Crates', price: 80, rating: 4.4, condition: 'Good', listingType: 'swap', sellerName: 'Mia D.', sellerRating: 4.4, university: 'University of Johannesburg', category: 'furniture', image: 'https://placehold.co/600x400/2E7D5A/FFFFFF?text=Storage+Crates' },
-  { id: 8, name: 'Engineering Drawing Set', price: 95, rating: 4.8, condition: 'Good', listingType: 'sell', sellerName: 'Sibusiso K.', sellerRating: 4.8, university: 'Cape Peninsula University of Technology', category: 'sell', image: 'https://placehold.co/600x400/EF8354/FFFFFF?text=Drawing+Set' },
-  { id: 9, name: 'Graphic Design Textbook', price: 55, rating: 4.6, condition: 'Fair Condition', conditionClass: 'fair', listingType: 'swap', sellerName: 'Zanele P.', sellerRating: 4.6, university: 'University of the Witwatersrand', category: 'swap', image: 'https://placehold.co/600x400/3D5A80/FFFFFF?text=Design+Book' },
-  { id: 10, name: 'Portable Clothes Rail', price: 110, rating: 4.3, condition: 'Good', listingType: 'rent', rentPeriod: 'semester', sellerName: 'Amahle R.', sellerRating: 4.3, university: 'University of KwaZulu-Natal', category: 'furniture', image: 'https://placehold.co/600x400/7B2CBF/FFFFFF?text=Clothes+Rail' },
-  { id: 11, name: 'Compact Study Desk', price: 350, rating: 4.8, condition: 'Like New', listingType: 'sell', sellerName: 'Nandi M.', sellerRating: 4.8, university: 'University of Cape Town', category: 'furniture', image: 'https://placehold.co/600x400/8B5E3C/FFFFFF?text=Study+Desk' },
-  { id: 12, name: 'Dorm Room Wall Prints Set', price: 75, rating: 4.7, condition: 'New', listingType: 'sell', sellerName: 'Jade L.', sellerRating: 4.7, university: 'Rhodes University', category: 'furniture', image: 'https://placehold.co/600x400/D26A8D/FFFFFF?text=Wall+Prints' },
-  { id: 13, name: 'Bedside Storage Unit', price: 140, rating: 4.5, condition: 'Good', listingType: 'swap', sellerName: 'Neo T.', sellerRating: 4.5, university: 'University of Pretoria', category: 'furniture', image: 'https://placehold.co/600x400/4F772D/FFFFFF?text=Bedside+Unit' }
-])
+const products = ref(marketplaceListings)
 const filteredProducts = computed(() => category.value === 'all' ? products.value : products.value.filter(product => product.category === category.value))
 
 function toggleSaved(productId) {

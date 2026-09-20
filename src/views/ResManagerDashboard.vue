@@ -87,7 +87,7 @@
 
       <!-- User Greeting -->
       <div class="greeting-block">
-        <h2 class="dashboard-title">Hi, {{ user.full_name || 'Manager' }} 👋</h2>
+        <h2 class="dashboard-title">Hi, {{ user.full_name || 'Manager' }}</h2>
         <p class="university-text">Residence Manager</p>
       </div>
 

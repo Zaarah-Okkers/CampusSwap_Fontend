@@ -23,6 +23,14 @@ export async function handleLogout(confirm = true) {
     if (!result.isConfirmed) return false
   }
 
+  const role = store.getters['user/currentUser']?.role
+  const logoutMessages = {
+    student: 'Session terminated. Go touch grass.',
+    service_provider: 'Mission accomplished. Over and Out chief.',
+    admin: 'God mode disabled.',
+    res_manager: 'Game saved. Player 1 has left the lobby.',
+    resmanager: 'Game saved. Player 1 has left the lobby.'
+  }
   session.clear()
   await store.dispatch('user/logout')
   localStorage.removeItem('isLoggedIn')
@@ -30,7 +38,7 @@ export async function handleLogout(confirm = true) {
 
   await Swal.fire({
     title: 'Logged Out',
-    text: 'You have been logged out successfully.',
+    text: logoutMessages[role] || 'You have been logged out successfully.',
     icon: 'success',
     timer: 1500,
     showConfirmButton: false

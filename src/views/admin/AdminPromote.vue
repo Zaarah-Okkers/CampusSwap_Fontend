@@ -7,7 +7,7 @@
 
     <div class="promote-grid">
       <div class="promote-card glass-panel">
-        <div class="promote-icon">📈</div>
+        <div class="promote-icon"><AppIcon name="report" /></div>
         <h3>Featured Listings</h3>
         <p>Feature premium users' listings on the homepage</p>
         <button class="promote-btn" @click="featuredListings = !featuredListings">
@@ -16,7 +16,7 @@
       </div>
 
       <div class="promote-card glass-panel">
-        <div class="promote-icon">🎯</div>
+        <div class="promote-icon"><AppIcon name="settings" /></div>
         <h3>Targeted Promotion</h3>
         <p>Show premium content to relevant users</p>
         <button class="promote-btn" @click="targetedPromotion = !targetedPromotion">
@@ -34,7 +34,7 @@
       </div>
 
       <div class="promote-card glass-panel">
-        <div class="promote-icon">📣</div>
+        <div class="promote-icon"><AppIcon name="megaphone" /></div>
         <h3>Newsletter Promotion</h3>
         <p>Include premium listings in newsletters</p>
         <button class="promote-btn" @click="newsletterPromotion = !newsletterPromotion">

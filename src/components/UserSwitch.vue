@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 
 const store = useStore()
 const router = useRouter()
@@ -67,8 +68,23 @@ const currentUserDisplay = computed(() => {
 
 async function switchToUser(userId) {
   if (userId === 'logged-out') {
+    const role = currentUser.value?.role
+    const logoutMessages = {
+      student: 'Session terminated. Go touch grass.',
+      service_provider: 'Mission accomplished. Over and Out chief.',
+      admin: 'God mode disabled.',
+      res_manager: 'Game saved. Player 1 has left the lobby.',
+      resmanager: 'Game saved. Player 1 has left the lobby.'
+    }
     await store.dispatch('user/logout')
     showDropdown.value = false
+    await Swal.fire({
+      icon: 'success',
+      title: 'Logged Out',
+      text: logoutMessages[role] || 'You have been logged out successfully.',
+      timer: 1800,
+      showConfirmButton: false
+    })
     await router.push('/')
     return
   }

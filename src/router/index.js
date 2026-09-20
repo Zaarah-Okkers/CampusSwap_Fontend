@@ -11,6 +11,8 @@ import CheckoutView from '../components/CheckoutView.vue'
 import SafeHomeView from '../views/SafeHomeView.vue'
 import store from '../stores'
 
+const roleForRoute = (role) => role === 'provider' ? 'service_provider' : role === 'resmanager' ? 'res_manager' : role
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -77,6 +79,7 @@ const router = createRouter({
       path: '/marketplace',
       name: 'marketplace',
       component: () => import('../views/MarketplaceView.vue'),
+      meta: { allowedRoles: ['student', 'admin'] },
     },
     {
       path: '/swap-requests',
@@ -96,12 +99,14 @@ const router = createRouter({
     {
       path: '/student-profile',
       name: 'student-profile',
-      component: StudentDashboard,
+      component: () => import('../views/RoleProfileView.vue'),
+      meta: { profileRole: 'student', allowedRoles: ['student'] },
     },
     {
       path: '/student-residence',
       name: 'student-residence',
       component: () => import('../views/StudentResidence.vue'),
+      meta: { allowedRoles: ['student'] },
     },
     {
       path: '/provider-dashboard',
@@ -121,7 +126,8 @@ const router = createRouter({
     {
       path: '/provider-profile',
       name: 'provider-profile',
-      component: () => import('../views/ProviderProfile.vue'),
+      component: () => import('../views/RoleProfileView.vue'),
+      meta: { profileRole: 'service_provider', allowedRoles: ['service_provider'] },
     },
     {
       path: '/admin-dashboard',
@@ -136,13 +142,15 @@ const router = createRouter({
     {
       path: '/resmanager-payments',
       name: 'resmanager-payments',
-      component: () => import('../views/ResidencePortal.vue'),
+      component: () => import('../views/ResManagerPayments.vue'),
+      meta: { allowedRoles: ['res_manager', 'resmanager'] },
     },
     {
       // Dedicated manager profile, matching ProviderProfile (/provider-profile).
       path: '/resmanager-profile',
       name: 'resmanager-profile',
-      component: () => import('../views/ResManagerProfile.vue'),
+      component: () => import('../views/RoleProfileView.vue'),
+      meta: { profileRole: 'res_manager', allowedRoles: ['res_manager', 'resmanager'] },
     },
     {
       path: '/notifications',
@@ -153,11 +161,13 @@ const router = createRouter({
       path: '/safehome',
       name: 'safehome',
       component: SafeHomeView,
+      meta: { allowedRoles: ['student', 'service_provider', 'res_manager', 'resmanager'] },
     },
     {
       path: '/checkout',
       name: 'checkout',
       component: CheckoutView,
+      meta: { allowedRoles: ['student', 'res_manager', 'resmanager', 'admin'] },
     },
     {
       path: '/admin',
@@ -196,7 +206,8 @@ const router = createRouter({
         {
           path: 'profile',
           name: 'admin-profile',
-          component: AdminDashboard,
+          component: () => import('../views/RoleProfileView.vue'),
+          meta: { profileRole: 'admin' },
         },
       ],
     },
@@ -211,9 +222,13 @@ const router = createRouter({
 const privatePrefixes = ['/student-dashboard', '/student-profile', '/student-residence', '/provider-', '/admin', '/resmanager-', '/books', '/marketplace', '/sell-item', '/checkout', '/safehome', '/notifications', '/swap-requests']
 
 router.beforeEach((to) => {
+  const loggedIn = store.getters['user/isLoggedIn'] && localStorage.getItem('isLoggedIn') === 'true'
   const requiresLogin = privatePrefixes.some(prefix => prefix.endsWith('-') ? to.path.startsWith(prefix) : to.path === prefix || to.path.startsWith(`${prefix}/`))
-  if (requiresLogin && !store.getters['user/isLoggedIn'] && localStorage.getItem('isLoggedIn') !== 'true') {
-    return { name: 'login', query: { redirect: to.fullPath } }
+  if (requiresLogin && !loggedIn) return { name: 'login', query: { redirect: to.fullPath } }
+
+  const allowedRoles = to.meta.allowedRoles
+  if (allowedRoles && (!loggedIn || !allowedRoles.includes(roleForRoute(store.getters['user/currentUser']?.role)))) {
+    return loggedIn ? { name: 'home' } : { name: 'login', query: { redirect: to.fullPath } }
   }
   return true
 })

@@ -7,11 +7,6 @@
         ← Back to Home
       </button>
 
-      <!-- Demo Banner -->
-      <div class="demo-banner">
-        <span>⚡ <strong>DEMO PAYMENT SYSTEM</strong> — Safe Sandbox Mode (No Real Money Charged)</span>
-      </div>
-
       <!-- Navigation Tabs -->
       <div class="nav-tabs">
         <button 
@@ -53,7 +48,7 @@
 
           <!-- Dynamic Pickup Zone -->
           <div class="pickup-box">
-            <label>📍 Secure On-Campus Pickup Zone</label>
+            <label><AppIcon name="building" /> Secure On-Campus Pickup Zone</label>
             <select v-model="selectedCampus" class="select-input">
               <option v-for="uni in universities" :key="uni.id" :value="uni.name">
                 {{ uni.name }} ({{ uni.province }})
@@ -105,7 +100,7 @@
           <!-- Card Payment Form -->
           <div v-if="paymentMethod === 'card'" class="card-form-box">
             <div class="test-cards-hint">
-              <small>💡 <strong>Test Cards:</strong> Use standard 16 digits for Success. End in <code>4000</code> or <code>0000</code> to test Declined state.</small>
+              <small><AppIcon name="info" /> <strong>Test Cards:</strong> Use standard 16 digits for Success. End in <code>4000</code> or <code>0000</code> to test Declined state.</small>
             </div>
             <div class="form-group">
               <label>Cardholder Name</label>
@@ -137,8 +132,9 @@
 
       <!-- TAB 2: SAFEHOME REPAIRS -->
       <div v-if="activeTab === 'repairs'" class="tab-body">
-        <h2 class="title">SafeHome Repairs</h2>
-        
+        <h2 class="title">SafeHome Requests</h2>
+        <p class="payment-note">SafeHome repairs are paid by the Residence Manager. Students can track requests here and are not charged.</p>
+
         <div v-if="repairs.length === 0" class="empty-box">
           <p>No active repair requests found.</p>
         </div>
@@ -148,11 +144,11 @@
             <div class="item-info">
               <h4>{{ repair.title }}</h4>
               <p class="repair-desc">{{ repair.description }}</p>
-              <p class="location-tag">📍 {{ repair.residence_name }} - {{ repair.room_number }}</p>
+              <p class="location-tag"><AppIcon name="building" /> {{ repair.residence_name }} - {{ repair.room_number }}</p>
               <p class="price">Estimated Cost: R{{ Number(repair.estimated_cost).toFixed(2) }}</p>
             </div>
-            <button class="btn-pay-main btn-sm" :disabled="isProcessing" @click="handleRepairPayment(repair)">
-              Book Repair into Escrow
+            <button class="btn-pay-main btn-sm" @click="router.push('/safehome')">
+              Track request in SafeHome
             </button>
           </div>
         </div>
@@ -247,14 +243,14 @@ const getFallbackRepairs = () => [
 
 const loadBackendData = async () => {
   try {
-    const prodRes = await fetch('http://localhost:3000/api/products').catch(() => null);
+    const prodRes = await fetch(`${import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'}/products`).catch(() => null);
     if (prodRes && prodRes.ok) {
       cartItems.value = await prodRes.json();
     } else {
       cartItems.value = getFallbackCartItems();
     }
 
-    const uniRes = await fetch('http://localhost:3000/api/universities').catch(() => null);
+    const uniRes = await fetch(`${import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'}/universities`).catch(() => null);
     if (uniRes && uniRes.ok) {
       universities.value = await uniRes.json();
     } else {
@@ -264,7 +260,7 @@ const loadBackendData = async () => {
       selectedCampus.value = universities.value[0].name;
     }
 
-    const repairRes = await fetch('http://localhost:3000/api/repairs').catch(() => null);
+    const repairRes = await fetch(`${import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'}/repairs`).catch(() => null);
     if (repairRes && repairRes.ok) {
       const data = await repairRes.json();
       repairs.value = Array.isArray(data) && data.length > 0 ? data : getFallbackRepairs();
@@ -622,6 +618,8 @@ const releaseFunds = (orderId) => {
   color: #166534;
 }
 
+.method-card input[type='radio'] { appearance: auto; accent-color: #2e7d5a; display: block; height: 16px; margin: 0; min-width: 16px; opacity: 1; position: static; width: 16px; }
+
 .card-form-box {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -699,6 +697,8 @@ const releaseFunds = (orderId) => {
   cursor: pointer;
   margin-top: 8px;
 }
+
+.payment-note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; color: #1e40af; font-size: 0.85rem; margin-bottom: 16px; padding: 12px; }
 
 .empty-box {
   text-align: center;

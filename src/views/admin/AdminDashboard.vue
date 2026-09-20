@@ -271,44 +271,6 @@
 
     </div>
 
-    <!-- BOTTOM PILL NAV -->
-    <div class="bottom-nav-wrap">
-      <button class="bottom-nav-toggle" @click="bottomNavOpen = !bottomNavOpen" aria-label="Toggle quick nav">
-        <AppIcon :name="bottomNavOpen ? 'close' : 'plus'" />
-      </button>
-
-      <nav class="bottom-nav" v-show="bottomNavOpen">
-        <router-link to="/" class="bottom-nav-item" active-class="active">
-          <AppIcon name="home" />
-          <span>Home</span>
-        </router-link>
-        <router-link to="/admin" class="bottom-nav-item" active-class="active">
-          <AppIcon name="dashboard" />
-          <span>Dashboard</span>
-        </router-link>
-        <router-link to="/admin/users" class="bottom-nav-item" active-class="active">
-          <AppIcon name="user" />
-          <span>Users</span>
-        </router-link>
-        <router-link to="/admin/premium" class="bottom-nav-item" active-class="active">
-          <AppIcon name="star" />
-          <span>Premium</span>
-        </router-link>
-        <router-link to="/admin/advertise" class="bottom-nav-item" active-class="active">
-          <AppIcon name="megaphone" />
-          <span>Advertise</span>
-        </router-link>
-        <router-link to="/admin/promote" class="bottom-nav-item" active-class="active">
-          <AppIcon name="rocket" />
-          <span>Promote</span>
-        </router-link>
-        <router-link to="/admin/profile" class="bottom-nav-item" active-class="active">
-          <AppIcon name="user" />
-          <span>Profile</span>
-        </router-link>
-      </nav>
-    </div>
-
   </section>
 </template>
 

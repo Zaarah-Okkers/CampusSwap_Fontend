@@ -201,11 +201,15 @@ export default {
       localStorage.removeItem('user')
     },
     switchUser({ commit, state }, userId) {
-      const userExists = state.users.some(user => user.id === userId)
+      const selectedUser = state.users.find(user => user.id === userId)
+      const userExists = Boolean(selectedUser)
       commit('switchUser', userId)
       if (userExists) {
         commit('setLoggedIn', true)
         localStorage.setItem('isLoggedIn', 'true')
+        // Profile/dashboard views use the persisted session after navigation,
+        // so role switching must update it as well as the in-memory store.
+        localStorage.setItem('user', JSON.stringify(selectedUser))
       }
       return userExists
     },

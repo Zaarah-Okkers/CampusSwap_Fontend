@@ -15,15 +15,10 @@ if (savedUser && savedUser.id !== 'logged-out' && savedUser.role !== 'logged_out
   store.commit('user/setLoggedIn', true)
   localStorage.setItem('isLoggedIn', 'true')
 } else if (!savedUser) {
-  // If no saved user session exists yet, initialize from default store student
-  const defaultUser = store.getters['user/currentUser']
-  if (defaultUser && defaultUser.id && defaultUser.id !== 'logged-out' && defaultUser.role !== 'logged_out') {
-    session.save(defaultUser)
-    store.commit('user/setLoggedIn', true)
-    localStorage.setItem('isLoggedIn', 'true')
-  } else {
-    localStorage.removeItem('isLoggedIn')
-  }
+  // A visitor without a saved session is a public visitor. Do not turn them
+  // into the seeded student account simply by opening the site.
+  store.commit('user/logout')
+  localStorage.removeItem('isLoggedIn')
 } else {
   localStorage.removeItem('isLoggedIn')
 }

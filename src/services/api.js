@@ -12,7 +12,7 @@ import {
   mockUser,
 } from './mockData';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api';
 
 // ------------------------------------------------------------------
 // RUN WITHOUT THE BACKEND
@@ -21,7 +21,7 @@ const API_BASE = 'http://localhost:3000/api';
 // usable with no server running. Flip it to false to talk to the real
 // backend again — no other change is needed anywhere in the app.
 // ------------------------------------------------------------------
-export const USE_MOCK = true;
+export const USE_MOCK = false;
 
 // Small helper so mocked calls still look asynchronous to callers.
 const mock = (data) =>

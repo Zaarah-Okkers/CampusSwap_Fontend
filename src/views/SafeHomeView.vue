@@ -144,7 +144,7 @@
         <!-- Dashboard -->
         <li>
           <router-link
-            to="/admin-dashboard"
+            :to="dashboardRoute"
             @click="closeSideNav"
           >
             Dashboard
@@ -412,7 +412,7 @@
                   v-if="provider.is_verified"
                   class="verified"
                 >
-                  ✓ Verified
+                  <AppIcon name="check" /> Verified
                 </span>
               </div>
 
@@ -452,11 +452,11 @@
                         !getQuoteForm(provider.id).photoPreview
                       "
                     >
-                      📷 Add a photo
+                      <AppIcon name="upload" /> Add a photo
                     </span>
 
                     <span v-else>
-                      ✓ Photo attached
+                      <AppIcon name="check" /> Photo attached
                     </span>
                   </label>
 
@@ -562,13 +562,14 @@ import {
 
 import Swal from 'sweetalert2'
 import AppIcon from '../components/AppIcon.vue'
+import { useRouter } from 'vue-router'
+import { session, dashboardRoutes } from '../services/api'
 
 /* =========================================================
    API
 ========================================================= */
 
-const API_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_URL = import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'
 
 
 /* =========================================================
@@ -576,7 +577,9 @@ const API_URL =
 ========================================================= */
 
 const sideNavOpen = ref(false)
-const userRole = ref('student')
+const router = useRouter()
+  const userRole = ref(session.get()?.role || '')
+const dashboardRoute = computed(() => dashboardRoutes[userRole.value] || '/')
 
 function toggleSideNav() {
   sideNavOpen.value = !sideNavOpen.value
@@ -602,6 +605,8 @@ function logout() {
     cancelButtonText: 'Cancel'
   }).then((result) => {
     if (result.isConfirmed) {
+      session.clear()
+      localStorage.removeItem('isLoggedIn')
       Swal.fire({
         title: 'Logged Out',
         text: 'You have been logged out successfully.',
@@ -609,7 +614,7 @@ function logout() {
         timer: 1500,
         showConfirmButton: false
       }).then(() => {
-        window.location.href = '/login'
+        router.push('/login')
       })
     }
   })
@@ -656,6 +661,14 @@ const loadingProviders = ref(false)
 ========================================================= */
 
 const services = ref([])
+const fallbackServices = [
+  { id: 1, name: 'Plumbing' },
+  { id: 2, name: 'Electrical' },
+  { id: 3, name: 'Cleaning' },
+  { id: 4, name: 'Gardening' },
+  { id: 5, name: 'Security' },
+  { id: 6, name: 'Handyman' }
+]
 
 
 /* =========================================================
@@ -664,15 +677,15 @@ const services = ref([])
 
 function getServiceIcon(serviceName) {
   const icons = {
-    Plumbing: '🔧',
-    Electrical: '⚡',
-    Cleaning: '🧹',
-    Gardening: '🌱',
-    Security: '🛡️',
-    Handyman: '🛠️'
+    Plumbing: 'wrench',
+    Electrical: 'tools',
+    Cleaning: 'settings',
+    Gardening: 'settings',
+    Security: 'shield',
+    Handyman: 'tools'
   }
 
-  return icons[serviceName] || '🔧'
+  return icons[serviceName] || 'wrench'
 }
 
 
@@ -740,6 +753,13 @@ async function fetchServices() {
       icon: getServiceIcon(service.name),
       description: getServiceDescription(service.name)
     }))
+    if (!services.value.length) {
+      services.value = fallbackServices.map((service) => ({
+        ...service,
+        icon: getServiceIcon(service.name),
+        description: getServiceDescription(service.name)
+      }))
+    }
 
   } catch (error) {
     console.error(
@@ -747,13 +767,12 @@ async function fetchServices() {
       error
     )
 
-    Swal.fire({
-      title: 'Unable to load services',
-      text:
-        'Could not connect to the SafeHome API. Please make sure the backend is running on port 3000.',
-      icon: 'error',
-      confirmButtonText: 'Okay'
-    })
+    // Keep SafeHome usable when the API is sleeping or unavailable.
+    services.value = fallbackServices.map((service) => ({
+      ...service,
+      icon: getServiceIcon(service.name),
+      description: getServiceDescription(service.name)
+    }))
 
   } finally {
     loadingServices.value = false
@@ -898,15 +917,9 @@ async function fetchProviders(serviceName = '') {
       error
     )
 
+    // Backend is unavailable: do not present dummy providers as live listings.
     providers.value = []
 
-    Swal.fire({
-      title: 'Unable to load providers',
-      text:
-        'Could not connect to the SafeHome API. Please make sure the backend is running on port 3000.',
-      icon: 'error',
-      confirmButtonText: 'Okay'
-    })
 
   } finally {
     loadingProviders.value = false
@@ -1017,7 +1030,7 @@ async function findEmergencyHelp() {
 
   if (providers.value.length > 0) {
     Swal.fire({
-      title: '🚨 Emergency Help',
+      title: 'Emergency Help',
       text:
         'Emergency providers are now being shown.',
       icon: 'warning',
@@ -1143,12 +1156,12 @@ function getQuote(provider) {
 
   if (form.photo) {
     message +=
-      `\n📷 Photo attached: ${form.photo.name}`
+      `\nPhoto attached: ${form.photo.name}`
   }
 
   if (isEmergencyMode.value) {
     message +=
-      `\n\n🚨 Priority: EMERGENCY`
+      `\n\nPriority: EMERGENCY`
   }
 
   /*
@@ -1166,7 +1179,7 @@ function getQuote(provider) {
   Swal.fire({
     title:
       isEmergencyMode.value
-        ? '🚨 Quote Ready'
+        ? 'Emergency Quote Ready'
         : 'Quote Ready',
 
     text: message,

@@ -4,6 +4,11 @@
       <button class="action" :class="{ active: activeTab === 'marketplace' }" @click="selectTab('marketplace')">Marketplace</button>
       <button class="action" :class="{ active: activeTab === 'books' }" @click="selectTab('books')">Booksphere</button>
     </nav>
+    <label v-if="activeTab === 'marketplace'" class="market-search">
+      <span>Search listings</span>
+      <input v-model="searchQuery" type="search" placeholder="Books, electronics, furniture…" />
+    </label>
+    <p v-if="loadMessage && activeTab === 'marketplace'" class="listing-status">{{ loadMessage }}</p>
     <ProductGrid v-if="activeTab === 'marketplace'" :products="filteredProducts" :category="category" :saved-ids="savedIds" @update:category="category = $event" @select="selectedProduct = $event" @open-sell="goToSell" @toggle-save="toggleSaved" />
     <Bookstore v-else embedded />
     <ProductModal
@@ -17,7 +22,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import ProductGrid from '../components/ProductGrid.vue'
@@ -26,7 +31,6 @@ import Bookstore from './Bookstore.vue'
 import swalTheme from '../utils/swalTheme'
 // Listings come from the shared dummy dataset so the marketplace and the
 // homepage featured grid always show the same items.
-import { marketplaceListings } from '../services/mockData'
 
 const router = useRouter()
 const route = useRoute()
@@ -35,8 +39,32 @@ const activeTab = ref(route.query.tab === 'books' ? 'books' : 'marketplace')
 const category = ref('all')
 const selectedProduct = ref(null)
 const savedIds = ref(new Set())
-const products = ref(marketplaceListings)
-const filteredProducts = computed(() => category.value === 'all' ? products.value : products.value.filter(product => product.category === category.value))
+const products = ref([])
+const searchQuery = ref(route.query.q || '')
+const loadMessage = ref('')
+const filteredProducts = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase()
+  return products.value.filter(product => {
+    const categoryMatch = category.value === 'all' || product.category === category.value
+    const searchable = [product.name, product.title, product.description, product.category].filter(Boolean).join(' ').toLowerCase()
+    return categoryMatch && (!q || searchable.includes(q))
+  })
+})
+
+async function loadListings() {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'}/products`)
+    if (!response.ok) throw new Error('Listings service unavailable')
+    const data = await response.json()
+    products.value = Array.isArray(data) ? data : (data.products || [])
+    if (!products.value.length) loadMessage.value = 'No listings are available yet.'
+  } catch {
+    products.value = []
+    loadMessage.value = 'Listings coming soon — we could not connect to the listings service.'
+  }
+}
+
+onMounted(loadListings)
 
 function toggleSaved(productId) {
   const next = new Set(savedIds.value)
@@ -80,6 +108,7 @@ function selectTab(tab) {
 watch(() => route.query.tab, (tab) => {
   activeTab.value = tab === 'books' ? 'books' : 'marketplace'
 })
+watch(() => route.query.q, (q) => { searchQuery.value = q || '' })
 </script>
 
 <style scoped>
@@ -88,5 +117,8 @@ watch(() => route.query.tab, (tab) => {
 .marketplace-actions::-webkit-scrollbar { display: none; }
 .action { background: var(--glass-strong); border: 1px solid var(--glass-border); border-radius: 9px; color: var(--text-muted); cursor: pointer; font-size: 13px; font-weight: 700; padding: 10px 14px; transition: background .2s ease, color .2s ease; white-space: nowrap; }
 .action.active, .action:hover { background: var(--gold-soft); color: var(--gold); }
+.market-search { display: grid; gap: 6px; max-width: 1100px; margin: 0 auto 18px; color: var(--text-muted); font-size: 13px; font-weight: 700; }
+.market-search input { background: var(--glass-strong); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text); font: inherit; padding: 12px 14px; }
+.listing-status { max-width: 1100px; margin: 0 auto 18px; color: var(--text-muted); }
 @media (max-width: 640px) { .marketplace-page { padding: 24px 14px 110px; } }
 </style>

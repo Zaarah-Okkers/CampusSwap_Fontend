@@ -27,6 +27,8 @@
           </span>
 
           <input
+            v-model="searchQuery"
+            @keyup.enter="searchMarketplace"
             type="text"
             class="search-input"
             placeholder="Search books, services, and more..."
@@ -232,16 +234,16 @@
 
         <div class="tutorial-actions" v-if="isLoggedIn">
 
-          <button class="btn-outline-gold" @click="goToAcademic">
+          <button v-if="canUseMarketplace" class="btn-outline-gold" @click="goToAcademic">
             Browse Academic Marketplace
           </button>
 
-          <button class="btn-outline-green" @click="goToSafeHome">
+          <button v-if="canUseSafeHome" class="btn-outline-green" @click="goToSafeHome">
             Book SafeHome Repairs
           </button>
 
           <button class="btn-outline-green" @click="$router.push(dashboardRoute)">
-            Go to My Dashboard
+            {{ user.role === 'student' ? 'Go Back to My Dashboard' : 'Go Back to Dashboard' }}
           </button>
 
         </div>
@@ -300,7 +302,7 @@
               class="product-img"
             />
             <div v-else class="item-image">
-              📱
+              <AppIcon name="package" />
             </div>
 
             <h4>
@@ -353,12 +355,12 @@
 
         <h3 class="footer-logo">
           CampusSwap
-          
+
           <span class="green-text">
             SA
           </span>
         </h3>
-         
+
         <p>
           South Africa's trusted, student-only platform for secure peer trading,
           verified off-campus support services, and educational material exchange.
@@ -450,7 +452,8 @@ export default {
         name: 'Guest',
         role: '',
         university: ''
-      }
+      },
+      searchQuery: ''
     };
   },
 
@@ -492,9 +495,10 @@ export default {
         student: 'Student',
         service_provider: 'Service Provider',
         res_manager: 'Residence Manager',
+        resmanager: 'Residence Manager',
         admin: 'Administrator'
       };
-      return labels[this.user.role] || 'Student';
+      return labels[this.user.role] || 'Public visitor';
     },
 
     // Where the Dashboard link should go based on the user's role.
@@ -504,7 +508,13 @@ export default {
 
     // Who sees Checkout? Students, admins and res managers (not providers).
     showCheckout() {
-      return ['student', 'admin', 'res_manager'].includes(this.user.role);
+      return ['student', 'admin', 'res_manager', 'resmanager'].includes(this.user.role);
+    },
+    canUseMarketplace() {
+      return ['student', 'admin'].includes(this.user.role);
+    },
+    canUseSafeHome() {
+      return ['student', 'service_provider', 'res_manager', 'resmanager'].includes(this.user.role);
     }
   },
 
@@ -535,6 +545,12 @@ export default {
     // Tutorial section login button.
     goToLogin() {
       this.$router.push('/login');
+    },
+
+    searchMarketplace() {
+      const q = this.searchQuery.trim();
+      if (!q) return;
+      this.$router.push({ path: '/marketplace', query: { q } });
     },
 
     // Logout from the tutorial / dashboard shortcut area.
@@ -573,11 +589,13 @@ export default {
 
     // Redirect to the marketplace route.
     goToAcademic() {
+      if (!this.canUseMarketplace) return this.goToLogin();
       this.$router.push('/marketplace');
     },
 
     // Redirect to the SafeHome route.
     goToSafeHome() {
+      if (!this.canUseSafeHome) return this.goToLogin();
       this.$router.push('/safehome');
     }
   }
@@ -586,6 +604,16 @@ export default {
 </script>
 
 <style scoped>
+
+.account-button {
+  background: #f5b941;
+  border: 0;
+  border-radius: 8px;
+  color: #0d1b3d;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 9px 14px;
+}
   
   .home-page {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

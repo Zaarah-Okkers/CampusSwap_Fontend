@@ -96,7 +96,7 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
       <div class="greeting-block">
         <div>
           <h2 class="dashboard-title">
-            Hi, {{ user.full_name || user.name || 'Student' }} 👋
+            Hi, {{ user.full_name || user.name || 'Student' }}
           </h2>
           <p class="university-text">
             {{ isStudent ? (user.university || 'CampusSwap Student') : 'Welcome back' }}
@@ -241,7 +241,7 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
 
       <!-- Quick Services Card -->
       <div class="card grid-full">
-        <h3 class="card-heading">Campus Services</h3>
+        <h3 class="card-heading">Account Management</h3>
 
         <div class="menu-item">
           <router-link to="/marketplace" class="menu-link">
@@ -432,9 +432,9 @@ export default {
       })
 
       if (result.isConfirmed) {
-        session.clear()
+        await this.$store.dispatch('user/logout')
         await Swal.fire('Logged Out', 'You have been logged out successfully.', 'success')
-        this.$router.push('/login')
+        this.$router.push('/')
       }
     },
 

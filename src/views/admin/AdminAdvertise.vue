@@ -33,7 +33,7 @@
     </div>
 
     <div class="ads-list">
-      <h3>📋 Recent Ads</h3>
+      <h3><AppIcon name="report" /> Recent Ads</h3>
       <div v-for="ad in ads" :key="ad.id" class="ad-item glass-panel">
         <div class="ad-header">
           <span class="ad-title">{{ ad.title }}</span>
@@ -41,7 +41,7 @@
         </div>
         <p class="ad-description">{{ ad.description }}</p>
         <div class="ad-footer">
-          <span class="ad-target">🎯 {{ ad.target }}</span>
+          <span class="ad-target"><AppIcon name="settings" /> {{ ad.target }}</span>
           <button class="delete-btn" @click="deleteAd(ad.id)" aria-label="Delete advertisement"><AppIcon name="trash" /></button>
         </div>
       </div>

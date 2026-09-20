@@ -3,84 +3,6 @@
 <template>
   <section class="admin-dash">
 
-    <!-- TOP BAR -->
-    <header class="top-bar">
-      <div class="top-left">
-        <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
-          <span class="hamburger-icon">
-            <AppIcon name="menu" />
-          </span>
-        </button>
-
-        <router-link to="/" class="brand-link">
-          <h2 class="brand">
-            CampusSwap<span class="green-text">SA</span>
-          </h2>
-        </router-link>
-      </div>
-
-      <div class="top-center">
-        <div class="search-wrap">
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Search books, services, and more..."
-          />
-        </div>
-      </div>
-
-      <div class="top-right">
-        <div class="notification-bell" @click="showBellNotifications">
-          <span class="bell-icon">
-            <AppIcon name="bell" />
-          </span>
-          <span class="notification-dot"></span>
-        </div>
-
-        <span class="avatar">
-          {{ userInitials }}
-        </span>
-      </div>
-    </header>
-
-    <!-- SIDE NAV -->
-    <div
-      class="side-overlay"
-      :class="{ 'side-overlay-open': sideNavOpen }"
-      @click="closeSideNav"
-    ></div>
-
-    <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
-      <div class="side-nav-header">
-        <h3>
-          CampusSwap<span class="green-text">SA</span>
-        </h3>
-        <button class="close-side-btn" @click="closeSideNav">&times;</button>
-      </div>
-
-      <ul class="side-nav-links">
-        <li>
-          <router-link to="/" @click="closeSideNav">Home</router-link>
-        </li>
-
-        <li>
-          <router-link to="/safehome" @click="closeSideNav">SafeHome</router-link>
-        </li>
-
-        <li v-if="userRole === 'student' || userRole === 'admin' || userRole === 'resmanager'">
-          <router-link to="/checkout" @click="closeSideNav">Checkout</router-link>
-        </li>
-
-        <li>
-          <router-link to="/admin-dashboard" @click="closeSideNav">Dashboard</router-link>
-        </li>
-      </ul>
-
-      <div class="side-nav-logout">
-        <button class="logout-btn" @click="logout">Logout</button>
-      </div>
-    </div>
-
     <!-- MAIN DASHBOARD CONTENT -->
     <div class="dashboard-container">
 
@@ -271,41 +193,18 @@
 
     </div>
 
-    <!-- BOTTOM PILL NAV -->
+    <!-- Bottom admin navigation (kept without the header or slide-out nav). -->
     <div class="bottom-nav-wrap">
-      <button class="bottom-nav-toggle" @click="bottomNavOpen = !bottomNavOpen" aria-label="Toggle quick nav">
+      <button class="bottom-nav-toggle" @click="bottomNavOpen = !bottomNavOpen" aria-label="Toggle admin navigation">
         <AppIcon :name="bottomNavOpen ? 'close' : 'plus'" />
       </button>
-
-      <nav class="bottom-nav" v-show="bottomNavOpen">
-        <router-link to="/" class="bottom-nav-item" active-class="active">
-          <AppIcon name="home" />
-          <span>Home</span>
-        </router-link>
-        <router-link to="/admin" class="bottom-nav-item" active-class="active">
-          <AppIcon name="dashboard" />
-          <span>Dashboard</span>
-        </router-link>
-        <router-link to="/admin/users" class="bottom-nav-item" active-class="active">
-          <AppIcon name="user" />
-          <span>Users</span>
-        </router-link>
-        <router-link to="/admin/premium" class="bottom-nav-item" active-class="active">
-          <AppIcon name="star" />
-          <span>Premium</span>
-        </router-link>
-        <router-link to="/admin/advertise" class="bottom-nav-item" active-class="active">
-          <AppIcon name="megaphone" />
-          <span>Advertise</span>
-        </router-link>
-        <router-link to="/admin/promote" class="bottom-nav-item" active-class="active">
-          <AppIcon name="rocket" />
-          <span>Promote</span>
-        </router-link>
-        <router-link to="/admin/profile" class="bottom-nav-item" active-class="active">
-          <AppIcon name="user" />
-          <span>Profile</span>
-        </router-link>
+      <nav v-show="bottomNavOpen" class="bottom-nav" aria-label="Admin navigation">
+        <router-link to="/" class="bottom-nav-item"><AppIcon name="home" /><span>Home</span></router-link>
+        <router-link to="/admin" class="bottom-nav-item"><AppIcon name="dashboard" /><span>Dashboard</span></router-link>
+        <router-link to="/admin/users" class="bottom-nav-item"><AppIcon name="user" /><span>Users</span></router-link>
+        <router-link to="/admin/premium" class="bottom-nav-item"><AppIcon name="star" /><span>Premium</span></router-link>
+        <router-link to="/admin/advertise" class="bottom-nav-item"><AppIcon name="megaphone" /><span>Advertise</span></router-link>
+        <router-link to="/admin/promote" class="bottom-nav-item"><AppIcon name="rocket" /><span>Promote</span></router-link>
       </nav>
     </div>
 

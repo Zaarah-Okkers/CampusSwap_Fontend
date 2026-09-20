@@ -1,18 +1,16 @@
 <template>
  <div class="admin-layout">
-    <AdminHeader />
     <div class="admin-body">
-      <AdminSidebar />
       <main class="admin-content">
         <router-view />
       </main>
     </div>
+    <SideNav />
  </div>
 </template>
 
 <script setup>
-import AdminHeader from '../components/admin/AdminHeader.vue'
-import AdminSidebar from '../components/admin/AdminSidebar.vue'
+import SideNav from '../components/SideNav.vue'
 </script>
 
 <style scoped>
@@ -27,9 +25,8 @@ import AdminSidebar from '../components/admin/AdminSidebar.vue'
 }
 
 .admin-content {
-  flex: 1;
-  min-width: 0;
-  padding: 24px 32px;
+  width: 100%;
+  padding: 24px 32px 120px;
 }
 
 @media (max-width: 768px) {

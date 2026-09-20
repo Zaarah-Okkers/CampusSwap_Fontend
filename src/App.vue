@@ -8,8 +8,8 @@
       </div>
     </div>
 
-    <SideNav />
-    <NotificationBell v-if="isLoggedIn" />
+    <SideNav v-if="!isAdminRoute" />
+    <NotificationBell v-if="isLoggedIn && !isAdminRoute" />
 
     <FilterSidebar
       v-if="showFilters && !isAdminRoute"

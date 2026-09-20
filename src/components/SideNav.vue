@@ -71,9 +71,8 @@ const studentTabs = [
   { key: 'marketplace', label: 'Marketplace', path: '/marketplace', icon: 'M3 3h18v18H3z M3 9h18 M9 21V9' },
   { key: 'swaps', label: 'Swaps', path: '/swap-requests', icon: 'M7 16V4 M3 8l4-4 4 4 M17 8v12 M13 16l4 4 4-4' },
   { key: 'safehome', label: 'SafeHome', path: '/safehome', icon: 'M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z M9 12l2 2 4-4' },
-  { key: 'residence', label: 'Residence', path: '/student-residence', icon: 'M3 3h18v18H3z M3 9h18 M9 21V9' },
   { key: 'checkout', label: 'Checkout', path: '/checkout', icon: 'M2 7h20v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z M2 11h20 M6 15h4' },
-  { key: 'profile', label: 'Profile', path: '/student-dashboard', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z' },
+  { key: 'dashboard', label: 'Dashboard', path: '/student-dashboard', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z' },
 ]
 
 const providerTabs = [
@@ -95,7 +94,7 @@ const adminTabs = [
 const resmanagerTabs = [
   { key: 'dashboard', label: 'Dashboard', path: '/resmanager-dashboard', icon: 'M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z' },
   { key: 'safehome', label: 'SafeHome', path: '/safehome', icon: 'M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z M9 12l2 2 4-4' },
-  { key: 'residence', label: 'Residence', path: '/resmanager-payments', icon: 'M3 3h18v18H3z M3 9h18 M9 21V9' },
+  { key: 'payments', label: 'Provider Payments', path: '/resmanager-payments', icon: 'M2 7h20v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z M2 11h20 M6 15h4' },
   { key: 'profile', label: 'Profile', path: '/resmanager-profile', icon: 'M20 21v-2a4 4 0 0 1-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z' }
 ]
 
@@ -107,7 +106,7 @@ const authenticatedPublicTabs = publicTabs.filter(tab => tab.key === 'home')
 
 const visibleTabs = computed(() => {
   if (!isLoggedIn.value) return [...publicTabs, loginTab]
-  const roleTabs = { student: studentTabs, service_provider: providerTabs, admin: adminTabs, resmanager: resmanagerTabs }
+  const roleTabs = { student: studentTabs, service_provider: providerTabs, admin: adminTabs, resmanager: resmanagerTabs, res_manager: resmanagerTabs }
   return [...authenticatedPublicTabs, ...(roleTabs[store.getters['user/currentUser'].role] || studentTabs), logoutTab]
 })
 
@@ -141,18 +140,16 @@ function selectTab(key) {
   left: 50%;
   bottom: 20px;
   z-index: 1000;
-  border-radius: 22px;
+  border-radius: 30px;
   display: flex;
-  justify-content: space-around;
-  padding: 6px 10px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-  background: var(--ink-elevated);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  gap: 4px;
-  width: min(calc(100vw - 24px), 820px);
-  max-width: 820px;
+  justify-content: center;
+  padding: 10px 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background: #0d1b3d;
+  border: 0;
+  gap: 6px;
+  width: auto;
+  max-width: 95vw;
   overflow: hidden;
   scrollbar-width: none;
   visibility: visible;
@@ -174,26 +171,26 @@ function selectTab(key) {
 .tab {
   background: none;
   border: none;
-  color: var(--text-faint);
+  color: #9ca3af;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 6px 8px;
-  border-radius: 14px;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 16px;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   transition: all 0.2s ease;
   min-width: 0;
-  flex: 1 1 0;
+  flex: 0 0 auto;
   white-space: normal;
   text-align: center;
 }
 
 .tab:hover {
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.05);
+  color: #f5b941;
+  background: rgba(245, 185, 65, 0.15);
 }
 
 .tab svg {
@@ -218,8 +215,8 @@ function selectTab(key) {
 }
 
 .tab.active {
-  color: var(--gold);
-  background: var(--gold-soft);
+  color: #f5b941;
+  background: rgba(245, 185, 65, 0.15);
 }
 
 .tab.active svg {
@@ -237,18 +234,18 @@ function selectTab(key) {
   left: 50%;
   bottom: 20px;
   z-index: 1001;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ink-elevated);
-  border: 1px solid var(--glass-border);
-  color: var(--text);
+  background: #0d1b3d;
+  border: 2px solid #f5b941;
+  color: #f5b941;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-  transform: translateX(-50%) translateY(-54px);
+  box-shadow: none;
+  transform: translateX(-50%) translateY(-44px);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
 }
 
@@ -257,7 +254,7 @@ function selectTab(key) {
 }
 
 .nav-toggle:hover {
-  background: var(--ink-soft);
+  background: #162754;
 }
 
 .nav-toggle:focus-visible {
@@ -278,16 +275,16 @@ function selectTab(key) {
 @media (max-width: 640px) {
   .bottom-nav {
     bottom: 12px;
-    padding: 5px 6px;
-    border-radius: 18px;
-    width: calc(100vw - 24px);
-    max-width: calc(100vw - 24px);
+    padding: 8px 10px;
+    border-radius: 26px;
+    width: auto;
+    max-width: 95vw;
     gap: 2px;
-    justify-content: flex-start;
+    justify-content: center;
   }
   .tab {
-    padding: 5px 2px;
-    font-size: 8px;
+    padding: 5px 7px;
+    font-size: 9px;
     line-height: 1.1;
     gap: 2px;
   }
@@ -296,10 +293,10 @@ function selectTab(key) {
     height: 16px;
   }
   .nav-toggle {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     bottom: 12px;
-    transform: translateX(-50%) translateY(-46px);
+    transform: translateX(-50%) translateY(-44px);
   }
   .nav-toggle.is-collapsed {
     transform: translateX(-50%) translateY(0);

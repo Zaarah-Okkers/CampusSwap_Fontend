@@ -23,7 +23,7 @@
         </div>
         <div class="premium-details">
           <div class="detail-item">
-            <span class="detail-label">📧 Email</span>
+            <span class="detail-label"><AppIcon name="send" /> Email</span>
             <span class="detail-value">{{ user.email }}</span>
           </div>
           <div class="detail-item">
@@ -31,7 +31,7 @@
             <span class="detail-value">{{ user.university || 'N/A' }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">📅 Joined</span>
+            <span class="detail-label"><AppIcon name="clock" /> Joined</span>
             <span class="detail-value">{{ formatDate(user.joined) }}</span>
           </div>
         </div>

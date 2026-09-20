@@ -2,12 +2,12 @@
   <main class="page">
     <section class="hero">
       <h1 class="eyebrow">About us</h1>
-      <h2 class="hero-title">We started because a textbook cost more than a month of groceries.</h2>
+      <h2 class="hero-title">One campus. Endless possibilities. All in one place.</h2>
       <p class="lede">
-        CampusSwap is a student-to-student marketplace for the things students
-        actually need — prescribed books, lab kit, res furniture, a room that
-        isn't a scam. Built by students who got tired of paying full price for
-        things sitting unused two doors down.
+        CampusSwap SA is a secure South African student platform that connects
+        verified students for peer-to-peer exchange of textbooks, technology and
+        study materials, with SafeHome support services for student residences.
+        Our purpose is to make campus life more affordable, convenient and safe.
       </p>
     </section>
 
@@ -55,26 +55,10 @@
 
 <script setup>
 const milestones = [
-  {
-    year: '2023',
-    title: 'One overpriced textbook',
-    body: 'Second-year student Naledi Mokoena paid R1 480 for a stats textbook she used for eleven weeks. A classmate two rows over was trying to give away the same edition. Neither of them knew.',
-  },
-  {
-    year: '2024',
-    title: 'A spreadsheet that got out of hand',
-    body: 'Naledi and housemates Yusuf Adams and Thabo Nkosi started a shared sheet for swapping books between three res blocks. By September it had 900 rows, four moderators and a waiting list.',
-  },
-  {
-    year: '2025',
-    title: 'CampusSwap goes live',
-    body: 'The spreadsheet became a proper platform, with verified student accounts, in-app chat and held payments so nobody has to meet a stranger behind the library with cash in hand.',
-  },
-  {
-    year: '2026',
-    title: 'Beyond books',
-    body: 'SafeHome launched after too many students got burned by ghost landlords. Today CampusSwap covers textbooks, lab kit, res furniture and vetted accommodation across four campuses.',
-  },
+  { year: '01', title: 'Create a verified account', body: 'Students and approved role users register with the information needed to use the platform safely.' },
+  { year: '02', title: 'Connect and exchange', body: 'Students can find, buy, sell or swap relevant campus goods through the secure marketplace.' },
+  { year: '03', title: 'Request trusted support', body: 'SafeHome connects residence repair requests with service providers and keeps progress visible.' },
+  { year: '04', title: 'Keep payments responsible', body: 'Marketplace buyers pay for their own purchases, while Residence Managers pay providers for SafeHome repairs.' },
 ]
 
 const values = [
@@ -97,9 +81,9 @@ const values = [
 ]
 
 const team = [
-  { name: 'Naledi Mokoena', role: 'Co-founder — Product', note: 'BCom Statistics. Still owns the R1 480 textbook.' },
-  { name: 'Yusuf Adams', role: 'Co-founder — Engineering', note: 'Built the first version during an exam study break. Do not ask about his marks that semester.' },
-  { name: 'Thabo Nkosi', role: 'Co-founder — Trust & Safety', note: 'Ran the original res WhatsApp group. Has seen every scam there is.' },
+  { name: 'CampusSwap SA', role: 'Student exchange platform', note: 'A secure platform built around the needs of South African students.' },
+  { name: 'Students', role: 'Verified community members', note: 'Students exchange useful academic and campus items at accessible prices.' },
+  { name: 'SafeHome network', role: 'Residence support', note: 'Service Providers and Residence Managers coordinate repairs and provider payments.' },
 ]
 </script>
 

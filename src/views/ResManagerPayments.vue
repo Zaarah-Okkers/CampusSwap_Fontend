@@ -2,12 +2,17 @@
   <main class="res-page">
     <div class="res-shell">
       <header class="page-heading">
-        <div><p class="eyebrow">Residence management</p><h1>Residence overview</h1><p class="muted">Track rent, resident actions, notices, and available rooms.</p></div>
+        <div><p class="eyebrow">SafeHome management</p><h1>Provider payments</h1><p class="muted">Approve completed SafeHome work and pay verified service providers.</p></div>
         <router-link class="button button-primary" to="/">Home</router-link>
       </header>
 
       <section class="summary-grid" aria-label="Residence summary">
         <article v-for="stat in summary" :key="stat.label" class="summary-card"><AppIcon :name="stat.icon" /><div><strong>{{ stat.value }}</strong><span>{{ stat.label }}</span></div></article>
+      </section>
+
+      <section class="panel provider-payment-panel">
+        <div class="panel-heading"><div><p class="eyebrow">SafeHome</p><h2>Provider invoices awaiting payment</h2></div></div>
+        <div class="outstanding-list"><article v-for="invoice in providerInvoices" :key="invoice.id" class="outstanding-row"><div><strong>{{ invoice.provider }}</strong><p>{{ invoice.job }} · {{ invoice.completed }}</p></div><span class="status status-upcoming">Ready to pay</span><strong>R{{ invoice.amount.toLocaleString() }}</strong><button class="text-button" @click="payProvider(invoice)">Pay provider</button></article></div>
       </section>
 
       <section class="panel">
@@ -46,6 +51,7 @@ const payments = ref([
 const extensionRequests = ref([{ id: 1, resident: 'Mia D.', residence: 'Room 212', reason: 'Funding payment delayed' }, { id: 2, resident: 'Naledi S.', residence: 'Room 401', reason: 'Awaiting bursary confirmation' }])
 const moveOuts = ref([{ id: 1, resident: 'Kabelo P.', residence: 'Room 106', reason: 'Notice issued', refuses: false }, { id: 2, resident: 'Jordan L.', residence: 'Room 220', reason: 'Refuses to leave after notice', refuses: true }])
 const availableResidences = ref([{ name: 'Smuts Hall', location: 'Upper campus', rooms: 6 }, { name: 'Claremont House', location: 'Claremont', rooms: 3 }, { name: 'Mowbray Residence', location: 'Mowbray', rooms: 9 }])
+const providerInvoices = ref([{ id: 1, provider: 'Cape Plumbing Co.', job: 'Leaking kitchen tap · Room 302', completed: 'Completed 18 Sep 2026', amount: 250 }, { id: 2, provider: 'Campus Electrical', job: 'Circuit-breaker repair · Room 114', completed: 'Completed 19 Sep 2026', amount: 180 }])
 const filteredPayments = computed(() => paymentFilter.value === 'all' ? payments.value : payments.value.filter(payment => payment.status === paymentFilter.value))
 const outstandingPayments = computed(() => payments.value.filter(payment => payment.status === 'late' || payment.status === 'upcoming'))
 const outstandingTotal = computed(() => outstandingPayments.value.reduce((total, payment) => total + payment.amount, 0))
@@ -56,6 +62,13 @@ const summary = computed(() => [
   { label: 'Available rooms', value: availableResidences.value.reduce((total, residence) => total + residence.rooms, 0), icon: 'building' }
 ])
 function statusLabel(status) { return status === 'upcoming' ? 'Coming up' : status.charAt(0).toUpperCase() + status.slice(1) }
+
+async function payProvider(invoice) {
+  const result = await swalTheme.fire({ title: 'Pay service provider?', text: `Pay ${invoice.provider} R${invoice.amount.toLocaleString()} for this completed job?`, icon: 'question', showCancelButton: true, confirmButtonText: 'Confirm payment' })
+  if (!result.isConfirmed) return
+  providerInvoices.value = providerInvoices.value.filter(item => item.id !== invoice.id)
+  await swalTheme.fire({ title: 'Payment recorded', text: `${invoice.provider} will receive R${invoice.amount.toLocaleString()}.`, icon: 'success' })
+}
 
 async function notify(payment) {
   await confirmThenRun({

@@ -443,7 +443,7 @@
               <label for="student-id-upload" class="file-upload-label">
 
                 <span v-if="!regData.idFile">
-                  📄 Choose Student ID Image
+                  <AppIcon name="upload" /> Choose Student ID Image
                 </span>
 
                 <span v-else>
@@ -1084,15 +1084,10 @@ export default {
   color: #333;
 }
 
-.login-provider .login-right { border-top: 4px solid #6FA8FF; }
-.login-provider .btn-primary { background: #6FA8FF; color: #0d1b3d; }
-.login-provider .gold-text { color: #6FA8FF; }
-.login-admin .login-right { border-top: 4px solid #FF6B6B; }
-.login-admin .btn-primary { background: #FF6B6B; color: #fff; }
-.login-admin .gold-text { color: #FF6B6B; }
-.login-resmanager .login-right { border-top: 4px solid #4ADE80; }
-.login-resmanager .btn-primary { background: #4ADE80; color: #0d1b3d; }
-.login-resmanager .gold-text { color: #4ADE80; }
+/* Role selection keeps the original CampusSwap visual identity. */
+.login-provider .login-right, .login-admin .login-right, .login-resmanager .login-right { border-top: 4px solid #2e7d5a; }
+.login-provider .btn-primary, .login-admin .btn-primary, .login-resmanager .btn-primary { background: #2e7d5a; color: #ffffff; }
+.login-provider .gold-text, .login-admin .gold-text, .login-resmanager .gold-text { color: #f5b941; }
 
 /* ---------------- LEFT SIDE (Desktop) ---------------- */
 .login-left {

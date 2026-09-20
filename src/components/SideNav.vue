@@ -112,9 +112,12 @@ const visibleTabs = computed(() => {
 })
 
 watch(() => route.path, (newPath) => {
+  // Action-only tabs (e.g. Logout) have no `path`, so guard every access to it.
+  // Sorting or matching on a missing path used to throw and abort app.mount().
   const tab = [...visibleTabs.value]
+    .filter(t => typeof t.path === 'string')
     .sort((a, b) => b.path.length - a.path.length)
-    .find(t => !t.disabled && (t.path === newPath || (newPath.startsWith(`${t.path}/`) && t.path !== '/')))
+    .find(t => !t.disabled && (t.path === newPath || (t.path !== '/' && newPath.startsWith(`${t.path}/`))))
   if (tab) {
     active.value = tab.key
   }

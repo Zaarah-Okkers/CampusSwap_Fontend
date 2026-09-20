@@ -96,7 +96,7 @@ const resmanagerTabs = [
   { key: 'dashboard', label: 'Dashboard', path: '/resmanager-dashboard', icon: 'M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z' },
   { key: 'safehome', label: 'SafeHome', path: '/safehome', icon: 'M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z M9 12l2 2 4-4' },
   { key: 'residence', label: 'Residence', path: '/resmanager-payments', icon: 'M3 3h18v18H3z M3 9h18 M9 21V9' },
-  { key: 'profile', label: 'Profile', path: '/resmanager-dashboard', icon: 'M20 21v-2a4 4 0 0 1-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z' }
+  { key: 'profile', label: 'Profile', path: '/resmanager-profile', icon: 'M20 21v-2a4 4 0 0 1-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z' }
 ]
 
 const loginTab = { key: 'login', label: 'Login', path: '/login', icon: 'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4 M10 17l5-5-5-5 M15 12H3' }

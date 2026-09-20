@@ -7,7 +7,6 @@ import LoginView from '../views/LoginView.vue'
 import StudentDashboard from '../views/StudentDashboard.vue'
 import ProviderDashboard from '../views/ProviderDashboard.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
-import ResManagerDashboard from '../views/ResManagerDashboard.vue'
 import CheckoutView from '../components/CheckoutView.vue'
 import SafeHomeView from '../views/SafeHomeView.vue'
 import store from '../stores'
@@ -138,6 +137,12 @@ const router = createRouter({
       path: '/resmanager-payments',
       name: 'resmanager-payments',
       component: () => import('../views/ResidencePortal.vue'),
+    },
+    {
+      // Dedicated manager profile, matching ProviderProfile (/provider-profile).
+      path: '/resmanager-profile',
+      name: 'resmanager-profile',
+      component: () => import('../views/ResManagerProfile.vue'),
     },
     {
       path: '/notifications',

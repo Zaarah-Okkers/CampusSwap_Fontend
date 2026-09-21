@@ -137,7 +137,8 @@ const router = createRouter({
     {
       path: '/resmanager-dashboard',
       name: 'resmanager-dashboard',
-      component: () => import('../views/ResidencePortal.vue'),
+      component: () => import('../views/ResManagerDashboard.vue'),
+      meta: { allowedRoles: ['res_manager', 'resmanager'] },
     },
     {
       path: '/resmanager-payments',

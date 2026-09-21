@@ -108,7 +108,7 @@ export default {
         id: 9,
         name: 'Residence Manager',
         email: 'resmanager@campus.co.za',
-        role: 'resmanager',
+        role: 'res_manager',
         avatar: 'https://placehold.co/100x100/4ADE80/FFFFFF?text=RM',
         university: 'Smuts Hall Residence',
         verified: true,
@@ -164,7 +164,8 @@ export default {
       }
     },
     loginAsRole(state, role) {
-      const storeRole = role === 'provider' ? 'service_provider' : role
+      const roleMap = { provider: 'service_provider', resmanager: 'res_manager' }
+      const storeRole = roleMap[role] || role
       const user = state.users.find(candidate => candidate.role === storeRole)
       if (user) state.currentUser = user
       state.isLoggedIn = true

@@ -3,84 +3,6 @@
 <template>
   <section class="admin-dash">
 
-    <!-- TOP BAR -->
-    <header class="top-bar">
-      <div class="top-left">
-        <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
-          <span class="hamburger-icon">
-            <AppIcon name="menu" />
-          </span>
-        </button>
-
-        <router-link to="/" class="brand-link">
-          <h2 class="brand">
-            CampusSwap<span class="green-text">SA</span>
-          </h2>
-        </router-link>
-      </div>
-
-      <div class="top-center">
-        <div class="search-wrap">
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Search books, services, and more..."
-          />
-        </div>
-      </div>
-
-      <div class="top-right">
-        <div class="notification-bell" @click="swalNoNotifications()">
-          <span class="bell-icon">
-            <AppIcon name="bell" />
-          </span>
-          <span class="notification-dot"></span>
-        </div>
-
-        <span class="avatar">
-          {{ userInitials }}
-        </span>
-      </div>
-    </header>
-
-    <!-- SIDE NAV -->
-    <div
-      class="side-overlay"
-      :class="{ 'side-overlay-open': sideNavOpen }"
-      @click="closeSideNav"
-    ></div>
-
-    <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
-      <div class="side-nav-header">
-        <h3>
-          CampusSwap<span class="green-text">SA</span>
-        </h3>
-        <button class="close-side-btn" @click="closeSideNav">&times;</button>
-      </div>
-
-      <ul class="side-nav-links">
-        <li>
-          <router-link to="/" @click="closeSideNav">Home</router-link>
-        </li>
-
-        <li>
-          <router-link to="/safehome" @click="closeSideNav">SafeHome</router-link>
-        </li>
-
-        <li v-if="userRole === 'student' || userRole === 'admin' || userRole === 'resmanager'">
-          <router-link to="/checkout" @click="closeSideNav">Checkout</router-link>
-        </li>
-
-        <li>
-          <router-link to="/admin-dashboard" @click="closeSideNav">Dashboard</router-link>
-        </li>
-      </ul>
-
-      <div class="side-nav-logout">
-        <button class="logout-btn" @click="logout">Logout</button>
-      </div>
-    </div>
-
     <!-- MAIN DASHBOARD CONTENT -->
     <div class="dashboard-container">
 
@@ -134,83 +56,20 @@
         </div>
       </div>
 
-      <!-- Activity chart + Notifications -->
-      <div class="row-grid">
-        <div class="panel">
-          <div class="panel-heading">
-            <h3>Platform Activity</h3>
-            <span class="panel-sub">Last 7 days</span>
-          </div>
-          <div class="bar-chart">
-            <div v-for="(day, i) in activity" :key="i" class="bar-col">
-              <div class="bar" :style="{ height: day.value + '%' }"></div>
-              <span class="bar-label">{{ day.label }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-heading">
-            <h3>Notifications</h3>
-          </div>
-          <div class="notification-item" v-for="(note, i) in notifications" :key="i">
-            <div class="notification-icon">
-              <AppIcon :name="note.icon" />
-            </div>
-            <div class="notification-text">
-              <span class="notification-title">{{ note.title }}</span>
-              <span class="notification-time">{{ note.time }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Users + Reports donut -->
-      <div class="row-grid">
-        <div class="panel">
-          <div class="panel-heading">
-            <h3>Recent Users</h3>
-            <router-link to="/admin/users" class="panel-link">View all</router-link>
-          </div>
-          <div class="user-row" v-for="(u, i) in recentUsers" :key="i">
-            <span class="user-avatar">{{ u.initials }}</span>
-            <div class="user-info">
-              <span class="user-name">{{ u.name }}</span>
-              <span class="user-role">{{ u.role }}</span>
-            </div>
-            <AppIcon v-if="u.premium" name="star" class="premium-star" />
-          </div>
-        </div>
-
-        <div class="panel panel-center">
-          <div class="panel-heading">
-            <h3>Reports Resolved</h3>
-          </div>
-          <div class="donut" :style="donutStyle">
-            <div class="donut-hole">
-              <span class="donut-value">{{ reportsResolvedPct }}%</span>
-            </div>
-          </div>
-          <div class="donut-legend">
-            <span><i class="dot dot-green"></i> Resolved</span>
-            <span><i class="dot dot-grey"></i> Pending</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Listings -->
+      <!-- Recent Users -->
       <div class="panel">
         <div class="panel-heading">
-          <h3>Recent Listings</h3>
-          <router-link to="/admin/listings" class="panel-link">View all</router-link>
+          <h3>Recent Users</h3>
+          <router-link v-if="recentUsers.length" to="/admin/users" class="panel-link">View all</router-link>
         </div>
-        <div class="listing-row" v-for="(item, i) in recentListings" :key="i">
-          <div class="listing-icon"><AppIcon name="package" /></div>
-          <div class="listing-info">
-            <span class="listing-name">{{ item.name }}</span>
-            <span class="listing-meta">{{ item.seller }} &middot; {{ item.type }}</span>
+        <p v-if="!recentUsers.length" class="panel-sub">No users to show yet.</p>
+        <div class="user-row" v-for="(u, i) in recentUsers" :key="i">
+          <span class="user-avatar">{{ u.initials }}</span>
+          <div class="user-info">
+            <span class="user-name">{{ u.name }}</span>
+            <span class="user-role">{{ u.role }}</span>
           </div>
-          <span class="listing-status" :class="item.status">{{ item.status }}</span>
+          <AppIcon v-if="u.premium" name="star" class="premium-star" />
         </div>
       </div>
 
@@ -226,22 +85,8 @@
         </div>
 
         <div class="menu-item">
-          <router-link to="/admin/listings" class="menu-link">
-            Manage Listings
-            <span class="arrow">&gt;</span>
-          </router-link>
-        </div>
-
-        <div class="menu-item">
-          <router-link to="/admin/reports" class="menu-link">
-            Reports & Analytics
-            <span class="arrow">&gt;</span>
-          </router-link>
-        </div>
-
-        <div class="menu-item">
-          <router-link to="/checkout" class="menu-link">
-            Checkout
+          <router-link to="/admin/users" class="menu-link">
+            Manage Users
             <span class="arrow">&gt;</span>
           </router-link>
         </div>
@@ -279,15 +124,13 @@ import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import Swal from 'sweetalert2'
 import AppIcon from '../../components/AppIcon.vue'
+import { handleLogout } from '../../utils/auth'
 
 const store = useStore()
 
-const sideNavOpen = ref(false)
-const bottomNavOpen = ref(true)
 const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
-const userRole = ref('admin')
 
 const users = computed(() => store.state.user?.users || [])
 const premiumUsers = computed(() => users.value.filter(u => u.isPremium))
@@ -302,40 +145,15 @@ const userInitials = computed(() => {
     .toUpperCase()
 })
 
-// -------- Notifications (honest empty state) --------
-function swalNoNotifications() {
-  Swal.fire({ icon: 'info', title: 'No notifications', text: 'You have no new notifications.', timer: 1500, showConfirmButton: false })
-}
 
-// -------- Side nav --------
-function toggleSideNav() {
-  sideNavOpen.value = !sideNavOpen.value
-  document.body.style.overflow = sideNavOpen.value ? 'hidden' : ''
-}
-
-function closeSideNav() {
-  sideNavOpen.value = false
-  document.body.style.overflow = ''
-}
-
-// -------- Logout --------
+// -------- Logout is handled by the shared top bar / side nav --------
 async function logout() {
-  const result = await Swal.fire({
-    title: 'Logout?',
-    text: 'Are you sure you want to log out of the admin panel?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, logout',
-    cancelButtonText: 'Cancel',
-  })
-
-  if (result.isConfirmed) {
-    Swal.fire('Logged Out', 'You have been logged out successfully.', 'success')
+  await handleLogout(false)
+}
+/* commented-out old logout body
     // this.$router.push('/login') — use useRouter() here if needed
   }
-}
+*/
 
 // -------- Change password --------
 async function changePassword() {
@@ -406,39 +224,13 @@ async function exportData() {
   }
 }
 
-// -------- Placeholder data for the new panels --------
-const activity = [
-  { label: 'Mon', value: 40 },
-  { label: 'Tue', value: 65 },
-  { label: 'Wed', value: 50 },
-  { label: 'Thu', value: 80 },
-  { label: 'Fri', value: 55 },
-  { label: 'Sat', value: 30 },
-  { label: 'Sun', value: 45 },
-]
-
-const notifications = [
-  { icon: 'megaphone', title: '3 new listings pending review', time: '10 min ago' },
-  { icon: 'alert', title: 'New report submitted', time: '1 hr ago' },
-  { icon: 'user', title: '2 new users registered', time: 'Today' },
-]
-
-const recentUsers = [
-  { initials: 'AT', name: 'Anela T.', role: 'Student', premium: true },
-  { initials: 'LM', name: 'Lerato M.', role: 'Student', premium: false },
-  { initials: 'ZK', name: 'Zaarah K.', role: 'Admin', premium: false },
-]
-
-const reportsResolvedPct = 68
-const donutStyle = computed(() => ({
-  background: `conic-gradient(#2e7d5a 0% ${reportsResolvedPct}%, #e5e7eb ${reportsResolvedPct}% 100%)`
-}))
-
-const recentListings = [
-  { name: 'Intro to Economics Textbook', seller: 'Lerato M.', type: 'Sell', status: 'active' },
-  { name: 'Laptop Bag Rental', seller: 'Anela T.', type: 'Rent', status: 'active' },
-  { name: 'Scientific Calculator', seller: 'Zaarah K.', type: 'Swap', status: 'pending' },
-]
+// Recent users come from the real store instead of placeholder rows.
+const recentUsers = computed(() => users.value.slice(0, 3).map(u => ({
+  initials: (u.name || 'U').split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase(),
+  name: u.name,
+  role: u.role,
+  premium: u.isPremium
+})))
 </script>
 
 <style scoped>

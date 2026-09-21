@@ -42,7 +42,7 @@ const quickUsers = [
   {
     id: 9,
     name: 'Residence Manager',
-    role: 'resmanager',
+    role: 'res_manager',
     avatar: 'https://placehold.co/100x100/4ADE80/FFFFFF?text=RM',
     color: '#4ADE80'
   }

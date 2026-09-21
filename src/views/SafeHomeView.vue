@@ -169,6 +169,12 @@
     <main class="main-content">
       <div class="safehome-page">
 
+        <!-- Offline notice: never present local reference data as live data -->
+        <div v-if="offline" class="offline-banner">
+          <AppIcon name="alert" />
+          SafeHome services are currently unavailable. Please try again later.
+        </div>
+
         <!-- =================================================
              HERO
         ================================================== -->
@@ -566,6 +572,7 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { API_BASE } from '../services/api'
 import { dashboardRoutes } from '../services/api'
+import { api } from '../services/api'
 import { handleLogout as centralLogout } from '../utils/auth'
 
 /* =========================================================
@@ -635,6 +642,7 @@ const isEmergencyMode = ref(false)
 
 const loadingServices = ref(false)
 const loadingProviders = ref(false)
+const offline = ref(false)
 
 
 /* =========================================================
@@ -748,12 +756,14 @@ async function fetchServices() {
       error
     )
 
-    // Keep SafeHome usable when the API is sleeping or unavailable.
+    // Present an honest state: the offline fallback list is a local reference
+    // list, never live database services.
     services.value = fallbackServices.map((service) => ({
       ...service,
       icon: getServiceIcon(service.name),
       description: getServiceDescription(service.name)
     }))
+    offline.value = true
 
   } finally {
     loadingServices.value = false
@@ -900,6 +910,7 @@ async function fetchProviders(serviceName = '') {
 
     // Backend is unavailable: do not present dummy providers as live listings.
     providers.value = []
+    offline.value = true
 
 
   } finally {
@@ -1108,67 +1119,51 @@ function removePhoto(providerId) {
    GET QUOTE
 ========================================================= */
 
-function getQuote(provider) {
-  const form =
-    createQuoteForm(provider.id)
+async function getQuote(provider) {
+  const form = createQuoteForm(provider.id)
+  const currentUser = store.getters['user/authUser']
 
-  let message =
-    `Quote request prepared for ${provider.full_name}`
-
-  if (selectedService.value) {
-    message +=
-      `\n\nService: ${selectedService.value.name}`
+  const payload = {
+    user_id: currentUser?.id ?? null,
+    provider_id: provider.id,
+    service_type_id: selectedServiceId.value,
+    service_name: selectedService.value?.name || '',
+    residence: residenceName.value.trim(),
+    room_number: roomNumber.value.trim(),
+    description: form.description.trim(),
+    is_emergency: isEmergencyMode.value,
+    photo_name: form.photo ? form.photo.name : null
   }
 
-  if (residenceName.value.trim()) {
-    message +=
-      `\nResidence: ${residenceName.value.trim()}`
+  if (!payload.residence || !payload.description) {
+    Swal.fire({
+      title: 'Missing details',
+      text: 'Please add your residence and a short description of the problem.',
+      icon: 'warning',
+      confirmButtonText: 'Okay'
+    })
+    return
   }
 
-  if (roomNumber.value.trim()) {
-    message +=
-      `\nRoom: ${roomNumber.value.trim()}`
+  try {
+    const result = await api.createServiceRequest(payload)
+    Swal.fire({
+      title: isEmergencyMode.value ? 'Emergency request submitted' : 'Request submitted',
+      text: `Your ${isEmergencyMode.value ? 'emergency ' : ''}request was saved${result?.id ? ` (Ref #${result.id})` : ''}. You can track it in SafeHome.`,
+      icon: 'success',
+      confirmButtonText: 'Okay'
+    })
+    form.description = ''
+    form.photo = null
+    form.photoPreview = null
+  } catch (error) {
+    Swal.fire({
+      title: 'Could not submit request',
+      text: 'SafeHome services are currently unavailable. Please try again later.',
+      icon: 'error',
+      confirmButtonText: 'Okay'
+    })
   }
-
-  if (form.description.trim()) {
-    message +=
-      `\n\nProblem: ${form.description.trim()}`
-  }
-
-  if (form.photo) {
-    message +=
-      `\nPhoto attached: ${form.photo.name}`
-  }
-
-  if (isEmergencyMode.value) {
-    message +=
-      `\n\nPriority: EMERGENCY`
-  }
-
-  /*
-   * IMPORTANT:
-   * We are not POSTing the service request yet because
-   * the login backend is still being completed.
-   *
-   * The create-service endpoint requires:
-   * student_id
-   *
-   * We will connect this once the login backend gives
-   * the frontend the authenticated user's database ID.
-   */
-
-  Swal.fire({
-    title:
-      isEmergencyMode.value
-        ? 'Emergency Quote Ready'
-        : 'Quote Ready',
-
-    text: message,
-
-    icon: 'success',
-
-    confirmButtonText: 'Okay'
-  })
 }
 
 
@@ -1204,6 +1199,21 @@ onMounted(async () => {
   min-height: 100vh;
   background: #f8fafc;
   color: #1e293b;
+}
+
+.offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff5d8;
+  border: 1px solid #f5b941;
+  color: #8a6d3b;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 16px auto 0;
+  max-width: 1100px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 

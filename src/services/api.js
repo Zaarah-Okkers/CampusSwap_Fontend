@@ -124,6 +124,19 @@ export const api = {
   createServiceRequest(payload) {
     return request('/services', { method: 'POST', body: JSON.stringify(payload) });
   },
+  getServiceTypes() {
+    return request('/service-types');
+  },
+  getProviders(serviceName = '') {
+    const q = serviceName ? `?service=${encodeURIComponent(serviceName)}` : '';
+    return request(`/providers${q}`);
+  },
+  getMyServiceRequests(userId) {
+    return request(`/services?user_id=${encodeURIComponent(userId)}`);
+  },
+  getRepairsFor(userId) {
+    return request(`/repairs?user_id=${encodeURIComponent(userId)}`);
+  },
   async createCheckout(orderData) {
     if (USE_MOCK) {
       return mock({

@@ -686,7 +686,9 @@ export default {
     },
 
     persistLogin(user, role) {
-      const storeRole = role === 'provider' ? 'service_provider' : role
+      // Normalise UI role labels to the backend/store role values used by the
+      // router guards (provider -> service_provider, resmanager -> res_manager).
+      const storeRole = roleMap[role] || role
       const account = {
         id: user.id ?? user.email,
         name: user.fullName || user.name,
@@ -938,9 +940,17 @@ export default {
 
     // ===== LOGIN HANDLER =====
     async handleLogin() {
-      // Institution field is shown for every role except admin, so it must be
-      // required for every role except admin too.
-      const requiresInstitution = this.role === 'student' || this.role === 'resmanager'
+      const demoCredentials = {
+        student: { email: 'student@myuct.ac.za', password: 'student123', route: '/student-dashboard' },
+        provider: { email: 'provider@work.co.za', password: 'provider123', route: '/provider-dashboard' },
+        admin: { email: 'admin@campusswap.co.za', password: 'admin123', route: '/admin' },
+        resmanager: { email: 'resmanager@campusswap.co.za', password: 'res123', route: '/resmanager-dashboard' }
+      }
+      const demo = demoCredentials[this.role]
+      const isDemoCreds = demo && this.email === demo.email && this.password === demo.password
+      // Institution is required for a real account so we can verify the student,
+      // but the built-in demo account must be usable without picking one.
+      const requiresInstitution = (this.role === 'student' || this.role === 'resmanager') && !isDemoCreds
       if (!this.email || !this.password || (requiresInstitution && !this.selectedInstitution)) {
         await Swal.fire({
           icon: 'warning',

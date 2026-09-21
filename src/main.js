@@ -10,17 +10,17 @@ import { session } from './services/api'
 // Restore both the login flag and the actual account so a page refresh does
 // not silently turn a provider/admin back into the default student profile.
 const savedUser = session.get()
-if (savedUser && savedUser.id !== 'logged-out' && savedUser.role !== 'logged_out') {
+const hasSession = savedUser && savedUser.id !== 'logged-out' && savedUser.role !== 'logged_out' && localStorage.getItem('isLoggedIn') === 'true'
+if (hasSession) {
   store.commit('user/setCurrentUser', savedUser)
   store.commit('user/setLoggedIn', true)
-  localStorage.setItem('isLoggedIn', 'true')
-} else if (!savedUser) {
+} else {
   // A visitor without a saved session is a public visitor. Do not turn them
   // into the seeded student account simply by opening the site.
   store.commit('user/logout')
   localStorage.removeItem('isLoggedIn')
-} else {
-  localStorage.removeItem('isLoggedIn')
+  localStorage.removeItem('user')
+  localStorage.removeItem('userRole')
 }
 
 const app = createApp(App)

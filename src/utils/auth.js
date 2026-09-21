@@ -44,7 +44,7 @@ export async function handleLogout(confirm = true) {
     showConfirmButton: false
   })
 
-  router.push('/login')
+  router.push('/')
   return true
 }
 

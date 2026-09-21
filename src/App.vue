@@ -35,7 +35,7 @@ const isAdminRoute = computed(() => {
   return route.path.startsWith('/admin')
 })
 
-const isLoggedIn = computed(() => store.getters['user/isLoggedIn'] || localStorage.getItem('isLoggedIn') === 'true')
+const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
 
 const searchQuery = ref('')
 const showFilters = ref(false)

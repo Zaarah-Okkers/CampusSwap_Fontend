@@ -184,6 +184,7 @@ import AppIcon from './AppIcon.vue'
 import { ref, computed, onMounted } from 'vue';
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';
+import { api } from '../services/api';
 
 const activeTab = ref('cart');
 const cartItems = ref([]);
@@ -243,35 +244,18 @@ const getFallbackRepairs = () => [
 
 const loadBackendData = async () => {
   try {
-    const prodRes = await fetch(`${import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'}/products`).catch(() => null);
-    if (prodRes && prodRes.ok) {
-      cartItems.value = await prodRes.json();
-    } else {
-      cartItems.value = getFallbackCartItems();
-    }
-
-    const uniRes = await fetch(`${import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'}/universities`).catch(() => null);
-    if (uniRes && uniRes.ok) {
-      universities.value = await uniRes.json();
-    } else {
-      universities.value = getFallbackUniversities();
-    }
+    cartItems.value = await api.getProducts();
+    universities.value = await api.getUniversities();
     if (universities.value.length > 0) {
       selectedCampus.value = universities.value[0].name;
     }
 
-    const repairRes = await fetch(`${import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'}/repairs`).catch(() => null);
-    if (repairRes && repairRes.ok) {
-      const data = await repairRes.json();
-      repairs.value = Array.isArray(data) && data.length > 0 ? data : getFallbackRepairs();
-    } else {
-      repairs.value = getFallbackRepairs();
-    }
+    repairs.value = await api.getRepairs();
   } catch (err) {
-    cartItems.value = getFallbackCartItems();
-    universities.value = getFallbackUniversities();
-    selectedCampus.value = universities.value[0].name;
-    repairs.value = getFallbackRepairs();
+    cartItems.value = [];
+    universities.value = [];
+    repairs.value = [];
+    Swal.fire({ icon: 'error', title: 'Checkout unavailable', text: 'Checkout data is currently unavailable. Please try again later.' });
   }
 };
 

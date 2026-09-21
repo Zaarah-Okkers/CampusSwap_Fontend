@@ -40,10 +40,12 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import Swal from 'sweetalert2'
+import { useStore } from 'vuex'
+import { handleLogout } from '../utils/auth'
 
 const router = useRouter()
 const route = useRoute()
+const store = useStore()
 const searchQuery = ref('')
 
 const LOGOUT_MESSAGES = {
@@ -53,21 +55,12 @@ const LOGOUT_MESSAGES = {
   res_manager:      'Game saved. Player 1 has left the lobby.'
 }
 
-/* ---------- reactive auth state (this is the fix) ---------- */
-const currentUser = ref(null)
-
-function readAuthState() {
-  const raw = localStorage.getItem('user')
-  currentUser.value = raw ? JSON.parse(raw) : null
-}
-
-onMounted(readAuthState)
-watch(() => route.path, readAuthState)
-
-const isLoggedIn = computed(() => !!currentUser.value)
+/* ---------- central Vuex auth state ---------- */
+const currentUser = computed(() => store.getters['user/authUser'])
+const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
 
 const initials = computed(() => {
-  const name = currentUser.value?.full_name
+  const name = currentUser.value?.full_name || currentUser.value?.name
   if (!name) return 'U'
   return name
     .split(' ')
@@ -94,38 +87,8 @@ function notifyClick() {
 }
 
 async function handleAvatarClick() {
-  const user = currentUser.value
-  if (!user) return
-
-  const result = await Swal.fire({
-    title: 'Logout?',
-    text: `Log out as ${user.full_name}?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, logout',
-    cancelButtonText: 'Cancel',
-  })
-
-  if (result.isConfirmed) {
-    const msg = LOGOUT_MESSAGES[user.role] || 'Logged out.'
-
-    // clear all session keys
-    localStorage.removeItem('user')
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('userRole')
-
-    await Swal.fire({
-      icon: 'success',
-      title: msg,
-      timer: 1800,
-      showConfirmButton: false,
-    })
-
-    // hard redirect — guarantees full reset
-    window.location.href = '/'
-  }
+  if (!currentUser.value) return
+  await handleLogout()
 }
 </script>
 

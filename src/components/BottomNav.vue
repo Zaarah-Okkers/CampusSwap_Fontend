@@ -15,7 +15,7 @@
     </button>
 
     <!-- logout only when logged in -->
-    <button v-if="isLoggedIn" class="tab logout-tab" @click="handleLogout">
+    <button v-if="isLoggedIn" class="tab logout-tab" @click="handleLogoutClick">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
            stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9" />
@@ -28,10 +28,12 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import Swal from 'sweetalert2'
+import { useStore } from 'vuex'
+import { handleLogout } from '../utils/auth'
 
 const router = useRouter()
 const route = useRoute()
+const store = useStore()
 const active = ref('home')
 
 const LOGOUT_MESSAGES = {
@@ -41,20 +43,9 @@ const LOGOUT_MESSAGES = {
   res_manager:      'Game saved. Player 1 has left the lobby.'
 }
 
-/* ---------- reactive auth state ---------- */
-const isLoggedIn = ref(false)
-const currentRole = ref('student')
-
-function readAuthState() {
-  const raw = localStorage.getItem('user')
-  const user = raw ? JSON.parse(raw) : null
-
-  isLoggedIn.value = !!user || localStorage.getItem('isLoggedIn') === 'true'
-  currentRole.value = user?.role || localStorage.getItem('userRole') || 'student'
-}
-
-onMounted(readAuthState)
-watch(() => route.path, readAuthState)
+/* ---------- central Vuex auth state ---------- */
+const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
+const currentRole = computed(() => store.getters['user/currentUser']?.role || 'logged_out')
 
 /* ---------- icons ---------- */
 const ICONS = {
@@ -136,39 +127,8 @@ function selectTab(tab) {
 }
 
 /* ---------- logout ---------- */
-async function handleLogout() {
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
-  const role = user?.role
-
-  const result = await Swal.fire({
-    title: 'Logout?',
-    text: 'Are you sure you want to log out?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, logout',
-    cancelButtonText: 'Cancel',
-  })
-
-  if (!result.isConfirmed) return
-
-  const msg = LOGOUT_MESSAGES[role] || 'Logged out.'
-
-  // clear all session keys
-  localStorage.removeItem('user')
-  localStorage.removeItem('isLoggedIn')
-  localStorage.removeItem('userRole')
-
-  await Swal.fire({
-    icon: 'success',
-    title: msg,
-    timer: 1800,
-    showConfirmButton: false,
-  })
-
-  // hard redirect to force full reset
-  window.location.href = '/'
+async function handleLogoutClick() {
+  await handleLogout()
 }
 </script>
 

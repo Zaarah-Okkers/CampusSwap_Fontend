@@ -29,8 +29,7 @@ import ProductGrid from '../components/ProductGrid.vue'
 import ProductModal from '../components/ProductModal.vue'
 import Bookstore from './Bookstore.vue'
 import swalTheme from '../utils/swalTheme'
-// Listings come from the shared dummy dataset so the marketplace and the
-// homepage featured grid always show the same items.
+import { api } from '../services/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -53,9 +52,7 @@ const filteredProducts = computed(() => {
 
 async function loadListings() {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'}/products`)
-    if (!response.ok) throw new Error('Listings service unavailable')
-    const data = await response.json()
+    const data = await api.getProducts()
     products.value = Array.isArray(data) ? data : (data.products || [])
     if (!products.value.length) loadMessage.value = 'No listings are available yet.'
   } catch {

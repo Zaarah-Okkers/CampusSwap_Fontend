@@ -2,15 +2,17 @@ export default {
   namespaced: true,
   state: {
     isLoggedIn: false,
+    // A fresh app is always public. Demo users remain available only when a
+    // user explicitly selects a demo/login option.
     currentUser: {
-      id: 1,
-      name: 'Zaarah K.',
-      email: 'zaarah@campus.co.za',
-      role: 'student',
-      avatar: 'https://placehold.co/100x100/6C5CE7/FFFFFF?text=Z',
-      university: 'University of Cape Town (UCT)',
-      verified: true,
-      online: true,
+      id: 'logged-out',
+      name: 'Logged out viewer',
+      email: '',
+      role: 'logged_out',
+      avatar: 'https://placehold.co/100x100/64748B/FFFFFF?text=G',
+      university: '',
+      verified: false,
+      online: false,
       isPremium: false
     },
     users: [
@@ -119,6 +121,7 @@ export default {
   getters: {
     isLoggedIn: state => state.isLoggedIn,
     currentUser: state => state.currentUser,
+    authUser: state => state.isLoggedIn ? state.currentUser : null,
     users: state => state.users,
     getRoleDisplay: () => (role) => {
       const roles = {
@@ -199,6 +202,7 @@ export default {
       commit('logout')
       localStorage.removeItem('isLoggedIn')
       localStorage.removeItem('user')
+      localStorage.removeItem('userRole')
     },
     switchUser({ commit, state }, userId) {
       const selectedUser = state.users.find(user => user.id === userId)

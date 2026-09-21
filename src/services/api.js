@@ -12,7 +12,17 @@ import {
   mockUser,
 } from './mockData';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api';
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+export async function request(path, options = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(data.message || data.error || `Request failed (${response.status})`)
+  return data
+}
 
 // ------------------------------------------------------------------
 // RUN WITHOUT THE BACKEND
@@ -33,39 +43,27 @@ const mock = (data) =>
 export const authAPI = {
   login: async (email, password, role) => {
     if (USE_MOCK) return mock(mockUser(email, roleMap[role] || role));
-    const res = await fetch(`${API_BASE}/auth/login`, {
+    return request('/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, role })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
-    return data;
   },
 
   register: async (userData) => {
     if (USE_MOCK) return mock(mockUser(userData && userData.email, userData && userData.role));
-    const res = await fetch(`${API_BASE}/auth/register`, {
+    return request('/auth/register', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Registration failed');
-    return data;
   },
 
   // used by all 4 dashboards' "Update Password" button
   changePassword: async (userId, currentPassword, newPassword) => {
     if (USE_MOCK) return mock({ success: true });
-    const res = await fetch(`${API_BASE}/auth/change-password`, {
+    return request('/auth/change-password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, currentPassword, newPassword })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Password change failed');
-    return data;
   }
 };
 
@@ -77,9 +75,7 @@ export const homeAPI = {
     if (USE_MOCK) {
       return mock({ featuredProducts, categories, universities });
     }
-    const res = await fetch(`${API_BASE}/home`);
-    if (!res.ok) throw new Error('Failed to load home data');
-    return res.json();
+    return request('/home');
   }
 };
 
@@ -89,30 +85,22 @@ export const homeAPI = {
 export const dashAPI = {
   getStudent: async (userId) => {
     if (USE_MOCK) return mock(studentDashboard);
-    const res = await fetch(`${API_BASE}/dashboards/student/${userId}`);
-    if (!res.ok) throw new Error('Failed to load student dashboard');
-    return res.json();
+    return request(`/dashboards/student/${userId}`);
   },
 
   getAdmin: async () => {
     if (USE_MOCK) return mock(adminDashboard);
-    const res = await fetch(`${API_BASE}/dashboards/admin`);
-    if (!res.ok) throw new Error('Failed to load admin dashboard');
-    return res.json();
+    return request('/dashboards/admin');
   },
 
   getResManager: async () => {
     if (USE_MOCK) return mock(resManagerDashboard);
-    const res = await fetch(`${API_BASE}/dashboards/res-manager`);
-    if (!res.ok) throw new Error('Failed to load res manager dashboard');
-    return res.json();
+    return request('/dashboards/res-manager');
   },
 
   getProvider: async (providerId) => {
     if (USE_MOCK) return mock(providerDashboard);
-    const res = await fetch(`${API_BASE}/dashboards/provider/${providerId}`);
-    if (!res.ok) throw new Error('Failed to load provider dashboard');
-    return res.json();
+    return request(`/dashboards/provider/${providerId}`);
   }
 };
 
@@ -123,9 +111,18 @@ export const api = {
   // Initiate checkout
   async getProducts() {
     if (USE_MOCK) return mock(featuredProducts);
-    const res = await fetch(`${API_BASE}/products`);
-    if (!res.ok) throw new Error('Failed to fetch products');
-    return res.json();
+    return request('/products');
+  },
+  getUniversities() {
+    if (USE_MOCK) return mock(universities);
+    return request('/universities');
+  },
+  getRepairs() {
+    if (USE_MOCK) return mock([]);
+    return request('/repairs');
+  },
+  createServiceRequest(payload) {
+    return request('/services', { method: 'POST', body: JSON.stringify(payload) });
   },
   async createCheckout(orderData) {
     if (USE_MOCK) {

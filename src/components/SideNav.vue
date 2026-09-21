@@ -59,7 +59,7 @@ function toggleNav() {
 // TEMP: no real auth flag exists in the store yet.
 // Set localStorage.setItem('isLoggedIn', 'true') on successful login,
 // and localStorage.removeItem('isLoggedIn') on logout.
-const isLoggedIn = computed(() => store.getters['user/isLoggedIn'] || localStorage.getItem('isLoggedIn') === 'true')
+const isLoggedIn = computed(() => store.getters['user/isLoggedIn'])
 
 const publicTabs = [
   { key: 'home', label: 'Home', path: '/', icon: 'M3 9l9-7 9 7 M4 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10' },

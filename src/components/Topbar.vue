@@ -41,6 +41,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import Swal from 'sweetalert2'
 import { handleLogout } from '../utils/auth'
 
 const router = useRouter()
@@ -77,13 +78,12 @@ function handleSearch() {
 }
 
 function notifyClick() {
-  Swal.fire({
-    icon: 'info',
-    title: 'Notifications',
-    text: 'You have 3 new notifications.',
-    timer: 1500,
-    showConfirmButton: false,
-  })
+  const items = store.getters['notifications/forUser'](currentUser.value?.id) || []
+  if (!items.length) {
+    Swal.fire({ icon: 'info', title: 'No notifications', text: 'You have no new notifications.', timer: 1500, showConfirmButton: false })
+    return
+  }
+  Swal.fire({ icon: 'info', title: 'Notifications', html: items.map(n => `<p>${n.title || n.message}</p>`).join(''), timer: 2000, showConfirmButton: false })
 }
 
 async function handleAvatarClick() {

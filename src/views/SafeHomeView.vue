@@ -563,13 +563,16 @@ import {
 import Swal from 'sweetalert2'
 import AppIcon from '../components/AppIcon.vue'
 import { useRouter } from 'vue-router'
-import { session, dashboardRoutes } from '../services/api'
+import { useStore } from 'vuex'
+import { API_BASE } from '../services/api'
+import { dashboardRoutes } from '../services/api'
+import { handleLogout as centralLogout } from '../utils/auth'
 
 /* =========================================================
    API
 ========================================================= */
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v.onrender.com/api'
+const API_URL = API_BASE
 
 
 /* =========================================================
@@ -578,7 +581,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://campusswap-backend-kk9v
 
 const sideNavOpen = ref(false)
 const router = useRouter()
-  const userRole = ref(session.get()?.role || '')
+const store = useStore()
+const userRole = computed(() => store.getters['user/currentUser']?.role || '')
 const dashboardRoute = computed(() => dashboardRoutes[userRole.value] || '/')
 
 function toggleSideNav() {
@@ -593,40 +597,17 @@ function closeSideNav() {
   document.body.style.overflow = ''
 }
 
-function logout() {
-  Swal.fire({
-    title: 'Logout?',
-    text: 'Are you sure you want to log out?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, logout',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      session.clear()
-      localStorage.removeItem('isLoggedIn')
-      Swal.fire({
-        title: 'Logged Out',
-        text: 'You have been logged out successfully.',
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      }).then(() => {
-        router.push('/login')
-      })
-    }
-  })
+async function logout() {
+  await centralLogout()
 }
 
 function showNotifications() {
-  Swal.fire({
-    title: 'Notifications',
-    text: 'You have 3 new notifications!',
-    icon: 'info',
-    confirmButtonText: 'Okay'
-  })
+  const items = store.getters['notifications/forUser'](store.getters['user/currentUser']?.id) || []
+  if (!items.length) {
+    Swal.fire({ title: 'No notifications', text: 'You have no new notifications.', icon: 'info', confirmButtonText: 'Okay' })
+    return
+  }
+  Swal.fire({ title: 'Notifications', html: items.map(n => `<p>${n.title || n.message}</p>`).join(''), icon: 'info', confirmButtonText: 'Okay' })
 }
 
 

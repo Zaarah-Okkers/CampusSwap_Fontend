@@ -30,7 +30,7 @@
       </div>
 
       <div class="top-right">
-        <div class="notification-bell" @click="Swal.fire('You have 3 new notifications!')">
+        <div class="notification-bell" @click="swalNoNotifications()">
           <span class="bell-icon">
             <AppIcon name="bell" />
           </span>
@@ -301,6 +301,11 @@ const userInitials = computed(() => {
     .slice(0, 2)
     .toUpperCase()
 })
+
+// -------- Notifications (honest empty state) --------
+function swalNoNotifications() {
+  Swal.fire({ icon: 'info', title: 'No notifications', text: 'You have no new notifications.', timer: 1500, showConfirmButton: false })
+}
 
 // -------- Side nav --------
 function toggleSideNav() {

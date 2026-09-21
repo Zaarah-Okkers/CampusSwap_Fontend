@@ -432,7 +432,8 @@
 import Swal from 'sweetalert2'
 import UserSwitch from '@/components/UserSwitch.vue'
 import AppIcon from '@/components/AppIcon.vue'
-import { homeAPI, dashboardRoutes, session } from '@/services/api'
+import { homeAPI, dashboardRoutes } from '@/services/api'
+import { handleLogout } from '@/utils/auth'
 
 export default {
 
@@ -443,7 +444,6 @@ export default {
   },
   data() {
     return {
-      isLoggedIn: false,
       sideNavOpen: false,
       featuredProducts: [],
       categories: [],
@@ -458,14 +458,7 @@ export default {
   },
 
   async created() {
-    // Check if someone is logged in.
-    const stored = session.get();
-    if (stored) {
-      this.isLoggedIn = true;
-      this.user.name = stored.full_name || stored.name || 'Student';
-      this.user.role = stored.role || '';
-      this.user.university = stored.university || '';
-    }
+    // Auth state comes from the single Vuex source of truth, not localStorage.
 
     // Grab real data from the DB.
     try {
@@ -479,6 +472,23 @@ export default {
   },
 
   computed: {
+    // Reactive central auth state so the page updates on login/logout.
+    authUser() {
+      return this.$store.getters['user/authUser'];
+    },
+    isLoggedIn() {
+      return this.$store.getters['user/isLoggedIn'];
+    },
+    user() {
+      const u = this.authUser;
+      return u
+        ? {
+            name: u.full_name || u.name || 'Student',
+            role: u.role || '',
+            university: u.university || ''
+          }
+        : { name: 'Guest', role: '', university: '' };
+    },
     initials() {
       if (!this.user.name || this.user.name === 'Guest') return 'GS';
       return this.user.name
@@ -553,38 +563,10 @@ export default {
       this.$router.push({ path: '/marketplace', query: { q } });
     },
 
-    // Logout from the tutorial / dashboard shortcut area.
+    // Single shared logout flow used by every role/page.
     async logout() {
-      const result = await Swal.fire({
-        title: 'Logout?',
-        text: 'Are you sure you want to log out?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, logout',
-        cancelButtonText: 'Cancel'
-      });
-
-      if (result.isConfirmed) {
-        session.clear();
-        localStorage.removeItem('isLoggedIn');
-
-        this.isLoggedIn = false;
-        this.user.name = 'Guest';
-        this.user.role = '';
-        this.user.university = '';
-
-        await Swal.fire({
-          icon: 'success',
-          title: 'Logged out.',
-          timer: 1800,
-          showConfirmButton: false
-        });
-
-        this.closeSideNav();
-        this.$router.push('/login');
-      }
+      await handleLogout();
+      this.closeSideNav();
     },
 
     // Redirect to the marketplace route.

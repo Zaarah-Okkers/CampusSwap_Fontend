@@ -168,6 +168,7 @@
 import Swal from 'sweetalert2'
 import AppIcon from '../components/AppIcon.vue'
 import { dashAPI, authAPI, session } from '@/services/api';
+import { handleLogout } from '@/utils/auth';
 
 export default {
   name: 'ResManagerDashboard',
@@ -247,22 +248,7 @@ export default {
     },
 
     async logout() {
-      const result = await Swal.fire({
-        title: 'Logout?',
-        text: 'Are you sure you want to log out of your Residence Manager account?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, logout',
-        cancelButtonText: 'Cancel',
-      });
-
-      if (result.isConfirmed) {
-        session.clear();
-        await Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
-        this.$router.push('/login');
-      }
+      await handleLogout();
     },
 
     async changePassword() {

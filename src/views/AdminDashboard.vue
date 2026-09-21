@@ -216,6 +216,7 @@ import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import Swal from 'sweetalert2'
 import AppIcon from '../components/AppIcon.vue'
+import { handleLogout } from '../utils/auth'
 
 const store = useStore()
 
@@ -264,8 +265,8 @@ async function logout() {
   })
 
   if (result.isConfirmed) {
-    Swal.fire('Logged Out', 'You have been logged out successfully.', 'success')
-    // this.$router.push('/login') — use useRouter() here if needed
+    await handleLogout(false)
+    // logout handled by central auth utility; router import is not required — use useRouter() here if needed
   }
 }
 

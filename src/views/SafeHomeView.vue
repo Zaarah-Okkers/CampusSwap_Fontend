@@ -646,6 +646,35 @@ const offline = ref(false)
 
 
 /* =========================================================
+   CUSTOMER REVIEWS
+========================================================= */
+
+const reviews = [
+  {
+    name: 'Sarah M.',
+    service: 'Plumbing',
+    stars: 5,
+    quote:
+      'Found a plumber within minutes and got a quote the same day.'
+  },
+  {
+    name: 'Bongani K.',
+    service: 'Electrical',
+    stars: 5,
+    quote:
+      'The electrician arrived quickly and sorted our fault box the same afternoon. Great communication throughout.'
+  },
+  {
+    name: 'Nomvula D.',
+    service: 'Cleaning',
+    stars: 4,
+    quote:
+      'Booking was simple and the cleaner did a fantastic job. Will definitely use SafeHome again.'
+  }
+]
+
+
+/* =========================================================
    SERVICES
 ========================================================= */
 

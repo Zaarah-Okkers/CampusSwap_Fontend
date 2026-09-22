@@ -594,6 +594,7 @@ const releaseFunds = (orderId) => {
   gap: 6px;
   cursor: pointer;
   background: #f8fafc;
+  color: darkgreen;
 }
 
 .method-card.selected {

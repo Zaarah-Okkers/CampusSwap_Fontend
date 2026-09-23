@@ -65,12 +65,7 @@ const featuredListings = ref(true)
 const targetedPromotion = ref(false)
 const premiumBadge = ref(true)
 const newsletterPromotion = ref(false)
-
-const promotions = ref([
-  { id: 1, title: 'HP EliteBook 840 G5', user: 'Thabo M.', date: '2024-01-15', status: 'active' },
-  { id: 2, title: 'University Physics Book', user: 'Aisha K.', date: '2024-01-14', status: 'pending' },
-  { id: 3, title: 'Sony ANC Headphones', user: 'Naledi S.', date: '2024-01-13', status: 'active' },
-])
+const promotions = ref([])
 </script>
 
 <style scoped>

@@ -50,6 +50,34 @@ const filteredProducts = computed(() => {
   })
 })
 
+const addToCart = (product) => {
+  const currentCart = JSON.parse(localStorage.getItem('campusswap_cart') || '[]');
+  
+  // Check if item already exists in cart
+  if (!currentCart.some(item => item.id === product.id)) {
+    currentCart.push(product);
+    localStorage.setItem('campusswap_cart', JSON.stringify(currentCart));
+    
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: `${product.name || product.title} added to cart`,
+      showConfirmButton: false,
+      timer: 2000
+    });
+  } else {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Item already in cart',
+      showConfirmButton: false,
+      timer: 2000
+    });
+  }
+};
+
 async function loadListings() {
   try {
     const data = await api.getProducts()

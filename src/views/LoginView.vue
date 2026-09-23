@@ -210,7 +210,7 @@
         <div class="form-options">
 
           <a href="#" @click.prevent="showPasswordResetNotice" class="forgot-link">
-            Forgot Password?
+            Forgot Password? Not a problem bestie:)
           </a>
         </div>
               
@@ -224,15 +224,6 @@
           New here? 
           <a href="#" @click.prevent="openRegistration" class="create-account-link">
             Create an account
-          </a>
-        </p>
-
-        <!-- Hidden Admin Login Link -->
-
-        <p v-if="!dedicatedRole" class="admin-link">
-
-          <a href="#" @click.prevent="setAdminLogin" class="hidden-admin-link">
-            Admin Login
           </a>
         </p>
 

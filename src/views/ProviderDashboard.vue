@@ -59,29 +59,91 @@
   </main>
 </template>
 
+//updated script to show on the dashboard the provider's name and first name, as well as the number of jobs completed, scheduled, upcoming, accepted, and total earnings. Also added a section to show the average rating of the provider based on reviews received from clients.
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import ProviderNav from '../components/ProviderNav.vue'
 import AppIcon from '../components/AppIcon.vue'
 
 const store = useStore()
+
 const currentUser = computed(() => store.getters['user/currentUser'])
+
 const reviews = computed(() => store.getters['provider/reviews'])
+
 const completedJobs = computed(() => store.getters['provider/completedJobs'])
+
+const scheduledJobs = computed(() => store.getters['provider/scheduledJobs'])
+
+const upcomingJobs = computed(() => store.getters['provider/upcomingJobs'])
+
+const acceptedJobs = computed(() => store.getters['provider/acceptedJobs'])
+
+const totalEarnings = computed(() => store.getters['provider/totalEarnings'])
+
 const stats = computed(() => [
-  { label: 'Jobs completed', value: completedJobs.value.length, note: 'Successfully finished' },
-  { label: 'Jobs scheduled', value: store.getters['provider/scheduledJobs'].length, note: 'Confirmed bookings' },
-  { label: 'Upcoming jobs', value: store.getters['provider/upcomingJobs'].length, note: 'Ready for delivery' },
-  { label: 'Jobs accepted', value: store.getters['provider/acceptedJobs'].length, note: 'Active commitments' },
-  { label: 'Total earnings', value: `R${store.getters['provider/totalEarnings'].toLocaleString()}`, note: 'Accepted and completed' }
+  {
+    label: 'Jobs completed',
+    value: completedJobs.value.length,
+    note: 'Successfully finished'
+  },
+  {
+    label: 'Jobs scheduled',
+    value: scheduledJobs.value.length,
+    note: 'Confirmed bookings'
+  },
+  {
+    label: 'Upcoming jobs',
+    value: upcomingJobs.value.length,
+    note: 'Ready for delivery'
+  },
+  {
+    label: 'Jobs accepted',
+    value: acceptedJobs.value.length,
+    note: 'Active commitments'
+  },
+  {
+    label: 'Total earnings',
+    value: `R${totalEarnings.value.toLocaleString()}`,
+    note: 'Accepted and completed'
+  }
 ])
-const averageRating = computed(() => (reviews.value.reduce((sum, review) => sum + review.rating, 0) / reviews.value.length).toFixed(1))
+
+const averageRating = computed(() => {
+  if (!reviews.value.length) return '0.0'
+
+  return (
+    reviews.value.reduce(
+      (sum, review) => sum + review.rating,
+      0
+    ) / reviews.value.length
+  ).toFixed(1)
+})
+
+onMounted(async () => {
+  if (!currentUser.value?.id) {
+    console.warn('No logged-in provider found.')
+    return
+  }
+
+  await store.dispatch(
+    'provider/fetchProviderJobs',
+    currentUser.value.id
+  )
+})
 
 function formatDate(date) {
-  return new Date(`${date}T00:00:00`).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })
+  if (!date) return '—'
+
+  return new Date(date).toLocaleDateString('en-ZA', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
 }
 </script>
+
 
 <style scoped>
 .provider-page { min-height: 100vh; padding: 42px 24px 120px; background: #0a0e27; color: #333; }

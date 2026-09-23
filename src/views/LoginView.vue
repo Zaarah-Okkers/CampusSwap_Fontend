@@ -505,10 +505,9 @@
 <script>
 import Swal from 'sweetalert2'
 import AppIcon from '../components/AppIcon.vue'
-import { authAPI, roleMap, dashboardRoutes, session } from '@/services/api'
+import { authAPI, roleMap, session } from '@/services/api'
 
-// Role-specific welcome title shown after a successful login/registration.
-// Keyed by the backend role value, so the same map works for both flows.
+// Role-specific welcome title shown after successful login/registration.
 const SUCCESS_MESSAGES = {
   student: 'Certified user moment.',
   service_provider: 'Access granted, chief.',
@@ -521,9 +520,7 @@ export default {
   components: { AppIcon },
   created() {
     const role = this.$route.meta.loginRole || this.$route.query.role
-    if (role) {
-      this.role = role
-    }
+    if (role) this.role = role
   },
   watch: {
     '$route'(to) {
@@ -541,24 +538,13 @@ export default {
       email: '',
       password: '',
       selectedInstitution: '',
-
       showRegistration: false,
       regData: {
-        role: 'student',
-        fullName: '',
-        email: '',
-        studentNumber: '',
-        university: '',
-        company: '',
-        serviceType: '',
-        password: '',
-        confirmPassword: '',
-        idFile: null,
-        agreeTerms: false
+        role: 'student', fullName: '', email: '', studentNumber: '',
+        university: '', company: '', serviceType: '',
+        password: '', confirmPassword: '', idFile: null, agreeTerms: false
       },
-
       registeredUsers: [],
-
       universities: {
         'Western Cape': [
           'University of Cape Town (UCT)',
@@ -588,21 +574,12 @@ export default {
           'University of the Free State (UFS)',
           'Central University of Technology (CUT)'
         ],
-        'North West': [
-          'North-West University (NWU)'
-        ],
-        'Limpopo': [
-          'University of Limpopo (UL)',
-          'University of Venda (UNIVEN)'
-        ],
-        'Mpumalanga': [
-          'University of Mpumalanga (UMP)'
-        ],
-        'Northern Cape': [
-          'Sol Plaatje University (SPU)'
-        ]
+        'North West': ['North-West University (NWU)'],
+        'Limpopo': ['University of Limpopo (UL)', 'University of Venda (UNIVEN)'],
+        'Mpumalanga': ['University of Mpumalanga (UMP)'],
+        'Northern Cape': ['Sol Plaatje University (SPU)']
       }
-    };
+    }
   },
   computed: {
     dedicatedRole() {
@@ -610,75 +587,63 @@ export default {
     }
   },
   methods: {
-    // ===== SIDE NAV =====
     toggleSideNav() {
-      this.sideNavOpen = !this.sideNavOpen;
-      document.body.style.overflow = this.sideNavOpen ? 'hidden' : '';
+      this.sideNavOpen = !this.sideNavOpen
+      document.body.style.overflow = this.sideNavOpen ? 'hidden' : ''
     },
     closeSideNav() {
-      this.sideNavOpen = false;
-      document.body.style.overflow = '';
+      this.sideNavOpen = false
+      document.body.style.overflow = ''
     },
 
     // ===== ROLE TEXT HELPERS =====
     getRoleTitle() {
-      const titles = {
+      return {
         student: 'Student Verification',
         provider: 'Service Provider Verification',
         admin: 'Admin Access',
         resmanager: 'Residence Manager Access'
-      };
-      return titles[this.role] || 'Verification';
+      }[this.role] || 'Verification'
     },
-
     getRoleSubtitle() {
-      const subtitles = {
-        student: 'Verify using your academic email to prove you\'re a student.',
+      return {
+        student: "Verify using your academic email to prove you're a student.",
         provider: 'Verify using your professional work email.',
         admin: 'Platform administration access. Please use your admin credentials.',
         resmanager: 'Residence management access. Please use your credentials.'
-      };
-      return subtitles[this.role] || 'Please verify your credentials.';
+      }[this.role] || 'Please verify your credentials.'
     },
-
     getInstitutionLabel() {
-      const labels = {
+      return {
         student: 'Select Your Tertiary Institution',
         provider: 'Select Your Company / Organization',
         admin: 'Select Your Institution',
         resmanager: 'Select Your Institution'
-      };
-      return labels[this.role] || 'Select Institution';
+      }[this.role] || 'Select Institution'
     },
-
     getEmailLabel() {
-      const labels = {
+      return {
         student: 'Institution Email (Student Verification)',
         provider: 'Work Email',
         admin: 'Admin Email',
         resmanager: 'Residence Manager Email'
-      };
-      return labels[this.role] || 'Email';
+      }[this.role] || 'Email'
     },
-
     getEmailPlaceholder() {
-      const placeholders = {
-        student: 'student@myuct.ac.za',
-        provider: 'provider@work.co.za',
-        admin: 'admin@campusswap.co.za',
-        resmanager: 'resmanager@campusswap.co.za'
-      };
-      return placeholders[this.role] || 'Enter your email';
+      return {
+        student: 'thabo.m@myuct.ac.za',
+        provider: 'info@capeplumbing.co.za',
+        admin: 'lerato.admin@campusswap.co.za',
+        resmanager: 'resmanager.uct@campusswap.co.za'
+      }[this.role] || 'Enter your email'
     },
-
     getSubmitLabel() {
-      const labels = {
+      return {
         student: 'Verify & Enter CampusSwap',
         provider: 'Enter Provider Workspace',
         admin: 'Enter Admin Console',
         resmanager: 'Enter Residence Workspace'
-      }
-      return labels[this.role] || 'Continue'
+      }[this.role] || 'Continue'
     },
 
     openRoleLogin(role) {
@@ -686,19 +651,21 @@ export default {
     },
 
     persistLogin(user, role) {
-      // Normalise UI role labels to the backend/store role values used by the
-      // router guards (provider -> service_provider, resmanager -> res_manager).
-      const storeRole = roleMap[role] || role
+      const storeRole = roleMap[role] || user.role || role
+      const displayName = user.full_name || user.fullName || user.name || 'CampusSwap User'
       const account = {
         id: user.id ?? user.email,
-        name: user.fullName || user.name,
+        name: displayName,
+        full_name: displayName,
         email: user.email,
         role: storeRole,
-        avatar: user.avatar || `https://placehold.co/100x100/6C5CE7/FFFFFF?text=${encodeURIComponent((user.fullName || user.name || 'U').charAt(0))}`,
-        university: user.university || '',
-        verified: user.verified ?? true,
+        avatar: user.avatar_url || user.avatar ||
+          `https://placehold.co/100x100/6C5CE7/FFFFFF?text=${encodeURIComponent(displayName.charAt(0))}`,
+        university: user.university_name || user.university || '',
+        studentNumber: user.student_number || user.studentNumber || '',
+        verified: user.is_verified ?? user.verified ?? true,
         online: true,
-        isPremium: user.isPremium ?? false
+        isPremium: user.is_premium ?? user.isPremium ?? false
       }
       this.$store.commit('user/setCurrentUser', account)
       this.$store.commit('user/setLoggedIn', true)
@@ -706,381 +673,279 @@ export default {
       localStorage.setItem('isLoggedIn', 'true')
     },
 
-    // ===== SMALL NOTICE HELPERS (replaces native alert() for consistency with SweetAlert2) =====
+    // ===== SMALL NOTICES =====
     showPasswordResetNotice() {
-      Swal.fire({
-        icon: 'success',
-        title: 'Check Your Email',
-        text: 'Password reset link sent!',
-        confirmButtonColor: '#2e7d5a',
-      });
+      Swal.fire({ icon: 'success', title: 'Check Your Email', text: 'Password reset link sent!', confirmButtonColor: '#2e7d5a' })
     },
-
     showTermsNotice() {
-      Swal.fire({
-        icon: 'info',
-        title: 'Terms of Service',
-        text: 'Terms and conditions coming soon!',
-        confirmButtonColor: '#f5b941',
-      });
+      Swal.fire({ icon: 'info', title: 'Terms of Service', text: 'Terms and conditions coming soon!', confirmButtonColor: '#f5b941' })
     },
-
     showPrivacyNotice() {
-      Swal.fire({
-        icon: 'info',
-        title: 'Privacy Policy',
-        text: 'Privacy policy coming soon!',
-        confirmButtonColor: '#f5b941',
-      });
+      Swal.fire({ icon: 'info', title: 'Privacy Policy', text: 'Privacy policy coming soon!', confirmButtonColor: '#f5b941' })
     },
 
-    // ===== REGISTRATION METHODS =====
+    // ===== REGISTRATION =====
     openRegistration() {
-      this.showRegistration = true;
+      this.showRegistration = true
       this.regData = {
-        role: 'student',
-        fullName: '',
-        email: '',
-        studentNumber: '',
-        university: '',
-        company: '',
-        serviceType: '',
-        password: '',
-        confirmPassword: '',
-        idFile: null,
-        agreeTerms: false
-      };
-      document.body.style.overflow = 'hidden';
-    },
-
-    closeRegistration() {
-      this.showRegistration = false;
-      document.body.style.overflow = '';
-    },
-
-    handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        if (!file.type.startsWith('image/')) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Invalid File',
-            text: 'Please upload an image file.',
-            confirmButtonColor: '#d33',
-          });
-          return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          Swal.fire({
-            icon: 'error',
-            title: 'File Too Large',
-            text: 'File size must be less than 5MB.',
-            confirmButtonColor: '#d33',
-          });
-          return;
-        }
-        this.regData.idFile = file;
+        role: 'student', fullName: '', email: '', studentNumber: '',
+        university: '', company: '', serviceType: '',
+        password: '', confirmPassword: '', idFile: null, agreeTerms: false
       }
+      document.body.style.overflow = 'hidden'
+    },
+    closeRegistration() {
+      this.showRegistration = false
+      document.body.style.overflow = ''
+    },
+    handleFileUpload(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      if (!file.type.startsWith('image/')) {
+        Swal.fire({ icon: 'error', title: 'Invalid File', text: 'Please upload an image file.', confirmButtonColor: '#d33' })
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({ icon: 'error', title: 'File Too Large', text: 'File size must be less than 5MB.', confirmButtonColor: '#d33' })
+        return
+      }
+      this.regData.idFile = file
     },
 
     async handleRegistration() {
-      // All alerts use SweetAlert2.
-      if (!this.regData.fullName) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Missing Information',
-          text: 'Please enter your full name.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
-      }
-      if (!this.regData.email) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Missing Information',
-          text: 'Please enter your email address.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
-      }
-      if (!this.regData.email.includes('@')) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Invalid Email',
-          text: 'Please enter a valid email address.',
-          confirmButtonColor: '#d33',
-        });
-        return;
-      }
+      // Validations — all same as before
+      if (!this.regData.fullName) return this._warn('Please enter your full name.')
+      if (!this.regData.email) return this._warn('Please enter your email address.')
+      if (!this.regData.email.includes('@')) return this._err('Please enter a valid email address.')
       if ((this.regData.role === 'student' || this.regData.role === 'resmanager') && !this.regData.university) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Missing Information',
-          text: 'Please select your university.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
+        return this._warn('Please select your university.')
       }
       if (this.regData.role === 'provider' && !this.regData.serviceType) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Choose a service type',
-          text: 'Select the primary service you will provide.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
+        return this._warn('Select the primary service you will provide.')
       }
-      if (!this.regData.password) {
+      if (!this.regData.password) return this._warn('Please create a password.')
+      if (this.regData.password.length < 6) return this._err('Password must be at least 6 characters long.')
+      if (this.regData.password !== this.regData.confirmPassword) return this._err('Passwords do not match.')
+      if (!this.regData.agreeTerms) return this._warn('Please agree to the Terms of Service and Privacy Policy.')
+
+      // Try the real backend first.
+      try {
+        await authAPI.register({
+          full_name: this.regData.fullName,
+          email: this.regData.email,
+          password: this.regData.password,
+          role: this.regData.role,
+          university: this.regData.university || null,
+          student_number: this.regData.studentNumber || null,
+          company: this.regData.company || null
+        })
+
+        // Auto-login
+        try {
+          const login = await authAPI.login(this.regData.email, this.regData.password, this.regData.role)
+          if (login?.user) {
+            this.persistLogin(login.user, login.user.role)
+            const routes = {
+              student: '/student-dashboard', service_provider: '/provider-dashboard',
+              admin: '/admin', res_manager: '/resmanager-dashboard'
+            }
+            await Swal.fire({
+              icon: 'success',
+              title: SUCCESS_MESSAGES[login.user.role] || 'Welcome to CampusSwap!',
+              text: `Registered as ${login.user.full_name}.`,
+              timer: 1800, showConfirmButton: false
+            })
+            this.closeRegistration()
+            this.$router.push(routes[login.user.role] || '/')
+            return
+          }
+        } catch (loginErr) {
+          console.warn('[register] auto-login failed:', loginErr.message)
+        }
+
         await Swal.fire({
-          icon: 'warning',
-          title: 'Missing Information',
-          text: 'Please create a password.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
-      }
-      if (this.regData.password.length < 6) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Password Too Short',
-          text: 'Password must be at least 6 characters long.',
-          confirmButtonColor: '#d33',
-        });
-        return;
-      }
-      if (this.regData.password !== this.regData.confirmPassword) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Passwords Do Not Match',
-          text: 'Passwords do not match.',
-          confirmButtonColor: '#d33',
-        });
-        return;
-      }
-      if (!this.regData.agreeTerms) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Terms Not Accepted',
-          text: 'Please agree to the Terms of Service and Privacy Policy.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
+          icon: 'success', title: 'Account Created',
+          text: 'Your account was created. Please log in.',
+          confirmButtonColor: '#2e7d5a'
+        })
+        this.email = this.regData.email
+        this.closeRegistration()
+        return
+      } catch (apiErr) {
+        if (/already registered|ER_DUP_ENTRY/i.test(apiErr.message)) {
+          return this._err('This email is already registered. Please login instead.')
+        }
+        console.warn('[register] API register failed, using in-memory:', apiErr.message)
       }
 
-      const existingUser = this.registeredUsers.find(user => user.email === this.regData.email);
-      if (existingUser) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Email Already Registered',
-          text: 'This email is already registered. Please login instead.',
-          confirmButtonColor: '#d33',
-        });
-        return;
-      }
+      // In-memory fallback
+      const existingUser = this.registeredUsers.find(u => u.email === this.regData.email)
+      if (existingUser) return this._err('This email is already registered in this browser session.')
 
-      const newUser = {
-        role: this.regData.role,
-        fullName: this.regData.fullName,
-        email: this.regData.email,
-        studentNumber: this.regData.studentNumber || '',
-        university: this.regData.university || '',
-        serviceType: this.regData.serviceType || '',
-        password: this.regData.password,
+      this.registeredUsers.push({
+        role: this.regData.role, fullName: this.regData.fullName, email: this.regData.email,
+        studentNumber: this.regData.studentNumber || '', university: this.regData.university || '',
+        serviceType: this.regData.serviceType || '', password: this.regData.password,
         idFile: this.regData.idFile ? this.regData.idFile.name : null,
         registeredAt: new Date().toLocaleString()
-      };
-
-      this.registeredUsers.push(newUser);
-
-      const roleNames = {
-        student: 'Student',
-        provider: 'Service Provider',
-        admin: 'Administrator',
-        resmanager: 'Residence Manager'
-      };
-
-      const welcomeMsg =
-        SUCCESS_MESSAGES[roleMap[this.regData.role]] || 'Registration Successful!';
+      })
 
       await Swal.fire({
         icon: 'success',
-        title: welcomeMsg,
-        html: `
-          <p><strong>Welcome, ${this.regData.fullName}!</strong></p>
-          <p>Role: ${roleNames[this.regData.role]}<br>
-          Email: ${this.regData.email}</p>
-          <p>You can now login with your credentials.</p>
-        `,
-        confirmButtonColor: '#2e7d5a',
-      });
+        title: SUCCESS_MESSAGES[roleMap[this.regData.role]] || 'Registration Successful!',
+        html: `<p><strong>Welcome, ${this.regData.fullName}!</strong></p>
+          <p>Role: ${this.regData.role}<br>Email: ${this.regData.email}</p>
+          <p>You can now log in with your credentials.
+        </p>`,
+        confirmButtonColor: '#2e7d5a'
+      })
 
-      this.role = this.regData.role;
-      this.email = this.regData.email;
-      this.password = this.regData.password;
-      this.selectedInstitution = this.regData.university || '';
-
-      this.closeRegistration();
-
-      //  Ask if they want to login now
-      const result = await Swal.fire({
-        title: 'Login Now?',
-        text: 'Would you like to login to your new account now?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#2e7d5a',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Yes, login',
-        cancelButtonText: 'Later',
-      });
-
-      if (result.isConfirmed) {
-        this.handleLogin();
-      }
+      this.role = this.regData.role
+      this.email = this.regData.email
+      this.password = this.regData.password
+      this.selectedInstitution = this.regData.university || ''
+      this.closeRegistration()
     },
 
-    // ===== LOGIN HANDLER =====
+    // Tiny wrappers for the alert styles we reuse a lot.
+    _warn(text) { return Swal.fire({ icon: 'warning', title: 'Missing Information', text, confirmButtonColor: '#f5b941' }) },
+    _err(text) { return Swal.fire({ icon: 'error', title: 'Invalid Input', text, confirmButtonColor: '#d33' }) },
+
+
+    // ===== LOGIN =====
     async handleLogin() {
-      const demoCredentials = {
-        student: { email: 'student@myuct.ac.za', password: 'student123', route: '/student-dashboard' },
-        provider: { email: 'provider@work.co.za', password: 'provider123', route: '/provider-dashboard' },
-        admin: { email: 'admin@campusswap.co.za', password: 'admin123', route: '/admin' },
-        resmanager: { email: 'resmanager@campusswap.co.za', password: 'res123', route: '/resmanager-dashboard' }
-      }
-      const demo = demoCredentials[this.role]
-      const isDemoCreds = demo && this.email === demo.email && this.password === demo.password
-      // Institution is required for a real account so we can verify the student,
-      // but the built-in demo account must be usable without picking one.
-      const requiresInstitution = (this.role === 'student' || this.role === 'resmanager') && !isDemoCreds
-      if (!this.email || !this.password || (requiresInstitution && !this.selectedInstitution)) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Incomplete Form',
-          text: 'Please fill in all fields.',
-          confirmButtonColor: '#f5b941',
-        });
-        return;
+
+      if (!this.email || !this.password) {
+        await Swal.fire({ icon: 'warning', title: 'Incomplete Form', text: 'Please enter your email and password.', confirmButtonColor: '#f5b941' })
+        return
       }
 
-      const registeredUser = this.registeredUsers.find(
-        user => user.email === this.email && user.password === this.password
-      );
+      // 1. Real backend first.
+      try {
+
+        const result = await authAPI.login(this.email, this.password, this.role)
+        const apiUser = result?.user
+        if (apiUser && apiUser.role) {
+          this.persistLogin(apiUser, apiUser.role)
+          const routes = {
+            student: '/student-dashboard',
+            service_provider: '/provider-dashboard',
+            admin: '/admin',
+            res_manager: '/resmanager-dashboard'
+          }
+
+          await Swal.fire({
+            icon: 'success',
+            title: SUCCESS_MESSAGES[apiUser.role] || 'Login Successful!',
+            text: `Logged in as ${apiUser.full_name || apiUser.email}`,
+            timer: 1800, showConfirmButton: false
+          })
+          this.$router.push(routes[apiUser.role] || '/')
+          return
+        }
+      } 
+
+      catch (apiErr) {
+        console.warn('[login] API login failed:', apiErr.message)
+        // Fall through to demo fallback.
+      }
+
+      // 2. In-memory accounts created this session.
+      const registeredUser = this.registeredUsers.find(u => u.email === this.email && u.password === this.password)
 
       if (registeredUser) {
-        this.persistLogin(registeredUser, registeredUser.role);
+
+        this.persistLogin(registeredUser, registeredUser.role)
         const routes = {
-          student: '/student-dashboard',
-          provider: '/provider-dashboard',
-          admin: '/admin',
-          resmanager: '/resmanager-dashboard'
-        };
-        const welcomeMsg =
-          SUCCESS_MESSAGES[roleMap[registeredUser.role]] || 'Welcome back!'
+          student: '/student-dashboard', provider: '/provider-dashboard',
+          admin: '/admin', resmanager: '/resmanager-dashboard'
+        }
+
         await Swal.fire({
+
           icon: 'success',
-          title: welcomeMsg,
+          title: SUCCESS_MESSAGES[roleMap[registeredUser.role]] || 'Welcome back!',
           text: `Logged in as ${registeredUser.fullName}`,
-          timer: 1800,
-          showConfirmButton: false,
-        });
-        this.$router.push(routes[registeredUser.role] || '/student-dashboard');
-        return;
+          timer: 1800, showConfirmButton: false
+        })
+
+        this.$router.push(routes[registeredUser.role] || '/student-dashboard')
+        return
       }
 
-      const credentials = {
-        student: { email: 'student@myuct.ac.za', password: 'student123', route: '/student-dashboard' },
-        provider: { email: 'provider@work.co.za', password: 'provider123', route: '/provider-dashboard' },
-        admin: { email: 'admin@campusswap.co.za', password: 'admin123', route: '/admin' },
-        resmanager: { email: 'resmanager@campusswap.co.za', password: 'res123', route: '/resmanager-dashboard' }
-      };
-
-      const creds = credentials[this.role];
+      // 3. Built-in demo fallback (offline).
+      const demoCredentials = {
+        student:    { email: 'thabo.m@myuct.ac.za',             password: 'student123',  route: '/student-dashboard' },
+        provider:   { email: 'info@capeplumbing.co.za',         password: 'provider123', route: '/provider-dashboard' },
+        admin:      { email: 'lerato.admin@campusswap.co.za',   password: 'admin123',    route: '/admin' },
+        resmanager: { email: 'resmanager.uct@campusswap.co.za', password: 'res123',      route: '/resmanager-dashboard' }
+      }
+      const creds = demoCredentials[this.role]
 
       if (this.email === creds.email && this.password === creds.password) {
-        this.$store.commit('user/loginAsRole', this.role);
-        this.$store.commit('user/setLoggedIn', true);
-        session.save(this.$store.getters['user/currentUser']);
-        localStorage.setItem('isLoggedIn', 'true');
-        const roleNames = {
-          student: 'Student',
-          provider: 'Service Provider',
-          admin: 'Administrator',
-          resmanager: 'Residence Manager'
-        };
-        const welcomeMsg =
-          SUCCESS_MESSAGES[roleMap[this.role]] || 'Login Successful!';
+
+        this.$store.commit('user/loginAsRole', this.role)
+        this.$store.commit('user/setLoggedIn', true)
+        session.save(this.$store.getters['user/currentUser'])
+        localStorage.setItem('isLoggedIn', 'true')
+
         await Swal.fire({
+
           icon: 'success',
-          title: welcomeMsg,
-          text: `${roleNames[this.role]} logged in successfully!`,
-          timer: 1800,
-          showConfirmButton: false,
-        });
-        this.$router.push(creds.route);
-      } else {
-        const roleNames = {
-          student: 'Student',
-          provider: 'Service Provider',
-          admin: 'Administrator',
-          resmanager: 'Residence Manager'
-        };
-        await Swal.fire({
-          icon: 'error',
-          title: 'Invalid Credentials',
-          html: `
-            <p>Invalid ${roleNames[this.role]} credentials.</p>
-            <p><strong>Try:</strong><br>
-            Email: ${creds.email}<br>
-            Password: ${creds.password}</p>
-          `,
-          confirmButtonColor: '#d33',
-        });
+          title: SUCCESS_MESSAGES[roleMap[this.role]] || 'Login Successful!',
+          text: 'Demo login successful!',
+          timer: 1800, showConfirmButton: false
+        })
+
+        this.$router.push(creds.route)
+        return
       }
+
+      // 4. Nothing matched.
+      const roleNames = {
+        student: 'Student', provider: 'Service Provider',
+        admin: 'Administrator', resmanager: 'Residence Manager'
+      }
+      await Swal.fire({
+        icon: 'error',
+        title: 'Invalid Credentials',
+        html: `<p>Invalid ${roleNames[this.role]} credentials.</p>
+               <p><strong>Demo login:</strong><br>
+               Email: ${creds.email}<br>
+               Password: ${creds.password}</p>`,
+        confirmButtonColor: '#d33'
+      })
     },
 
     // ===== QUICK TEST LOGIN =====
     async quickLogin(role) {
-      this.role = role;
+      this.role = role
+
       const credentials = {
-        student: { email: 'student@myuct.ac.za', password: 'student123', institution: 'University of Cape Town (UCT)' },
-        provider: { email: 'provider@work.co.za', password: 'provider123', institution: '' },
-        admin: { email: 'admin@campusswap.co.za', password: 'admin123', institution: '' },
-        resmanager: { email: 'resmanager@campusswap.co.za', password: 'res123', institution: 'University of Cape Town (UCT)' }
-      };
-      const creds = credentials[role];
-      this.email = creds.email;
-      this.password = creds.password;
-      this.selectedInstitution = creds.institution;
-      
-      await Swal.fire({
-        icon: 'info',
-        title: 'Quick Login',
-        text: `Logging in as ${role}...`,
-        timer: 800,
-        showConfirmButton: false,
-      });
-      
-      this.handleLogin();
+        student:    { email: 'thabo.m@myuct.ac.za',             password: 'student123',  institution: 'University of Cape Town (UCT)' },
+        provider:   { email: 'info@capeplumbing.co.za',         password: 'provider123', institution: '' },
+        admin:      { email: 'lerato.admin@campusswap.co.za',   password: 'admin123',    institution: '' },
+        resmanager: { email: 'resmanager.uct@campusswap.co.za', password: 'res123',      institution: 'University of Cape Town (UCT)' }
+      }
+      const creds = credentials[role]
+      this.email = creds.email
+      this.password = creds.password
+      this.selectedInstitution = creds.institution
+
+      await Swal.fire({ icon: 'info', title: 'Quick Login', text: `Logging in as ${role}...`, timer: 600, showConfirmButton: false })
+      this.handleLogin()
     },
 
-    
     async setAdminLogin() {
-      this.role = 'admin';
-      this.email = 'admin@campusswap.co.za';
-      this.password = 'admin123';
-      this.selectedInstitution = '';
-      
-      await Swal.fire({
-        icon: 'info',
-        title: 'Admin Login',
-        text: 'Logging in as Administrator...',
-        timer: 800,
-        showConfirmButton: false,
-      });
-      
-      this.handleLogin();
+      this.role = 'admin'
+      this.email = 'lerato.admin@campusswap.co.za'
+      this.password = 'admin123'
+      this.selectedInstitution = ''
+      await Swal.fire({ icon: 'info', title: 'Admin Login', text: 'Logging in as Administrator...', timer: 600, showConfirmButton: false })
+      this.handleLogin()
     }
   }
-};
+}
 
 </script>
 

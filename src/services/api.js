@@ -105,7 +105,7 @@ export const dashAPI = {
 };
 
 // ------------------------------------------------------------
-// SHOP / CHECKOUT — teammate's stuff (left exactly as it was)
+// SHOP / CHECKOUT 
 // ------------------------------------------------------------
 export const api = {
   // Initiate checkout

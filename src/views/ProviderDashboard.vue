@@ -121,7 +121,15 @@ const averageRating = computed(() => {
   ).toFixed(1)
 })
 
+
 onMounted(async () => {
+  console.log('========== PROVIDER DEBUG ==========')
+  console.log('CURRENT USER:', currentUser.value)
+  console.log('PROVIDER ID:', currentUser.value?.id)
+  console.log('PROVIDER NAME:', currentUser.value?.full_name)
+  console.log('PROVIDER EMAIL:', currentUser.value?.email)
+  console.log('====================================')
+
   if (!currentUser.value?.id) {
     console.warn('No logged-in provider found.')
     return
@@ -133,15 +141,7 @@ onMounted(async () => {
   )
 })
 
-function formatDate(date) {
-  if (!date) return '—'
 
-  return new Date(date).toLocaleDateString('en-ZA', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
-}
 </script>
 
 

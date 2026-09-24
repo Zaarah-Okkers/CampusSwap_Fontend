@@ -1,112 +1,81 @@
 <template>
-
   <main class="res-page">
-
     <div class="res-shell">
-
       <header class="page-heading">
-
         <div>
           <p class="eyebrow">SafeHome management</p>
           <h1>Provider payments</h1>
-          <p class="muted">Approve completed SafeHome work and pay verified service providers.</p>
+          <p class="muted">
+            Approve completed SafeHome work, monitor residence payments, and
+            manage resident requests.
+          </p>
         </div>
-
         <router-link class="button button-primary" to="/">Home</router-link>
-
       </header>
 
-      <section class="summary-grid" aria-label="Residence summary">
-
+      <!-- Summary cards -->
+      <section class="summary-grid">
         <article v-for="stat in summary" :key="stat.label" class="summary-card">
-
           <AppIcon :name="stat.icon" />
-
           <div>
             <strong>{{ stat.value }}</strong>
             <span>{{ stat.label }}</span>
           </div>
-
         </article>
-
       </section>
 
-
-      <!-- SafeHome provider invoices -->
-      <section class="panel provider-payment-panel">
-
+      <!-- Provider invoices waiting for release -->
+      <section class="panel">
         <div class="panel-heading">
-
           <div>
             <p class="eyebrow">SafeHome</p>
             <h2>Provider invoices awaiting payment</h2>
           </div>
-
+          <span class="count">{{ providerInvoices.length }}</span>
         </div>
-
-        <div class="outstanding-list">
-
+        <p v-if="!providerInvoices.length" class="empty">
+          No completed jobs are waiting for release.
+        </p>
+        <div v-else class="outstanding-list">
           <article
             v-for="invoice in providerInvoices"
             :key="invoice.id"
             class="outstanding-row"
           >
-
             <div>
-              <strong>{{ invoice.provider }}</strong>
-              <p>{{ invoice.job }} · {{ invoice.completed }}</p>
+              <strong>{{ invoice.provider_name || "Provider" }}</strong>
+              <p>{{ invoice.title }} · {{ invoice.residence_name }}</p>
             </div>
-
-            <span class="status status-upcoming">
-              Ready to pay
-            </span>
-
-            <strong>
-              R{{ invoice.amount.toLocaleString() }}
-            </strong>
-
-            <button
-              class="text-button"
-              @click="payProvider(invoice)"
-            >
+            <span class="status status-upcoming">Ready to pay</span>
+            <strong>R{{ Number(invoice.estimated_cost).toFixed(2) }}</strong>
+            <button class="text-button" @click="payProvider(invoice)">
               Pay provider
             </button>
-
           </article>
-
         </div>
-
       </section>
 
-
-      <!-- Resident payment monitoring -->
+      <!-- Resident payments -->
       <section class="panel">
-
         <div class="panel-heading">
-
           <div>
             <p class="eyebrow">Payment monitoring</p>
             <h2>Resident payments</h2>
           </div>
-
-          <select
-            v-model="paymentFilter"
-            aria-label="Filter payments"
-          >
+          <select v-model="paymentFilter" aria-label="Filter payments">
             <option value="all">All payments</option>
             <option value="late">Late</option>
             <option value="upcoming">Coming up</option>
             <option value="paid">Paid</option>
           </select>
-
         </div>
 
-        <div class="table-wrap">
-
+        <p v-if="!filteredPayments.length" class="empty">
+          No resident payments match this filter.
+        </p>
+        <div v-else class="table-wrap">
           <table>
-
             <thead>
-
               <tr>
                 <th>Resident</th>
                 <th>Residence</th>
@@ -115,954 +84,621 @@
                 <th>Status</th>
                 <th>Action</th>
               </tr>
-
             </thead>
-
             <tbody>
-
-              <tr
-                v-for="payment in filteredPayments"
-                :key="payment.id"
-              >
-
-                <td>{{ payment.resident }}</td>
-
-                <td>{{ payment.residence }}</td>
-
-                <td>{{ payment.dueDate }}</td>
-
+              <tr v-for="p in filteredPayments" :key="p.id">
+                <td>{{ p.student_name }}</td>
+                <td>{{ p.residence_name }}</td>
+                <td>{{ formatDate(p.due_date) }}</td>
+                <td>R{{ Number(p.amount).toFixed(2) }}</td>
                 <td>
-                  R{{ payment.amount.toLocaleString() }}
-                </td>
-
-                <td>
-
-                  <span
-                    :class="['status', `status-${payment.status}`]"
-                  >
-                    {{ statusLabel(payment.status) }}
+                  <span :class="['status', `status-${p.status}`]">
+                    {{ statusLabel(p.status) }}
                   </span>
-
                 </td>
-
                 <td>
-
-                  <button
-                    class="text-button"
-                    @click="notify(payment)"
-                  >
-                    {{ payment.status === 'late' ? 'Notify' : 'View' }}
+                  <button class="text-button" @click="notifyResident(p)">
+                    {{ p.status === "late" ? "Notify" : "View" }}
                   </button>
-
                 </td>
-
               </tr>
-
             </tbody>
-
           </table>
-
         </div>
-
       </section>
 
-
-      <!-- Residents who still have outstanding payments -->
-      <section class="panel outstanding-panel">
-
+      <!-- Outstanding total -->
+      <section
+        v-if="outstandingPayments.length"
+        class="panel outstanding-panel"
+      >
         <div class="panel-heading">
-
           <div>
             <p class="eyebrow">Action needed</p>
             <h2>Residents who still need to pay</h2>
           </div>
-
           <strong class="outstanding-total">
-            R{{ outstandingTotal.toLocaleString() }}
+            R{{ outstandingTotal.toFixed(2) }}
           </strong>
-
         </div>
-
         <div class="outstanding-list">
-
           <article
-            v-for="payment in outstandingPayments"
-            :key="payment.id"
+            v-for="p in outstandingPayments"
+            :key="p.id"
             class="outstanding-row"
           >
-
             <div>
-
-              <strong>{{ payment.resident }}</strong>
-
-              <p>
-                {{ payment.residence }} · Due {{ payment.dueDate }}
-              </p>
-
+              <strong>{{ p.student_name }}</strong>
+              <p>{{ p.residence_name }} · Due {{ formatDate(p.due_date) }}</p>
             </div>
-
-            <span
-              :class="['status', `status-${payment.status}`]"
-            >
-              {{ statusLabel(payment.status) }}
+            <span :class="['status', `status-${p.status}`]">
+              {{ statusLabel(p.status) }}
             </span>
-
-            <strong>
-              R{{ payment.amount.toLocaleString() }}
-            </strong>
-
-            <button
-              class="text-button"
-              @click="notify(payment)"
-            >
+            <strong>R{{ Number(p.amount).toFixed(2) }}</strong>
+            <button class="text-button" @click="notifyResident(p)">
               Notify resident
             </button>
-
           </article>
-
         </div>
-
       </section>
 
-
-      <!-- =========================================================
-           MAINTENANCE / RESIDENCE REQUESTS
-           These requests come from the backend database.
-           ========================================================= -->
+      <!-- Residence requests -->
       <section class="panel">
-
         <div class="panel-heading">
-
           <div>
-            <p class="eyebrow">Residence maintenance</p>
-            <h2>Maintenance requests</h2>
+            <p class="eyebrow">Requests</p>
+            <h2>Residence applications</h2>
           </div>
-
-          <!-- Shows how many real requests were returned -->
-          <span class="count">
-            {{ maintenanceRequests.length }}
-          </span>
-
+          <span class="count">{{ pendingRequests.length }}</span>
         </div>
 
-
-        <!-- Message shown when there are no maintenance requests -->
-        <div
-          v-if="maintenanceRequests.length === 0"
-          class="request"
-        >
-          <div>
-            <strong>No maintenance requests</strong>
-            <p>
-              There are currently no residence maintenance requests.
-            </p>
-          </div>
-        </div>
-
-
-        <!-- Real maintenance requests from MySQL -->
-        <div
-          v-else
-          class="request-list"
-        >
-
-          <div
-            v-for="request in maintenanceRequests"
+        <p v-if="!pendingRequests.length" class="empty">
+          No pending residence requests.
+        </p>
+        <div v-else class="request-list">
+          <article
+            v-for="request in pendingRequests"
             :key="request.id"
-            class="request"
+            class="request-row"
           >
-
             <div>
-
-              <!-- Student name comes from the backend -->
-              <strong>
-                {{ request.student_name || 'Unknown student' }}
-              </strong>
-
-              <!-- Residence name comes from the backend -->
+              <strong>{{ request.student_name }}</strong>
               <p>
-                {{ request.residence_name || 'Unknown residence' }}
+                {{ request.residence_name }} · Requested
+                {{ formatDate(request.requested_at) }}
               </p>
-
-              <!-- Request notes come from the database -->
-              <p v-if="request.notes">
-                {{ request.notes }}
-              </p>
-
-              <!-- Requested date comes from the database -->
-              <p>
-                Requested:
-                {{ formatRequestDate(request.requested_at) }}
-              </p>
-
             </div>
-
-
-            <!-- Displays the real database status -->
-            <span
-              :class="['status', `status-${request.status}`]"
-            >
-              {{ statusLabel(request.status) }}
-            </span>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <section class="two-column">
-
-        <article class="panel">
-
-          <div class="panel-heading">
-
-            <div>
-              <p class="eyebrow">Requests</p>
-              <h2>More time to pay</h2>
-            </div>
-
-            <span class="count">
-              {{ extensionRequests.length }}
-            </span>
-
-          </div>
-
-          <div class="request-list">
-
-            <div
-              v-for="request in extensionRequests"
-              :key="request.id"
-              class="request"
-            >
-
-              <div>
-
-                <strong>{{ request.resident }}</strong>
-
-                <p>
-                  {{ request.residence }} · {{ request.reason }}
-                </p>
-
-              </div>
-
-              <div class="request-actions">
-
-                <button
-                  class="text-button"
-                  @click="resolveRequest(request, 'approved')"
-                >
-                  Approve
-                </button>
-
-                <button
-                  class="text-button danger"
-                  @click="resolveRequest(request, 'declined')"
-                >
-                  Decline
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </article>
-
-
-        <article class="panel">
-
-          <div class="panel-heading">
-
-            <div>
-              <p class="eyebrow">Resident actions</p>
-              <h2>Move-out follow-up</h2>
-            </div>
-
-            <span class="count">
-              {{ moveOuts.length }}
-            </span>
-
-          </div>
-
-          <div class="request-list">
-
-            <div
-              v-for="moveOut in moveOuts"
-              :key="moveOut.id"
-              class="request"
-            >
-
-              <div>
-
-                <strong>{{ moveOut.resident }}</strong>
-
-                <p>
-                  {{ moveOut.residence }} · {{ moveOut.reason }}
-                </p>
-
-              </div>
-
+            <div class="request-actions">
+              <button
+                class="text-button"
+                @click="resolveRequest(request, 'approved')"
+              >
+                Approve
+              </button>
               <button
                 class="text-button danger"
-                @click="sendNotice(moveOut)"
+                @click="resolveRequest(request, 'declined')"
               >
-                {{ moveOut.refuses ? 'Alert authorities' : 'Send notice' }}
+                Decline
               </button>
-
             </div>
-
-          </div>
-
-        </article>
-
-      </section>
-
-
-      <section class="panel">
-
-        <div class="panel-heading">
-
-          <div>
-            <p class="eyebrow">Room availability</p>
-            <h2>Available residences</h2>
-          </div>
-
-          <span class="count">
-            {{ availableResidences.length }}
-          </span>
-
-        </div>
-
-        <div class="residence-grid">
-
-          <article
-            v-for="residence in availableResidences"
-            :key="residence.name"
-            class="residence-card"
-          >
-
-            <div>
-
-              <h3>{{ residence.name }}</h3>
-
-              <p>{{ residence.location }}</p>
-
-            </div>
-
-            <strong>
-              {{ residence.rooms }} rooms
-            </strong>
-
           </article>
-
         </div>
-
       </section>
-
     </div>
-
   </main>
-
 </template>
 
-
 <script setup>
+import { computed, onMounted, ref } from "vue";
+import Swal from "sweetalert2";
+import AppIcon from "../components/AppIcon.vue";
+import { API_BASE } from "../services/api";
 
-import { computed, ref, onMounted } from 'vue'
+const paymentFilter = ref("all");
+const loading = ref(true);
 
-import { useStore } from 'vuex'
+const payments = ref([]);
+const requests = ref([]);
+const completedServices = ref([]);
 
-import AppIcon from '../components/AppIcon.vue'
-
-import { confirmThenRun, swalTheme } from '../utils/swalTheme'
-
-import { resolveResidentId } from '../utils/notifyUsers'
-
-import { dashAPI } from '@/services/api'
-
-
-const store = useStore()
-
-const paymentFilter = ref('all')
-
-
-const payments = ref([
-
-  {
-    id: 1,
-    resident: 'Lerato M.',
-    residence: 'Room 204',
-    dueDate: '18 Sep 2026',
-    amount: 4200,
-    status: 'late'
-  },
-
-  {
-    id: 2,
-    resident: 'Thabo N.',
-    residence: 'Room 118',
-    dueDate: '25 Sep 2026',
-    amount: 4200,
-    status: 'upcoming'
-  },
-
-  {
-    id: 3,
-    resident: 'Aisha K.',
-    residence: 'Room 309',
-    dueDate: '01 Sep 2026',
-    amount: 4200,
-    status: 'paid'
-  },
-
-  {
-    id: 4,
-    resident: 'Sipho D.',
-    residence: 'Room 102',
-    dueDate: '20 Sep 2026',
-    amount: 3900,
-    status: 'upcoming'
+const me = computed(() => {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "{}");
+  } catch {
+    return {};
   }
+});
 
-])
+const providerInvoices = computed(() =>
+  completedServices.value.filter(
+    (s) => s.estimated_cost && Number(s.estimated_cost) > 0,
+  ),
+);
 
-
-const extensionRequests = ref([
-  {
-    id: 1,
-    resident: 'Mia D.',
-    residence: 'Room 212',
-    reason: 'Funding payment delayed'
-  },
-
-  {
-    id: 2,
-    resident: 'Naledi S.',
-    residence: 'Room 401',
-    reason: 'Awaiting bursary confirmation'
-  }
-])
-
-
-const moveOuts = ref([
-  {
-    id: 1,
-    resident: 'Kabelo P.',
-    residence: 'Room 106',
-    reason: 'Notice issued',
-    refuses: false
-  },
-
-  {
-    id: 2,
-    resident: 'Jordan L.',
-    residence: 'Room 220',
-    reason: 'Refuses to leave after notice',
-    refuses: true
-  }
-])
-
-
-const availableResidences = ref([
-  {
-    name: 'Smuts Hall',
-    location: 'Upper campus',
-    rooms: 6
-  },
-
-  {
-    name: 'Claremont House',
-    location: 'Claremont',
-    rooms: 3
-  },
-
-  {
-    name: 'Mowbray Residence',
-    location: 'Mowbray',
-    rooms: 9
-  }
-])
-
-
-const providerInvoices = ref([
-  {
-    id: 1,
-    provider: 'Cape Plumbing Co.',
-    job: 'Leaking kitchen tap · Room 302',
-    completed: 'Completed 18 Sep 2026',
-    amount: 250
-  },
-
-  {
-    id: 2,
-    provider: 'Campus Electrical',
-    job: 'Circuit-breaker repair · Room 114',
-    completed: 'Completed 19 Sep 2026',
-    amount: 180
-  }
-])
-
-
-// =========================================================
-// MAINTENANCE REQUESTS
-// =========================================================
-
-// Stores the real residence maintenance requests
-// returned from the backend.
-const maintenanceRequests = ref([])
-
-
-const filteredPayments = computed(() =>
-  paymentFilter.value === 'all'
-    ? payments.value
-    : payments.value.filter(
-        payment => payment.status === paymentFilter.value
-      )
-)
-
+const filteredPayments = computed(() => {
+  if (paymentFilter.value === "all") return payments.value;
+  return payments.value.filter((p) => p.status === paymentFilter.value);
+});
 
 const outstandingPayments = computed(() =>
-  payments.value.filter(
-    payment =>
-      payment.status === 'late' ||
-      payment.status === 'upcoming'
-  )
-)
-
+  payments.value.filter((p) => p.status === "late" || p.status === "upcoming"),
+);
 
 const outstandingTotal = computed(() =>
-  outstandingPayments.value.reduce(
-    (total, payment) => total + payment.amount,
-    0
-  )
-)
+  outstandingPayments.value.reduce((sum, p) => sum + Number(p.amount), 0),
+);
 
+const pendingRequests = computed(() =>
+  requests.value.filter((r) => r.status === "pending"),
+);
 
 const summary = computed(() => [
-
   {
-    label: 'Paid this month',
-    value: payments.value.filter(
-      payment => payment.status === 'paid'
-    ).length,
-    icon: 'check'
+    label: "Paid this month",
+    value: payments.value.filter((p) => p.status === "paid").length,
+    icon: "check",
   },
-
   {
-    label: 'Late payments',
-    value: payments.value.filter(
-      payment => payment.status === 'late'
-    ).length,
-    icon: 'alert'
+    label: "Late payments",
+    value: payments.value.filter((p) => p.status === "late").length,
+    icon: "alert",
   },
-
   {
-    label: 'Payment requests',
-    value: extensionRequests.value.length,
-    icon: 'clock'
+    label: "Pending requests",
+    value: pendingRequests.value.length,
+    icon: "clock",
   },
-
   {
-    label: 'Available rooms',
-    value: availableResidences.value.reduce(
-      (total, residence) => total + residence.rooms,
-      0
-    ),
-    icon: 'building'
-  }
+    label: "Awaiting invoices",
+    value: providerInvoices.value.length,
+    icon: "tools",
+  },
+]);
 
-])
-
-
-// =========================================================
-// LOAD MAINTENANCE REQUESTS
-// =========================================================
-
-// Gets the maintenance requests from the backend.
-async function loadMaintenanceRequests() {
-
-  try {
-
-    // Calls the existing Residence Manager dashboard API.
-    const data = await dashAPI.getResManager()
-
-    // Saves the requests returned by the backend.
-    // If nothing is returned, use an empty array.
-    maintenanceRequests.value =
-      data.maintenanceRequests || []
-
-    // Helpful for checking the returned data in the browser console.
-    console.log(
-      'Maintenance requests:',
-      maintenanceRequests.value
-    )
-
-  } catch (error) {
-
-    // Prevents the page from crashing if the backend request fails.
-    console.error(
-      'Failed to load maintenance requests:',
-      error
-    )
-
-  }
-
-}
-
-
-// Loads the maintenance requests automatically
-// when the payment page opens.
-onMounted(() => {
-
-  loadMaintenanceRequests()
-
-})
-
-
-// Formats the date returned from MySQL
-// into a readable South African date/time.
-function formatRequestDate(date) {
-
-  if (!date) {
-
-    return 'Unknown date'
-
-  }
-
-  return new Date(date).toLocaleString('en-ZA')
-
-}
-
-
-// Converts payment statuses into readable labels.
 function statusLabel(status) {
-
-  return status === 'upcoming'
-    ? 'Coming up'
-    : status.charAt(0).toUpperCase() + status.slice(1)
-
+  return status === "upcoming"
+    ? "Coming up"
+    : status.charAt(0).toUpperCase() + status.slice(1);
 }
 
+function formatDate(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-ZA", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+async function loadAll() {
+  loading.value = true;
+  const managerId = me.value.id;
+  try {
+    const [paymentsRes, requestsRes, servicesRes] = await Promise.all([
+      fetch(`${API_BASE}/residence-payments?manager_id=${managerId}`).then(
+        (r) => r.json(),
+      ),
+      fetch(`${API_BASE}/residence-requests?manager_id=${managerId}`).then(
+        (r) => r.json(),
+      ),
+      // Completed services with a real cost are the invoices awaiting payout.
+      fetch(`${API_BASE}/services?status=completed`).then((r) => r.json()),
+    ]);
+    payments.value = paymentsRes.data || [];
+    requests.value = requestsRes.data || [];
+    completedServices.value = (servicesRes.data || []).filter(
+      (s) => s.estimated_cost && Number(s.estimated_cost) > 0,
+    );
+  } catch (err) {
+    console.error("[resmanager-payments] load failed:", err);
+  } finally {
+    loading.value = false;
+  }
+}
 
 async function payProvider(invoice) {
-
-  const result = await swalTheme.fire({
-
-    title: 'Pay service provider?',
-
-    text: `Pay ${invoice.provider} R${invoice.amount.toLocaleString()} for this completed job?`,
-
-    icon: 'question',
-
+  const confirm = await Swal.fire({
+    title: "Pay service provider?",
+    html: `<p>Pay <strong>${invoice.provider_name || "the provider"}</strong> R${Number(invoice.estimated_cost).toFixed(2)} for "${invoice.title}"?</p>`,
+    icon: "question",
     showCancelButton: true,
+    confirmButtonText: "Confirm payment",
+    confirmButtonColor: "#2e7d5a",
+  });
+  if (!confirm.isConfirmed) return;
 
-    confirmButtonText: 'Confirm payment'
-
-  })
-
-  if (!result.isConfirmed) return
-
-  providerInvoices.value =
-    providerInvoices.value.filter(
-      item => item.id !== invoice.id
-    )
-
-  await swalTheme.fire({
-
-    title: 'Payment recorded',
-
-    text: `${invoice.provider} will receive R${invoice.amount.toLocaleString()}.`,
-
-    icon: 'success'
-
-  })
-
-}
-
-
-async function notify(payment) {
-
-  await confirmThenRun({
-
-    confirmTitle: 'Send payment notice?',
-
-    confirmText: `Send a payment reminder to ${payment.resident}?`,
-
-    confirmButtonText: 'Send notice',
-
-    successTitle: 'Payment notice sent',
-
-    successText: `Payment notice prepared for ${payment.resident}.`,
-
-    action: () => {
-
-      store.dispatch('notifications/create', {
-
-        userId: resolveResidentId(
-          store,
-          payment.resident
-        ),
-
-        type: 'payment',
-
-        title: 'Payment reminder',
-
-        message: `Your residence payment of R${payment.amount.toLocaleString()} is due on ${payment.dueDate}.`,
-
-        actionUrl: '/student-residence',
-
-        metadata: {
-          residence: payment.residence,
-          amount: payment.amount,
-          dueDate: payment.dueDate
-        }
-
-      })
-
-    }
-
-  })
-
-}
-
-
-function resolveRequest(request, decision) {
-
-  extensionRequests.value =
-    extensionRequests.value.filter(
-      item => item.id !== request.id
-    )
-
-  swalTheme.fire({
-
-    title:
-      decision === 'approved'
-        ? 'Extension approved'
-        : 'Extension declined',
-
-    text:
-      `${decision === 'approved'
-        ? 'Extension approved for'
-        : 'Extension declined for'} ${request.resident}.`,
-
-    icon:
-      decision === 'approved'
-        ? 'success'
-        : 'info'
-
-  })
-
-}
-
-
-async function sendNotice(moveOut) {
-
-  if (moveOut.refuses) {
-
-    await swalTheme.fire({
-
-      title: 'Authorities alert prepared',
-
-      text: `Authorities alert prepared for ${moveOut.resident}.`,
-
-      icon: 'warning'
-
-    })
-
-    return
-
+  try {
+    const res = await fetch(`${API_BASE}/services/${invoice.id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "cancelled" }),
+    });
+    if (!res.ok) throw new Error(`Failed (${res.status})`);
+    await loadAll();
+    Swal.fire({
+      icon: "success",
+      title: "Payment recorded",
+      text: `${invoice.provider_name || "The provider"} will receive R${Number(invoice.estimated_cost).toFixed(2)}.`,
+    });
+  } catch (err) {
+    Swal.fire({ icon: "error", title: "Payment failed", text: err.message });
   }
-
-  await confirmThenRun({
-
-    confirmTitle: 'Send move-out notice?',
-
-    confirmText:
-      `Send a move-out notice to ${moveOut.resident}?`,
-
-    confirmButtonText: 'Send notice',
-
-    icon: 'warning',
-
-    successTitle: 'Move-out notice sent',
-
-    successText:
-      `Move-out notice sent to ${moveOut.resident}.`,
-
-    action: () => {
-
-      store.dispatch('notifications/create', {
-
-        userId: resolveResidentId(
-          store,
-          moveOut.resident
-        ),
-
-        type: 'move_out',
-
-        title: 'Move-out notice',
-
-        message:
-          'You have received a move-out notice from your residence manager. Please review your move-out details and required next steps.',
-
-        actionUrl: '/student-residence',
-
-        metadata: {
-          residence: moveOut.residence
-        }
-
-      })
-
-    }
-
-  })
-
 }
 
+async function resolveRequest(request, decision) {
+  const confirm = await Swal.fire({
+    title: decision === "approved" ? "Approve request?" : "Decline request?",
+    text: `${decision === "approved" ? "Approve" : "Decline"} ${request.student_name}'s request for ${request.residence_name}?`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: decision === "approved" ? "Approve" : "Decline",
+    confirmButtonColor: decision === "approved" ? "#2e7d5a" : "#d33",
+  });
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/residence-requests/${request.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: decision }),
+    });
+    if (!res.ok) throw new Error(`Failed (${res.status})`);
+    await loadAll();
+    Swal.fire({
+      icon: "success",
+      title: decision === "approved" ? "Approved" : "Declined",
+      text: `${request.student_name}'s request has been ${decision}.`,
+      timer: 1800,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    Swal.fire({ icon: "error", title: "Could not save", text: err.message });
+  }
+}
+
+async function notifyResident(payment) {
+  try {
+    await fetch(`${API_BASE}/notifications`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: payment.student_id,
+        type: "payment",
+        title:
+          payment.status === "late" ? "Payment overdue" : "Payment reminder",
+        message: `Your residence payment of R${Number(payment.amount).toFixed(2)} for ${payment.residence_name} is due ${formatDate(payment.due_date)}.`,
+        action_url: "/student-residence",
+      }),
+    });
+    Swal.fire({
+      icon: "success",
+      title: "Notification sent",
+      text: `${payment.student_name} has been notified.`,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    Swal.fire({ icon: "error", title: "Could not send", text: err.message });
+  }
+}
+
+onMounted(loadAll);
 </script>
 
-
 <style scoped>
+/* ---------- Page shell ---------- */
+.res-page {
+  background: #0a0e27;
+  min-height: 100vh;
+  padding: 42px 24px 120px;
+}
+.res-shell {
+  margin: 0 auto;
+  max-width: 1180px;
+}
 
-.res-page{background:#0a0e27;min-height:100vh;padding:42px 24px 120px}
-.res-shell{margin:0 auto;max-width:1180px}
-.page-heading{align-items:end;display:flex;justify-content:space-between;gap:20px;margin-bottom:28px}
-.eyebrow{color:var(--gold);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.page-heading h1{color:#fff;font-size:clamp(2rem,4vw,3.2rem);margin:6px 0}
-.muted{color:#6b7280}
-.button{border:0;border-radius:9px;cursor:pointer;font-weight:700;padding:12px 16px;white-space:nowrap}
-.button-primary{background:#f5b941;color:#0d1b3d}
-.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.summary-card{align-items:center;background:#fff;border-radius:16px;display:flex;gap:14px;padding:18px}
-.summary-card :deep(.app-icon){color:#2e7d5a;font-size:25px}
-.summary-card div{display:flex;flex-direction:column}
-.summary-card strong{color:#0d1b3d;font-family:'Fraunces',Georgia,serif;font-size:1.8rem}
-.summary-card span{color:#6b7280;font-size:12px}
-.panel{background:#fff;border-radius:16px;margin-bottom:20px;padding:20px}
-.panel-heading{align-items:start;border-bottom:2px solid #6c4b6a;display:flex;justify-content:space-between;gap:16px;margin-bottom:16px;padding-bottom:10px}
-.panel h2{color:#0d1b3d;font-size:1.3rem;margin-top:4px}
-.panel select{border:1px solid #e5e7eb;border-radius:7px;color:#0d1b3d;padding:8px}
-.table-wrap{overflow-x:auto}
-table{border-collapse:collapse;min-width:680px;width:100%}
-th,td{border-bottom:1px solid #eee;padding:12px 10px;text-align:left}
-th{color:#64748b;font-size:11px;text-transform:uppercase}
-td{color:#4b5563;font-size:13px}
-td:first-child{color:#0d1b3d;font-weight:700}
+.page-heading {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.eyebrow {
+  color: #f5b941;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.page-heading h1 {
+  color: #ffffff;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin: 6px 0;
+}
+.page-heading .muted {
+  color: #e2e8f0;
+  font-size: 14px;
+  margin: 0;
+}
 
-.status{border-radius:999px;font-size:11px;font-weight:700;padding:5px 9px}
-.status-paid{background:#e9f8ef;color:#2e7d5a}
-.status-late{background:#ffe9e6;color:#d34c3d}
-.status-upcoming{background:#fff5d8;color:#a97700}
+.button {
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 12px 20px;
+  text-decoration: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+.button-primary {
+  background: #f5b941;
+  color: #0d1b3d;
+}
 
-/* Status styles for real maintenance request statuses */
-.status-pending{background:#fff5d8;color:#a97700}
-.status-approved{background:#e9f8ef;color:#2e7d5a}
-.status-declined{background:#ffe9e6;color:#d34c3d}
-.status-cancelled{background:#f0f2f5;color:#64748b}
+/* ---------- Summary cards ---------- */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.summary-card {
+  align-items: center;
+  background: #ffffff;
+  border-radius: 16px;
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+}
+.summary-card :deep(.app-icon) {
+  color: #2e7d5a;
+  font-size: 26px;
+  flex: 0 0 auto;
+}
+.summary-card div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.summary-card strong {
+  color: #0d1b3d;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.9rem;
+  line-height: 1.1;
+}
+.summary-card span {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
 
-.text-button{background:none;border:0;color:#2e7d5a;cursor:pointer;font-weight:700}
-.text-button.danger{color:#d34c3d}
-.two-column{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.count{background:#f0f2f5;border-radius:999px;color:#0d1b3d;font-size:12px;font-weight:700;padding:5px 9px}
-.request-list{display:grid;gap:12px}
-.request{align-items:center;border-bottom:1px solid #eee;display:flex;gap:12px;justify-content:space-between;padding:8px 0}
-.request:last-child{border-bottom:0}
-.request strong{color:#0d1b3d;font-size:13px}
-.request p,.residence-card p{color:#6b7280;font-size:12px;margin-top:3px}
-.request-actions{display:flex;gap:10px}
-.residence-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.residence-card{border:1px solid #e5e7eb;border-radius:10px;display:flex;justify-content:space-between;padding:14px}
-.residence-card h3{color:#0d1b3d;font-size:14px}
-.residence-card strong{color:#2e7d5a;font-size:13px;white-space:nowrap}
+/* ---------- Panels ---------- */
+.panel {
+  background: #ffffff;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  padding: 22px;
+}
+.panel-heading {
+  align-items: flex-start;
+  border-bottom: 2px solid #6c4b6a;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  flex-wrap: wrap;
+}
+.panel h2 {
+  color: #0d1b3d;
+  font-size: 1.3rem;
+  margin: 0;
+}
+.panel select {
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  color: #0d1b3d;
+  padding: 8px 12px;
+  font-weight: 600;
+  background: #ffffff;
+  cursor: pointer;
+}
+.count {
+  background: #f1f5f9;
+  border-radius: 999px;
+  color: #0d1b3d;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+}
 
-@media(max-width:700px){
+/* ---------- Tables ---------- */
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  min-width: 680px;
+  width: 100%;
+}
+th,
+td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 10px;
+  text-align: left;
+}
+th {
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+td {
+  color: #1e293b;
+  font-size: 13px;
+}
+td:first-child {
+  color: #0d1b3d;
+  font-weight: 700;
+}
 
-  .res-page{
-    padding:24px 14px 110px
+/* ---------- Status pills ---------- */
+.status {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 11px;
+  text-transform: capitalize;
+}
+.status-paid,
+.status-approved {
+  background: #d1fae5;
+  color: #065f46;
+}
+.status-late,
+.status-declined {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.status-upcoming,
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+.status-cancelled {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* ---------- Text buttons ---------- */
+.text-button {
+  background: none;
+  border: 0;
+  color: #047857;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0;
+}
+.text-button:hover {
+  text-decoration: underline;
+}
+.text-button.danger {
+  color: #b91c1c;
+}
+
+/* ---------- Outstanding block ---------- */
+.outstanding-panel {
+  border-top: 4px solid #d34c3d;
+}
+.outstanding-total {
+  color: #b91c1c;
+  font-size: 1.15rem;
+  white-space: nowrap;
+}
+.outstanding-list {
+  display: grid;
+  gap: 10px;
+}
+.outstanding-row {
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr auto auto auto;
+  padding: 12px 0;
+}
+.outstanding-row:last-child {
+  border-bottom: 0;
+}
+.outstanding-row strong {
+  color: #0d1b3d;
+  font-size: 13px;
+  font-weight: 700;
+}
+.outstanding-row p {
+  color: #475569;
+  font-size: 12px;
+  margin: 3px 0 0;
+}
+
+/* ---------- Residence requests list ---------- */
+.request-list {
+  display: grid;
+  gap: 10px;
+}
+.request-row {
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 12px 0;
+  flex-wrap: wrap;
+}
+.request-row:last-child {
+  border-bottom: 0;
+}
+.request-row strong {
+  color: #0d1b3d;
+  font-size: 14px;
+  font-weight: 700;
+}
+.request-row p {
+  color: #475569;
+  font-size: 12.5px;
+  margin: 3px 0 0;
+}
+.request-actions {
+  display: flex;
+  gap: 14px;
+}
+
+/* ---------- Empty states ---------- */
+.empty {
+  color: #475569;
+  font-size: 14px;
+  padding: 24px 0;
+  text-align: center;
+  margin: 0;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-
-  .page-heading{
-    align-items:start;
-    flex-direction:column
+}
+@media (max-width: 700px) {
+  .res-page {
+    padding: 24px 14px 110px;
   }
-
-  .button{
-    width:100%;
-    text-align:center
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
-
-  .summary-grid{
-    grid-template-columns:repeat(2,1fr)
+  .button {
+    width: 100%;
+    text-align: center;
   }
-
-  .two-column,
-  .residence-grid{
-    grid-template-columns:1fr
+  .outstanding-row {
+    align-items: start;
+    grid-template-columns: 1fr auto;
   }
-
-  .panel{
-    padding:16px
+  .outstanding-row .text-button {
+    grid-column: 1 / -1;
+    text-align: left;
   }
-
-}
-
-.page-heading .muted{
-  color:#d1d5db;
-}
-
-.outstanding-panel{
-  border-top:4px solid #d34c3d;
-}
-
-.outstanding-total{
-  color:#d34c3d;
-  white-space:nowrap;
-}
-
-.outstanding-list{
-  display:grid;
-  gap:10px;
-}
-
-.outstanding-row{
-  align-items:center;
-  border-bottom:1px solid #eee;
-  display:grid;
-  gap:14px;
-  grid-template-columns:1fr auto auto auto;
-  padding:12px 0;
-}
-
-.outstanding-row:last-child{
-  border-bottom:0;
-}
-
-.outstanding-row strong{
-  color:#0d1b3d;
-  font-size:13px;
-}
-
-.outstanding-row p{
-  color:#6b7280;
-  font-size:12px;
-  margin-top:3px;
-}
-
-@media (max-width:700px){
-
-  .outstanding-row{
-    align-items:start;
-    grid-template-columns:1fr auto;
+  .panel {
+    padding: 16px;
   }
-
-  .outstanding-row .text-button{
-    grid-column:1 / -1;
-    text-align:left;
-  }
-
 }
-
 </style>

@@ -1,111 +1,124 @@
+// Provider-side state. Backed by two endpoints:
+//   GET /api/dashboards/provider/:id  → the provider's accepted/completed jobs
+//   GET /api/services/open            → pending unassigned SafeHome requests
+//
+// Everything the three provider views + ProviderNav read from this store is
+// derived from those two responses.
+
+import { API_BASE } from "../services/api";
+
+function currentUserId() {
+  try {
+    const raw = localStorage.getItem("user");
+    return raw ? JSON.parse(raw).id : null;
+  } catch {
+    return null;
+  }
+}
+
+// The services table has different columns than the old mock job objects.
+// Map once so every view can keep reading `job.client`, `job.pay`, etc.
+function mapService(s) {
+  return {
+    id: s.id,
+    title: s.title,
+    description: s.description,
+    client: s.student_name || "A student",
+    location: s.residence_name || "",
+    room: s.room_number || "",
+    date: s.created_at, // ISO timestamp; views format it
+    pay: Number(s.estimated_cost || 0),
+    status: s.status,
+    priority: s.priority || "normal",
+    serviceType: s.service_type || "",
+  };
+}
+
 export default {
   namespaced: true,
 
   state: {
     availableJobs: [],
-    acceptedJobs: [],
-    completedJobs: [],
-    reviews: [],
+    myJobs: [],
     loading: false,
-    error: null
+    error: "",
   },
 
   getters: {
-    availableJobs: state => state.availableJobs,
+    availableJobs: (s) => s.availableJobs,
+    loading: (s) => s.loading,
+    error: (s) => s.error,
 
-    acceptedJobs: state => state.acceptedJobs,
-
-    completedJobs: state => state.completedJobs,
-
-    reviews: state => state.reviews,
-
-    totalEarnings: state =>
-      [...state.acceptedJobs, ...state.completedJobs]
-        .reduce((sum, job) => sum + Number(job.pay || 0), 0),
-
-    scheduledJobs: state =>
-      state.acceptedJobs.filter(job => job.status === 'assigned'),
-
-    upcomingJobs: state =>
-      state.acceptedJobs.filter(job =>
-        job.status === 'assigned' || job.status === 'in_progress'
+    // Provider's accepted jobs (any status past 'pending')
+    acceptedJobs: (s) => s.myJobs,
+    scheduledJobs: (s) =>
+      s.myJobs.filter(
+        (j) => j.status === "assigned" || j.status === "approved",
       ),
+    upcomingJobs: (s) => s.myJobs.filter((j) => j.status === "in_progress"),
+    completedJobs: (s) => s.myJobs.filter((j) => j.status === "completed"),
 
-    loading: state => state.loading,
 
-    error: state => state.error
+    totalEarnings: (s) =>
+      s.myJobs
+        .filter((j) => j.status === "completed")
+        .reduce((sum, j) => sum + j.pay, 0),
   },
 
   mutations: {
-    SET_LOADING(state, value) {
-      state.loading = value
+    SET_AVAILABLE(state, jobs) {
+      state.availableJobs = jobs;
     },
-
-    SET_ERROR(state, error) {
-      state.error = error
+    SET_MY(state, jobs) {
+      state.myJobs = jobs;
     },
-
-    SET_JOBS(state, jobs) {
-      state.availableJobs = []
-      state.acceptedJobs = []
-      state.completedJobs = []
-
-      jobs.forEach(job => {
-        const formattedJob = {
-          ...job,
-
-          // Names expected by the existing dashboard
-          client: job.student_name || 'Student',
-          location: job.residence_name || 'Residence',
-
-          // The database currently does not have a pay field
-          pay: Number(job.estimated_cost || 0),
-
-          // Keep the database status
-          status: job.status
-        }
-
-        if (job.status === 'completed') {
-          state.completedJobs.push(formattedJob)
-        } else if (
-          job.status === 'assigned' ||
-          job.status === 'in_progress'
-        ) {
-          state.acceptedJobs.push(formattedJob)
-        }
-      })
-    }
+    SET_LOADING(state, v) {
+      state.loading = v;
+    },
+    SET_ERROR(state, msg) {
+      state.error = msg;
+    },
   },
 
   actions: {
-    async fetchProviderJobs({ commit }, providerId) {
-      commit('SET_LOADING', true)
-      commit('SET_ERROR', null)
-
+    async fetchAvailableJobs({ commit }) {
+      commit("SET_LOADING", true);
+      commit("SET_ERROR", "");
       try {
-        const response = await fetch(
-          `http://localhost:3000/api/dashboards/provider/${providerId}`
-        )
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch provider jobs: ${response.status}`)
-        }
-
-        const data = await response.json()
-
-        commit('SET_JOBS', data.jobs || [])
-
-        return data.jobs || []
-      } catch (error) {
-        console.error('Failed to load provider jobs:', error)
-
-        commit('SET_ERROR', error.message)
-
-        return []
+        const res = await fetch(`${API_BASE}/services/open`);
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        const body = await res.json();
+        commit("SET_AVAILABLE", (body.data || []).map(mapService));
+      } catch (err) {
+        commit("SET_ERROR", err.message);
       } finally {
-        commit('SET_LOADING', false)
+        commit("SET_LOADING", false);
       }
-    }
-  }
-}
+    },
 
+    async fetchMyJobs({ commit }) {
+      const uid = currentUserId();
+      if (!uid) return;
+      commit("SET_LOADING", true);
+      commit("SET_ERROR", "");
+      try {
+        const res = await fetch(`${API_BASE}/dashboards/provider/${uid}`);
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        const body = await res.json();
+        commit("SET_MY", (body.jobs || []).map(mapService));
+      } catch (err) {
+        commit("SET_ERROR", err.message);
+      } finally {
+        commit("SET_LOADING", false);
+      }
+    },
+
+    // Called after a successful quote submission.
+    async refresh({ dispatch }) {
+      await Promise.all([
+        dispatch("fetchAvailableJobs"),
+        dispatch("fetchMyJobs"),
+      ]);
+    },
+  },
+};

@@ -70,7 +70,7 @@ onMounted(() => {
         When someone alerts you about a swap on one of your listings, it will
         appear here.
       </p>
-      <button class="btn-gold" @click="router.push('/marketplace')">
+      <button class="btn-gold" @click="$router.push('/marketplace')">
         Browse Marketplace
       </button>
     </div>

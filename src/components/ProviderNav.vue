@@ -8,16 +8,31 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
+
+onMounted(() => {
+  // Populate the store on first visit so the count badge is real.
+  if (!store.getters['provider/availableJobs'].length) {
+    store.dispatch('provider/fetchAvailableJobs')
+  }
+  if (!store.getters['provider/acceptedJobs'].length) {
+    store.dispatch('provider/fetchMyJobs')
+  }
+})
+
 const links = computed(() => [
   { label: 'Dashboard', to: '/provider-dashboard' },
-  { label: 'Available Jobs', to: '/provider-jobs/available', count: store.getters['provider/availableJobs'].length },
+  {
+    label: 'Available Jobs',
+    to: '/provider-jobs/available',
+    count: store.getters['provider/availableJobs'].length,
+  },
   { label: 'My Jobs', to: '/provider-jobs' },
   { label: 'Reviews', to: '/provider-dashboard#reviews' },
-  { label: 'Profile', to: '/provider-profile' }
+  { label: 'Profile', to: '/provider-profile' },
 ])
 </script>
 
@@ -32,7 +47,6 @@ const links = computed(() => [
   border: 0;
   border-radius: 12px;
 }
-
 .provider-nav-link {
   display: inline-flex;
   align-items: center;
@@ -43,15 +57,14 @@ const links = computed(() => [
   white-space: nowrap;
   font-size: 13px;
   font-weight: 600;
+  text-decoration: none;
   transition: background 0.2s ease, color 0.2s ease;
 }
-
 .provider-nav-link:hover,
 .provider-nav-link.router-link-active {
   background: rgba(245, 185, 65, 0.16);
   color: #f5b941;
 }
-
 .provider-nav-link small {
   min-width: 20px;
   padding: 1px 6px;
@@ -61,11 +74,7 @@ const links = computed(() => [
   text-align: center;
 }
 @media (max-width: 640px) {
-  .provider-nav {
-    flex-direction: column;
-  }
-  .provider-nav-link {
-    width: 100%;
-  }
+  .provider-nav { flex-direction: column; }
+  .provider-nav-link { width: 100%; }
 }
 </style>

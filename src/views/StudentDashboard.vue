@@ -9,11 +9,14 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
 
 <template>
   <div class="student-dash">
-
     <!-- TOP BAR -->
     <header class="top-bar">
       <div class="top-left">
-        <button class="hamburger-btn" @click="toggleSideNav" aria-label="Open menu">
+        <button
+          class="hamburger-btn"
+          @click="toggleSideNav"
+          aria-label="Open menu"
+        >
           <span class="hamburger-icon">
             <AppIcon name="dashboard" />
           </span>
@@ -71,7 +74,9 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
         </li> -->
 
         <li>
-          <router-link to="/safehome" @click="closeSideNav">SafeHome</router-link>
+          <router-link to="/safehome" @click="closeSideNav"
+            >SafeHome</router-link
+          >
         </li>
 
         <li>
@@ -81,7 +86,9 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
         </li>
 
         <li>
-          <router-link to="/student-dashboard" @click="closeSideNav">Dashboard</router-link>
+          <router-link to="/student-dashboard" @click="closeSideNav"
+            >Dashboard</router-link
+          >
         </li>
       </ul>
 
@@ -92,303 +99,368 @@ here I will 4 dashbaord  with their own sections and div or should i just have s
 
     <!-- MAIN DASHBOARD CONTENT -->
     <div class="dashboard-container">
-
       <div class="greeting-block">
         <div>
           <h2 class="dashboard-title">
-            Hi, {{ user.full_name || user.name || 'Student' }}
+            Hi, {{ user.full_name || user.name || "Student" }}
           </h2>
           <p class="university-text">
-            {{ isStudent ? (user.university || 'CampusSwap Student') : 'Welcome back' }}
+            {{
+              isStudent
+                ? user.university || "CampusSwap Student"
+                : "Welcome back"
+            }}
           </p>
         </div>
         <span class="greeting-date">{{ formattedDate }}</span>
       </div>
 
       <div class="dashboard-grid">
+        <!-- Profile Details Card -->
+        <div
+          class="card profile-overview-card grid-full"
+          id="student-profile-section"
+        >
+          <div class="profile-header-flex">
+            <div class="profile-avatar-large">
+              {{ userInitials }}
+            </div>
+            <div class="profile-header-info">
+              <h3 class="profile-name">
+                {{ user.full_name || user.name || "Zaarah K." }}
+              </h3>
+              <p class="profile-meta">
+                {{ user.email || "zaarah@campus.co.za" }} ·
+                {{ user.university || "University of Cape Town (UCT)" }}
+              </p>
 
-      <!-- Profile Details Card -->
-      <div class="card profile-overview-card grid-full" id="student-profile-section">
-        <div class="profile-header-flex">
-          <div class="profile-avatar-large">
-            {{ userInitials }}
+              <div class="profile-badges">
+                <span v-if="user.verified" class="badge-student">
+                  <AppIcon name="graduationCap" /> Verified Student
+                </span>
+                <span v-else class="badge-pending">
+                  <AppIcon name="clock" /> Verification pending
+                </span>
+                <span class="badge-campus"
+                  ><AppIcon name="building" /> On-Campus Resident</span
+                >
+              </div>
+            </div>
           </div>
-          <div class="profile-header-info">
-            <h3 class="profile-name">{{ user.full_name || user.name || 'Zaarah K.' }}</h3>
-            <p class="profile-meta">{{ user.email || 'zaarah@campus.co.za' }} · {{ user.university || 'University of Cape Town (UCT)' }}</p>
-            <div class="profile-badges">
-              <span class="badge-student"><AppIcon name="graduationCap" /> Verified Student</span>
-              <span class="badge-campus"><AppIcon name="building" /> On-Campus Resident</span>
+
+          <div class="profile-details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Student ID</span>
+              <strong>{{ user.studentNumber || "STU-2026-0941" }}</strong>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Institution</span>
+              <strong>{{
+                user.university || "University of Cape Town (UCT)"
+              }}</strong>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status</span>
+              <strong class="status-active"
+                ><AppIcon name="check" /> Active Member</strong
+              >
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Residence</span>
+              <strong>Smuts Hall · Room 204</strong>
             </div>
           </div>
         </div>
 
-        <div class="profile-details-grid">
-          <div class="detail-item">
-            <span class="detail-label">Student ID</span>
-            <strong>{{ user.studentNumber || 'STU-2026-0941' }}</strong>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Institution</span>
-            <strong>{{ user.university || 'University of Cape Town (UCT)' }}</strong>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Status</span>
-            <strong class="status-active"><AppIcon name="check" /> Active Member</strong>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Residence</span>
-            <strong>Smuts Hall · Room 204</strong>
-          </div>
-        </div>
-      </div>
+        <!-- Profile Stats Card -->
+        <div class="card grid-full">
+          <h3 class="card-heading">Activity Overview</h3>
 
-      <!-- Profile Stats Card -->
-      <div class="card grid-full">
-        <h3 class="card-heading">Activity Overview</h3>
+          <div class="stats-grid">
+            <div
+              class="stat-card"
+              style="
+                background-color: #f0fdf4;
+                border-bottom: 3px solid #2e7d5a;
+              "
+            >
+              <span class="stat-title">My Listings</span>
+              <span class="stat-value" style="color: #2e7d5a">{{
+                myListings.length
+              }}</span>
+            </div>
 
-        <div class="stats-grid">
-          <div class="stat-card" style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;">
-            <span class="stat-title">My Listings</span>
-            <span class="stat-value" style="color: #2e7d5a;">{{ myListings.length }}</span>
-          </div>
+            <div
+              class="stat-card"
+              style="
+                background-color: #f0fdfa;
+                border-bottom: 3px solid #00a6a6;
+              "
+            >
+              <span class="stat-title">My Orders</span>
+              <span class="stat-value" style="color: #00a6a6">{{
+                myOrders.length
+              }}</span>
+            </div>
 
-          <div class="stat-card" style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;">
-            <span class="stat-title">My Orders</span>
-            <span class="stat-value" style="color: #00a6a6;">{{ myOrders.length }}</span>
-          </div>
-
-          <div class="stat-card" style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;">
-            <span class="stat-title">Total Spent</span>
-            <span class="stat-value" style="color: #f5b941;">
-              R{{ myOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0).toFixed(2) }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Student Residence Card -->
-      <div class="card">
-        <h3 class="card-heading">Student Residence</h3>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <span class="feature-icon"><AppIcon name="building" /></span>
-            <h4 class="feature-title">Find Accommodation</h4>
-            <p class="feature-text">Browse verified on-campus and off-campus rooms near your institution.</p>
-          </div>
-
-          <div class="feature-card">
-            <span class="feature-icon"><AppIcon name="home" /></span>
-            <h4 class="feature-title">My Residence Booking</h4>
-            <p class="feature-text">View your current room allocation, lease dates and move-in details.</p>
-          </div>
-
-          <div class="feature-card">
-            <span class="feature-icon"><AppIcon name="cart" /></span>
-            <h4 class="feature-title">Pay Residence Fees</h4>
-            <p class="feature-text">Settle rent and deposits securely with escrow-protected payments.</p>
-          </div>
-
-          <div class="feature-card">
-            <span class="feature-icon"><AppIcon name="check" /></span>
-            <h4 class="feature-title">Maintenance Requests</h4>
-            <p class="feature-text">Log faults and track repairs with your residence manager.</p>
+            <div
+              class="stat-card"
+              style="
+                background-color: #fffbeb;
+                border-bottom: 3px solid #f5b941;
+              "
+            >
+              <span class="stat-title">Total Spent</span>
+              <span class="stat-value" style="color: #f5b941">
+                R{{
+                  myOrders
+                    .reduce((sum, o) => sum + Number(o.total_amount || 0), 0)
+                    .toFixed(2)
+                }}
+              </span>
+            </div>
           </div>
         </div>
 
-        <button class="btn-card-action" @click="goToResidence">
-          <AppIcon name="building" />
-          {{ isStudent ? 'Go to Residence Portal' : 'Log in to access Residence Portal' }}
-        </button>
-      </div>
+        <!-- Student Residence Card -->
+        <div class="card">
+          <h3 class="card-heading">Student Residence</h3>
 
-      <!-- Marketplace Card -->
-      <div class="card">
-        <h3 class="card-heading">Academic Marketplace</h3>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <span class="feature-icon"><AppIcon name="building" /></span>
+              <h4 class="feature-title">Find Accommodation</h4>
+              <p class="feature-text">
+                Browse verified on-campus and off-campus rooms near your
+                institution.
+              </p>
+            </div>
 
-        <div class="feature-grid">
-          <div class="feature-card">
-            <span class="feature-icon"><AppIcon name="book" /></span>
-            <h4 class="feature-title">Textbooks &amp; Study Notes</h4>
-            <p class="feature-text">Buy and sell prescribed textbooks, past papers and study guides.</p>
+            <div class="feature-card">
+              <span class="feature-icon"><AppIcon name="home" /></span>
+              <h4 class="feature-title">My Residence Booking</h4>
+              <p class="feature-text">
+                View your current room allocation, lease dates and move-in
+                details.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <span class="feature-icon"><AppIcon name="cart" /></span>
+              <h4 class="feature-title">Pay Residence Fees</h4>
+              <p class="feature-text">
+                Settle rent and deposits securely with escrow-protected
+                payments.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <span class="feature-icon"><AppIcon name="check" /></span>
+              <h4 class="feature-title">Maintenance Requests</h4>
+              <p class="feature-text">
+                Log faults and track repairs with your residence manager.
+              </p>
+            </div>
           </div>
 
-          <div class="feature-card">
-            <span class="feature-icon"><AppIcon name="cart" /></span>
-            <h4 class="feature-title">Buy Campus Gear</h4>
-            <p class="feature-text">Shop electronics, stationery and dorm essentials from fellow students.</p>
-          </div>
-
-          <div class="feature-card">
-            <span class="feature-icon"><AppIcon name="dashboard" /></span>
-            <h4 class="feature-title">Sell Your Items</h4>
-            <p class="feature-text">List your used items in minutes and reach buyers on your campus.</p>
-          </div>
-
-          <div class="feature-card">
-            <span class="feature-icon"><AppIcon name="alert" /></span>
-            <h4 class="feature-title">Track Orders</h4>
-            <p class="feature-text">Follow your purchases from checkout to delivery with escrow protection.</p>
-          </div>
+          <button class="btn-card-action" @click="goToResidence">
+            <AppIcon name="building" />
+            {{
+              isStudent
+                ? "Go to Residence Portal"
+                : "Log in to access Residence Portal"
+            }}
+          </button>
         </div>
 
-        <button class="btn-card-action" @click="goToMarketplace">
-          <AppIcon name="cart" />
-          {{ isStudent ? 'Go to Marketplace' : 'Log in to access Marketplace' }}
-        </button>
-      </div>
+        <!-- Marketplace Card -->
+        <div class="card">
+          <h3 class="card-heading">Academic Marketplace</h3>
 
-      <!-- Quick Services Card -->
-      <div class="card grid-full">
-        <h3 class="card-heading">Account Management</h3>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <span class="feature-icon"><AppIcon name="book" /></span>
+              <h4 class="feature-title">Textbooks &amp; Study Notes</h4>
+              <p class="feature-text">
+                Buy and sell prescribed textbooks, past papers and study guides.
+              </p>
+            </div>
 
-        <div class="menu-item">
-          <router-link to="/marketplace" class="menu-link">
-            <span><AppIcon name="book" /> Academic Marketplace</span>
-            <span class="arrow">&gt;</span>
-          </router-link>
+            <div class="feature-card">
+              <span class="feature-icon"><AppIcon name="cart" /></span>
+              <h4 class="feature-title">Buy Campus Gear</h4>
+              <p class="feature-text">
+                Shop electronics, stationery and dorm essentials from fellow
+                students.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <span class="feature-icon"><AppIcon name="dashboard" /></span>
+              <h4 class="feature-title">Sell Your Items</h4>
+              <p class="feature-text">
+                List your used items in minutes and reach buyers on your campus.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <span class="feature-icon"><AppIcon name="alert" /></span>
+              <h4 class="feature-title">Track Orders</h4>
+              <p class="feature-text">
+                Follow your purchases from checkout to delivery with escrow
+                protection.
+              </p>
+            </div>
+          </div>
+
+          <button class="btn-card-action" @click="goToMarketplace">
+            <AppIcon name="cart" />
+            {{
+              isStudent ? "Go to Marketplace" : "Log in to access Marketplace"
+            }}
+          </button>
         </div>
 
-        <div class="menu-item">
+        <!-- Account Management Card -->
+        <div class="card grid-full">
+          <h3 class="card-heading">Account Management</h3>
+
+          <div class="menu-item">
           <router-link to="/student-residence" class="menu-link">
-            <span><AppIcon name="building" /> Student Residence Portal</span>
+            <span>Student Residence Portal</span>
             <span class="arrow">&gt;</span>
           </router-link>
         </div>
 
-        <div class="menu-item">
-          <router-link to="/safehome" class="menu-link">
-            <span><AppIcon name="home" /> SafeHome Bookings</span>
-            <span class="arrow">&gt;</span>
-          </router-link>
-        </div>
+          <div class="menu-item">
+            <router-link to="/marketplace" class="menu-link">
+              <span>Active Orders</span>
+              <span class="arrow">&gt;</span>
+            </router-link>
+          </div>
 
-        <div class="menu-item">
-          <router-link to="/checkout" class="menu-link">
-            <span><AppIcon name="cart" /> Checkout &amp; Escrow</span>
-            <span class="arrow">&gt;</span>
-          </router-link>
+          <div class="menu-item">
+            <router-link to="/safehome" class="menu-link">
+              SafeHome Bookings
+              <span class="arrow">&gt;</span>
+            </router-link>
+          </div>
+
+          <div class="menu-item">
+            <router-link to="/checkout" class="menu-link">
+              Checkout
+              <span class="arrow">&gt;</span>
+            </router-link>
+          </div>
+
+          <!-- Change Password Section -->
+          <div class="password-section">
+            <h4 class="password-title">Change Password</h4>
+
+            <div class="form-group">
+              <label>Current Password</label>
+              <input
+                type="password"
+                v-model="currentPassword"
+                class="form-input"
+                placeholder="Enter current password"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>New Password</label>
+              <input
+                type="password"
+                v-model="newPassword"
+                class="form-input"
+                placeholder="Enter new password"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input
+                type="password"
+                v-model="confirmPassword"
+                class="form-input"
+                placeholder="Re-enter new password"
+              />
+            </div>
+
+            <button class="btn-save" @click="changePassword">
+              Update Password
+            </button>
+          </div>
         </div>
       </div>
-
-      <!-- Account Management Card -->
-      <div class="card grid-full">
-        <h3 class="card-heading">Account Management</h3>
-
-        <div class="menu-item">
-          <router-link to="/marketplace" class="menu-link">
-            <span>Active Orders</span>
-            <span class="arrow">&gt;</span>
-          </router-link>
-        </div>
-
-        <div class="menu-item">
-          <router-link to="/safehome" class="menu-link">
-            SafeHome Bookings
-            <span class="arrow">&gt;</span>
-          </router-link>
-        </div>
-
-        <div class="menu-item">
-          <router-link to="/checkout" class="menu-link">
-            Checkout
-            <span class="arrow">&gt;</span>
-          </router-link>
-        </div>
-
-        <!-- Change Password Section -->
-        <div class="password-section">
-          <h4 class="password-title">Change Password</h4>
-
-          <div class="form-group">
-            <label>Current Password</label>
-            <input type="password" v-model="currentPassword" class="form-input" placeholder="Enter current password" />
-          </div>
-
-          <div class="form-group">
-            <label>New Password</label>
-            <input type="password" v-model="newPassword" class="form-input" placeholder="Enter new password" />
-          </div>
-
-          <div class="form-group">
-            <label>Confirm New Password</label>
-            <input type="password" v-model="confirmPassword" class="form-input" placeholder="Re-enter new password" />
-          </div>
-
-                              <button class="btn-save" @click="changePassword">Update Password</button>
-                            </div>
-                          </div>
-
-                          </div>
-                        </div>
-                     </div>
-                    </template>
+    </div>
+  </div>
+</template>
 
 <script>
-import Swal from 'sweetalert2'
-import AppIcon from '../components/AppIcon.vue'
-import { dashAPI, authAPI, session } from '@/services/api'
+import Swal from "sweetalert2";
+import AppIcon from "../components/AppIcon.vue";
+import { dashAPI, authAPI, session } from "@/services/api";
 
 export default {
-  name: 'StudentDashboard',
+  name: "StudentDashboard",
   components: { AppIcon },
 
   data() {
     return {
       sideNavOpen: false,
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
       user: {},
       myListings: [],
       myOrders: [],
-      loading: true
-    }
+      loading: true,
+    };
   },
 
   async mounted() {
-    this.user = session.get() || {}
+    this.user = session.get() || {};
 
     if (!this.user.id) {
-      this.$router.push('/login')
-      return
+      this.$router.push("/login");
+      return;
     }
 
     try {
-      const data = await dashAPI.getStudent(this.user.id)
-      this.myListings = data.mylistings || []
-      this.myOrders = data.myOrders || []
+      const data = await dashAPI.getStudent(this.user.id);
+      this.myListings = data.mylistings || [];
+      this.myOrders = data.myOrders || [];
     } catch (err) {
-      console.error('Failed to load student dashboard:', err.message)
+      console.error("Failed to load student dashboard:", err.message);
     } finally {
-      this.loading = false
+      this.loading = false;
     }
   },
 
   computed: {
     isStudent() {
-      return this.user.role === 'student'
+      return this.user.role === "student";
     },
     userInitials() {
-      const name = this.user.full_name || this.user.name || ''
-      if (!name) return ''
+      const name = this.user.full_name || this.user.name || "";
+      if (!name) return "";
       return name
-        .split(' ')
-        .map(part => part[0])
-        .join('')
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
         .slice(0, 2)
-        .toUpperCase()
+        .toUpperCase();
     },
     formattedDate() {
-      const now = new Date()
-      return now.toLocaleDateString('en-ZA', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    }
+      const now = new Date();
+      return now.toLocaleDateString("en-ZA", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    },
   },
 
   methods: {
@@ -397,113 +469,117 @@ export default {
     // - anything else (not logged in, or another role) -> login page with a redirect back
     goToStudentPage(path) {
       // not a logged-in student: send them to login, remembering where they wanted to go
-      const redirectQuery = { path: '/login', query: { redirect: path } }
-      this.$router.push(this.isStudent ? path : redirectQuery)
+      const redirectQuery = { path: "/login", query: { redirect: path } };
+      this.$router.push(this.isStudent ? path : redirectQuery);
     },
 
     goToResidence() {
-      this.goToStudentPage('/student-residence')
+      this.goToStudentPage("/student-residence");
     },
 
     goToMarketplace() {
-      this.goToStudentPage('/marketplace')
+      this.goToStudentPage("/marketplace");
     },
 
     toggleSideNav() {
-      this.sideNavOpen = !this.sideNavOpen
-      document.body.style.overflow = this.sideNavOpen ? 'hidden' : ''
+      this.sideNavOpen = !this.sideNavOpen;
+      document.body.style.overflow = this.sideNavOpen ? "hidden" : "";
     },
 
     closeSideNav() {
-      this.sideNavOpen = false
-      document.body.style.overflow = ''
+      this.sideNavOpen = false;
+      document.body.style.overflow = "";
     },
 
     async logout() {
       const result = await Swal.fire({
-        title: 'Logout?',
-        text: 'Are you sure you want to log out of your student account?',
-        icon: 'question',
+        title: "Logout?",
+        text: "Are you sure you want to log out of your student account?",
+        icon: "question",
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, logout',
-        cancelButtonText: 'Cancel'
-      })
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, logout",
+        cancelButtonText: "Cancel",
+      });
 
       if (result.isConfirmed) {
-        await this.$store.dispatch('user/logout')
-        await Swal.fire('Logged Out', 'You have been logged out successfully.', 'success')
-        this.$router.push('/')
+        await this.$store.dispatch("user/logout");
+        await Swal.fire(
+          "Logged Out",
+          "You have been logged out successfully.",
+          "success",
+        );
+        this.$router.push("/");
       }
     },
 
     async changePassword() {
       if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
         await Swal.fire({
-          icon: 'warning',
-          title: 'Incomplete',
-          text: 'Please fill in all password fields.',
-          confirmButtonColor: '#f5b941'
-        })
-        return
+          icon: "warning",
+          title: "Incomplete",
+          text: "Please fill in all password fields.",
+          confirmButtonColor: "#f5b941",
+        });
+        return;
       }
 
       if (this.newPassword !== this.confirmPassword) {
         await Swal.fire({
-          icon: 'error',
-          title: 'Passwords Do Not Match',
-          text: 'New password and confirmation must match.',
-          confirmButtonColor: '#d33'
-        })
-        return
+          icon: "error",
+          title: "Passwords Do Not Match",
+          text: "New password and confirmation must match.",
+          confirmButtonColor: "#d33",
+        });
+        return;
       }
 
       if (this.newPassword.length < 6) {
         await Swal.fire({
-          icon: 'error',
-          title: 'Password Too Short',
-          text: 'Password must be at least 6 characters long.',
-          confirmButtonColor: '#d33'
-        })
-        return
+          icon: "error",
+          title: "Password Too Short",
+          text: "Password must be at least 6 characters long.",
+          confirmButtonColor: "#d33",
+        });
+        return;
       }
 
       try {
         await authAPI.changePassword(
           this.user.id,
           this.currentPassword,
-          this.newPassword
-        )
+          this.newPassword,
+        );
 
         await Swal.fire({
-          icon: 'success',
-          title: 'Password Updated!',
-          text: 'Your password has been changed successfully.',
+          icon: "success",
+          title: "Password Updated!",
+          text: "Your password has been changed successfully.",
           timer: 2000,
-          showConfirmButton: false
-        })
+          showConfirmButton: false,
+        });
 
-        this.currentPassword = ''
-        this.newPassword = ''
-        this.confirmPassword = ''
+        this.currentPassword = "";
+        this.newPassword = "";
+        this.confirmPassword = "";
       } catch (err) {
         await Swal.fire({
-          icon: 'error',
-          title: 'Update Failed',
+          icon: "error",
+          title: "Update Failed",
           text: err.message,
-          confirmButtonColor: '#d33'
-        })
+          confirmButtonColor: "#d33",
+        });
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
 /* Base layout */
 .student-dash {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f8f9fa;
   color: #333;
   margin: 0;
@@ -584,7 +660,7 @@ export default {
 
 .search-wrap:hover,
 .search-wrap:focus-within {
-  background-color: rgba(255, 255, 255, 0.20);
+  background-color: rgba(255, 255, 255, 0.2);
   border-color: rgba(245, 185, 65, 0.4);
 }
 
@@ -633,7 +709,9 @@ export default {
   z-index: 200;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .side-overlay-open {
@@ -677,6 +755,18 @@ export default {
   margin: 0;
 }
 
+.badge-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
 .close-side-btn {
   background: none;
   border: none;
@@ -709,7 +799,10 @@ export default {
   padding: 12px 16px;
   border-radius: 8px;
   border-left: 3px solid transparent;
-  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .side-nav-links li a:hover {
@@ -960,7 +1053,10 @@ export default {
   border: 1px solid #eceff3;
   border-radius: 12px;
   padding: 14px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .feature-card:hover {
@@ -1010,7 +1106,9 @@ export default {
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.25s ease, transform 0.2s ease;
+  transition:
+    background-color 0.25s ease,
+    transform 0.2s ease;
 }
 
 .btn-card-action:hover {
@@ -1051,7 +1149,9 @@ export default {
 .arrow {
   font-weight: bold;
   color: #9ca3af;
-  transition: transform 0.25s ease, color 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease;
 }
 
 /* Change Password */

@@ -49,9 +49,16 @@ export default {
   },
   mutations: {
     ADD_TO_CART(state, product) {
+      // Pull every seller-identifier variant the marketplace might send
+      // so the checkout flow always has a real seller_id to work with.
+      const sellerId =
+        product.sellerId ?? product.seller_id ?? product.seller?.id ?? null;
+
       const existing = state.cart.find((item) => item.id === product.id);
       if (existing) {
         existing.quantity = (existing.quantity || 1) + 1;
+        // Backfill sellerId if it was missing from an older cart item.
+        if (!existing.sellerId && sellerId) existing.sellerId = sellerId;
       } else {
         state.cart.push({
           id: product.id,
@@ -59,11 +66,13 @@ export default {
           price: product.price,
           image: product.image,
           sellerName: product.sellerName,
+          sellerId,
           quantity: 1,
         });
       }
       persist(CART_KEY, state.cart);
     },
+
     REMOVE_FROM_CART(state, id) {
       state.cart = state.cart.filter((item) => item.id !== id);
       persist(CART_KEY, state.cart);

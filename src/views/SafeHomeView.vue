@@ -1154,7 +1154,6 @@ async function getQuote(provider) {
 
   const payload = {
     user_id: currentUser?.id ?? null,
-    provider_id: provider.id,
     service_type_id: selectedServiceId.value,
     service_name: selectedService.value?.name || '',
     residence: residenceName.value.trim(),

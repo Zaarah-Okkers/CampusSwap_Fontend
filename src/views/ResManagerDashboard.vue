@@ -1,13 +1,9 @@
 ```vue
 <template>
-
   <section class="res_manager-dash">
-
     <!-- TOP BAR -->
     <header class="top-bar">
-
       <div class="top-left">
-
         <button
           class="hamburger-btn"
           @click="toggleSideNav"
@@ -19,11 +15,8 @@
         </button>
 
         <router-link to="/" class="brand-link">
-          <h2 class="brand">
-            CampusSwap<span class="green-text">SA</span>
-          </h2>
+          <h2 class="brand">CampusSwap<span class="green-text">SA</span></h2>
         </router-link>
-
       </div>
 
       <div class="top-center">
@@ -31,17 +24,13 @@
           <input
             type="text"
             class="search-input"
-            placeholder="Search books, services, and more..."
+            placeholder="Search services, and more..."
           />
         </div>
       </div>
 
       <div class="top-right">
-
-        <div
-          class="notification-bell"
-          @click="showBellNotifications"
-        >
+        <div class="notification-bell" @click="showBellNotifications">
           <span class="bell-icon">
             <AppIcon name="alert" />
           </span>
@@ -52,11 +41,8 @@
         <span class="avatar">
           {{ userInitials }}
         </span>
-
       </div>
-
     </header>
-
 
     <!-- SIDE NAV -->
     <div
@@ -65,51 +51,26 @@
       @click="closeSideNav"
     ></div>
 
-    <div
-      class="side-nav"
-      :class="{ 'side-nav-open': sideNavOpen }"
-    >
-
+    <div class="side-nav" :class="{ 'side-nav-open': sideNavOpen }">
       <div class="side-nav-header">
+        <h3>CampusSwap<span class="green-text">SA</span></h3>
 
-        <h3>
-          CampusSwap<span class="green-text">SA</span>
-        </h3>
-
-        <button
-          class="close-side-btn"
-          @click="closeSideNav"
-        >
-          &times;
-        </button>
-
+        <button class="close-side-btn" @click="closeSideNav">&times;</button>
       </div>
 
       <ul class="side-nav-links">
-
         <li>
-          <router-link
-            to="/"
-            @click="closeSideNav"
-          >
-            Home
-          </router-link>
+          <router-link to="/" @click="closeSideNav"> Home </router-link>
         </li>
 
         <li>
-          <router-link
-            to="/safehome"
-            @click="closeSideNav"
-          >
+          <router-link to="/safehome" @click="closeSideNav">
             SafeHome
           </router-link>
         </li>
 
         <li>
-          <router-link
-            to="/resmanager-dashboard"
-            @click="closeSideNav"
-          >
+          <router-link to="/resmanager-dashboard" @click="closeSideNav">
             Dashboard
           </router-link>
         </li>
@@ -118,139 +79,77 @@
              Opens the Residence Manager dashboard where
              maintenance requests are displayed. -->
         <li>
-          <router-link
-            to="/resmanager-dashboard"
-            @click="closeSideNav"
-          >
+          <router-link to="/resmanager-dashboard" @click="closeSideNav">
             Maintenance Requests
           </router-link>
         </li>
-
-        <!-- still have to add the academic marketplace router link -->
-
       </ul>
 
       <div class="side-nav-logout">
-
-        <button
-          class="logout-btn"
-          @click="logout"
-        >
-          Logout
-        </button>
-
+        <button class="logout-btn" @click="logout">Logout</button>
       </div>
-
     </div>
-
 
     <!-- MAIN DASHBOARD CONTENT -->
     <div class="dashboard-container">
-
       <!-- User Greeting -->
       <div class="greeting-block">
+        <h2 class="dashboard-title">Hi, {{ user.full_name || "Manager" }}</h2>
 
-        <h2 class="dashboard-title">
-          Hi, {{ user.full_name || 'Manager' }}
-        </h2>
-
-        <p class="university-text">
-          Residence Manager
-        </p>
-
+        <p class="university-text">Residence Manager</p>
       </div>
-
 
       <!-- Profile Stats Card -->
       <div class="card">
-
-        <h3 class="card-heading">
-          My Profile
-        </h3>
+        <h3 class="card-heading">My Profile</h3>
 
         <div class="stats-grid">
-
           <div
             class="stat-card"
-            style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a;"
+            style="background-color: #f0fdf4; border-bottom: 3px solid #2e7d5a"
           >
+            <span class="stat-title"> Active Requests </span>
 
-            <span class="stat-title">
-              Active Requests
-            </span>
-
-            <span
-              class="stat-value"
-              style="color: #2e7d5a;"
-            >
+            <span class="stat-value" style="color: #2e7d5a">
               {{ activeCount }}
             </span>
-
           </div>
-
 
           <div
             class="stat-card"
-            style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6;"
+            style="background-color: #f0fdfa; border-bottom: 3px solid #00a6a6"
           >
+            <span class="stat-title"> Approved </span>
 
-            <span class="stat-title">
-              Approved
-            </span>
-
-            <span
-              class="stat-value"
-              style="color: #00a6a6;"
-            >
+            <span class="stat-value" style="color: #00a6a6">
               {{ approvedCount }}
             </span>
-
           </div>
-
 
           <div
             class="stat-card"
-            style="background-color: #fffbeb; border-bottom: 3px solid #f5b941;"
+            style="background-color: #fffbeb; border-bottom: 3px solid #f5b941"
           >
+            <span class="stat-title"> Total Requests </span>
 
-            <span class="stat-title">
-              Total Requests
-            </span>
-
-            <span
-              class="stat-value"
-              style="color: #f5b941;"
-            >
+            <span class="stat-value" style="color: #f5b941">
               {{ maintenanceRequests.length }}
             </span>
-
           </div>
-
         </div>
-
       </div>
-
 
       <!-- ADDED: Maintenance Requests Card
            Displays real maintenance requests returned
            by dashAPI.getResManager(). -->
       <div class="card">
-
-        <h3 class="card-heading">
-          Maintenance Requests
-        </h3>
-
+        <h3 class="card-heading">Maintenance Requests</h3>
 
         <!-- ADDED: Empty state
              Shows when the backend returns no requests. -->
         <div v-if="maintenanceRequests.length === 0">
-
-          <p class="no-requests">
-            No maintenance requests found.
-          </p>
-
+          <p class="no-requests">No maintenance requests found.</p>
         </div>
-
 
         <!-- ADDED: Maintenance request list
              Displays requests from the residence_requests table. -->
@@ -259,36 +158,48 @@
           :key="request.id"
           class="maintenance-request"
         >
-
           <div class="maintenance-request-info">
-
             <!-- Shows the student who submitted the request -->
             <strong>
-              {{ request.student_name || 'Unknown Student' }}
+              {{ request.student_name || "Unknown Student" }}
             </strong>
-
 
             <!-- Shows which residence the request belongs to -->
             <p>
               <strong>Residence:</strong>
-              {{ request.residence_name || 'Unknown Residence' }}
+              {{ request.residence_name || "Unknown Residence" }}
             </p>
-
 
             <!-- Shows the student's maintenance request -->
             <p>
-              <strong>Request:</strong>
-              {{ request.notes || 'No details provided' }}
+              <strong>Service:</strong>
+              {{ request.service_type || "SafeHome" }}
+              <span v-if="request.priority === 'emergency'" class="priority-tag"
+                >EMERGENCY</span
+              >
             </p>
 
+            <p>
+              <strong>Request:</strong>
+              {{ request.title || "No title" }}
+              <span v-if="request.description">
+                — {{ request.description }}</span
+              >
+            </p>
 
-            <!-- Shows when the request was submitted -->
+            <p>
+              <strong>Estimated cost:</strong>
+              {{
+                request.estimated_cost
+                  ? `R${Number(request.estimated_cost).toFixed(2)}`
+                  : "Not quoted yet"
+              }}
+            </p>
+
             <p>
               <strong>Requested:</strong>
-              {{ formatRequestDate(request.requested_at) }}
+              {{ formatRequestDate(request.created_at) }}
             </p>
-
-
             <!-- Shows the current request status -->
             <p>
               <strong>Status:</strong>
@@ -297,90 +208,58 @@
                 class="request-status"
                 :class="getStatusClass(request.status)"
               >
-                {{ request.status || 'pending' }}
+                {{ request.status || "pending" }}
               </span>
-
             </p>
 
+            <!-- Approve / Decline — only for requests a provider has quoted -->
+            <div v-if="request.status === 'quoted'" class="quote-actions">
+              <button class="btn-approve" @click="approveQuote(request)">
+                Approve R{{ Number(request.estimated_cost).toFixed(2) }}
+              </button>
+
+              <button class="btn-decline" @click="declineQuote(request)">
+                Decline
+              </button>
+            </div>
           </div>
-
         </div>
-
       </div>
-
 
       <!-- Account Management Card -->
       <div class="card">
-
-        <h3 class="card-heading">
-          Account Management
-        </h3>
-
+        <h3 class="card-heading">Account Management</h3>
 
         <div class="menu-item">
-
-          <router-link
-            to="/safehome"
-            class="menu-link"
-          >
+          <router-link to="/safehome" class="menu-link">
             Track Repairs
 
-            <span class="arrow">
-              &gt;
-            </span>
-
+            <span class="arrow"> &gt; </span>
           </router-link>
-
         </div>
 
-
         <div class="menu-item">
-
-          <router-link
-            to="/checkout"
-            class="menu-link"
-          >
+          <router-link to="/checkout" class="menu-link">
             Checkout
 
-            <span class="arrow">
-              &gt;
-            </span>
-
+            <span class="arrow"> &gt; </span>
           </router-link>
-
         </div>
-
 
         <div class="menu-item">
-
-          <router-link
-            to="/resmanager-dashboard"
-            class="menu-link"
-          >
+          <router-link to="/resmanager-dashboard" class="menu-link">
             My Dashboard
 
-            <span class="arrow">
-              &gt;
-            </span>
-
+            <span class="arrow"> &gt; </span>
           </router-link>
-
         </div>
-
 
         <!-- Change Password Section -->
         <div class="password-section">
-
-          <h4 class="password-title">
-            Change Password
-          </h4>
-
+          <h4 class="password-title">Change Password</h4>
 
           <div class="form-group">
-
-            <label>
-              Current Password
-            </label>
+            <label> Current Password </label>
 
             <input
               type="password"
@@ -388,15 +267,10 @@
               class="form-input"
               placeholder="Enter current password"
             />
-
           </div>
 
-
           <div class="form-group">
-
-            <label>
-              New Password
-            </label>
+            <label> New Password </label>
 
             <input
               type="password"
@@ -404,15 +278,10 @@
               class="form-input"
               placeholder="Enter new password"
             />
-
           </div>
 
-
           <div class="form-group">
-
-            <label>
-              Confirm New Password
-            </label>
+            <label> Confirm New Password </label>
 
             <input
               type="password"
@@ -420,421 +289,272 @@
               class="form-input"
               placeholder="Re-enter new password"
             />
-
           </div>
 
-
-          <button
-            class="btn-save"
-            @click="changePassword"
-          >
+          <button class="btn-save" @click="changePassword">
             Update Password
           </button>
-
         </div>
-
       </div>
-
     </div>
-
   </section>
-
 </template>
 
-
 <script>
-
-import Swal from 'sweetalert2'
-import AppIcon from '../components/AppIcon.vue'
-import { dashAPI, authAPI, session } from '@/services/api'
-import { handleLogout } from '@/utils/auth'
-
+import Swal from "sweetalert2";
+import AppIcon from "../components/AppIcon.vue";
+import { dashAPI, authAPI, session, API_BASE } from "@/services/api";
+import { handleLogout } from "@/utils/auth";
 
 export default {
-
-  name: 'ResManagerDashboard',
-
-  components: {
-    AppIcon
-  },
-
+  name: "ResManagerDashboard",
+  components: { AppIcon },
 
   data() {
-
     return {
-
       sideNavOpen: false,
-
-      currentPassword: '',
-
-      newPassword: '',
-
-      confirmPassword: '',
-
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
       user: {},
-
-      // ADDED: Stores maintenance requests
-      // returned from the backend API.
-      maintenanceRequests: []
-
-    }
-
+      maintenanceRequests: [],
+      loading: true,
+    };
   },
-
 
   async mounted() {
-
-    this.user = session.get() || {}
-
-
+    this.user = session.get() || {};
     if (!this.user.id) {
-
-      this.$router.push('/login')
-
-      return
-
+      this.$router.push("/login");
+      return;
     }
-
-
     try {
-
-      // ADDED/USED: Calls the backend dashboard endpoint.
-      const data = await dashAPI.getResManager()
-
-
-      // ADDED/USED: Saves the maintenance requests
-      // returned from the backend.
-      this.maintenanceRequests =
-        data.maintenanceRequests || []
-
-
+      const data = await dashAPI.getResManager();
+      this.maintenanceRequests = data.maintenanceRequests || [];
     } catch (err) {
-
-      console.error(
-        'Failed to load res manager dashboard:',
-        err.message
-      )
-
+      console.error("Failed to load res manager dashboard:", err.message);
+    } finally {
+      this.loading = false;
     }
-
   },
-
 
   computed: {
-
-    // Creates the manager avatar initials.
     userInitials() {
-
-      const name =
-        this.user.full_name ||
-        this.user.name ||
-        'Manager'
-
-
+      const name = this.user.full_name || this.user.name || "Manager";
       return name
-        .split(' ')
+        .split(" ")
         .filter(Boolean)
-        .map(part => part[0])
-        .join('')
+        .map((part) => part[0])
+        .join("")
         .slice(0, 2)
-        .toUpperCase()
-
+        .toUpperCase();
     },
-
-
-    formattedDate() {
-
-      const now = new Date()
-
-      return now.toLocaleDateString('en-ZA', {
-
-        weekday: 'long',
-
-        year: 'numeric',
-
-        month: 'long',
-
-        day: 'numeric'
-
-      })
-
-    },
-
-
-    // UPDATED: Counts pending requests as active.
-    // The database uses the status "pending".
     activeCount() {
-
-      return this.maintenanceRequests.filter(
-        r => r.status === 'pending'
-      ).length
-
+      return this.maintenanceRequests.filter((r) =>
+        ["pending", "quoted", "approved", "assigned", "in_progress"].includes(
+          r.status,
+        ),
+      ).length;
     },
-
-
-    // ADDED: Counts approved requests.
+    quotedCount() {
+      return this.maintenanceRequests.filter((r) => r.status === "quoted")
+        .length;
+    },
     approvedCount() {
-
-      return this.maintenanceRequests.filter(
-        r => r.status === 'approved'
-      ).length
-
-    }
-
+      return this.maintenanceRequests.filter((r) => r.status === "approved")
+        .length;
+    },
   },
 
-
   methods: {
-
     toggleSideNav() {
-
-      this.sideNavOpen = !this.sideNavOpen
-
-      document.body.style.overflow =
-        this.sideNavOpen ? 'hidden' : ''
-
+      this.sideNavOpen = !this.sideNavOpen;
+      document.body.style.overflow = this.sideNavOpen ? "hidden" : "";
     },
-
-
     closeSideNav() {
-
-      this.sideNavOpen = false
-
-      document.body.style.overflow = ''
-
+      this.sideNavOpen = false;
+      document.body.style.overflow = "";
     },
-
-
     async logout() {
-
-      await handleLogout()
-
+      await handleLogout();
     },
 
-
-    // ADDED: Formats the request date
-    // so it is easier to read on the dashboard.
-    formatRequestDate(date) {
-
-      if (!date) {
-        return 'Unknown date'
-      }
-
-      return new Date(date).toLocaleString('en-ZA')
-
+    formatRequestDate(raw) {
+      if (!raw) return "—";
+      const d = new Date(raw);
+      if (isNaN(d.getTime())) return "—";
+      return d.toLocaleDateString("en-ZA", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
     },
 
-
-    // ADDED: Gives each request status
-    // a different CSS class.
     getStatusClass(status) {
-
-      return `status-${status || 'pending'}`
-
+      return `status-${(status || "pending").replace(/_/g, "-")}`;
     },
 
+    prettyStatus(status) {
+      const labels = {
+        pending: "Pending",
+        quoted: "Quoted",
+        approved: "Approved",
+        declined: "Declined",
+        assigned: "Assigned",
+        in_progress: "In progress",
+        completed: "Completed",
+        paid: "Paid",
+        cancelled: "Cancelled",
+      };
+      return labels[status] || status || "Pending";
+    },
 
-    async changePassword() {
+    async showBellNotifications() {
+      await Swal.fire({
+        icon: "info",
+        title: "No new notifications",
+        text: "You are all caught up.",
+        confirmButtonColor: "#2e7d5a",
+      });
+    },
 
-      if (
-        !this.currentPassword ||
-        !this.newPassword ||
-        !this.confirmPassword
-      ) {
-
-        await Swal.fire({
-
-          icon: 'warning',
-
-          title: 'Incomplete',
-
-          text: 'Please fill in all password fields.',
-
-          confirmButtonColor: '#f5b941',
-
-        })
-
-        return
-
-      }
-
-
-      if (this.newPassword !== this.confirmPassword) {
-
-        await Swal.fire({
-
-          icon: 'error',
-
-          title: 'Passwords Do Not Match',
-
-          text: 'New password and confirmation must match.',
-
-          confirmButtonColor: '#d33',
-
-        })
-
-        return
-
-      }
-
-
-      if (this.newPassword.length < 6) {
-
-        await Swal.fire({
-
-          icon: 'error',
-
-          title: 'Password Too Short',
-
-          text: 'Password must be at least 6 characters long.',
-
-          confirmButtonColor: '#d33',
-
-        })
-
-        return
-
-      }
-
+    async approveQuote(request) {
+      const confirm = await Swal.fire({
+        title: "Approve this quote?",
+        html: `
+          <p>Approve <strong>${request.title}</strong> for
+          <strong>R${Number(request.estimated_cost || 0).toFixed(2)}</strong>?</p>
+          <p style="color:#64748b;font-size:13px;margin-top:8px">
+            The provider will be notified and can start the job.
+          </p>
+        `,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Approve",
+        confirmButtonColor: "#2e7d5a",
+      });
+      if (!confirm.isConfirmed) return;
 
       try {
+        const res = await fetch(`${API_BASE}/services/${request.id}/approve`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.message || `Failed (${res.status})`);
+        request.status = "approved";
+        await Swal.fire({
+          icon: "success",
+          title: "Approved",
+          text: `${request.student_name} has been notified.`,
+          timer: 1600,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        await Swal.fire({
+          icon: "error",
+          title: "Could not approve",
+          text: err.message,
+        });
+      }
+    },
 
+    async declineQuote(request) {
+      const confirm = await Swal.fire({
+        title: "Decline this quote?",
+        text: `Decline "${request.title}" for R${Number(request.estimated_cost || 0).toFixed(2)}?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Decline",
+        confirmButtonColor: "#d33",
+      });
+      if (!confirm.isConfirmed) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/services/${request.id}/decline`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.message || `Failed (${res.status})`);
+        request.status = "declined";
+        await Swal.fire({
+          icon: "info",
+          title: "Declined",
+          text: `${request.student_name} has been notified.`,
+          timer: 1600,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        await Swal.fire({
+          icon: "error",
+          title: "Could not decline",
+          text: err.message,
+        });
+      }
+    },
+
+    async changePassword() {
+      if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Incomplete",
+          text: "Please fill in all password fields.",
+          confirmButtonColor: "#f5b941",
+        });
+        return;
+      }
+      if (this.newPassword !== this.confirmPassword) {
+        await Swal.fire({
+          icon: "error",
+          title: "Passwords Do Not Match",
+          text: "New password and confirmation must match.",
+          confirmButtonColor: "#d33",
+        });
+        return;
+      }
+      if (this.newPassword.length < 6) {
+        await Swal.fire({
+          icon: "error",
+          title: "Password Too Short",
+          text: "Password must be at least 6 characters long.",
+          confirmButtonColor: "#d33",
+        });
+        return;
+      }
+      try {
         await authAPI.changePassword(
           this.user.id,
           this.currentPassword,
-          this.newPassword
-        )
-
-
+          this.newPassword,
+        );
         await Swal.fire({
-
-          icon: 'success',
-
-          title: 'Password Updated!',
-
-          text: 'Your password has been changed successfully.',
-
+          icon: "success",
+          title: "Password Updated!",
+          text: "Your password has been changed successfully.",
           timer: 2000,
-
           showConfirmButton: false,
-
-        })
-
-
-        this.currentPassword = ''
-
-        this.newPassword = ''
-
-        this.confirmPassword = ''
-
-
+        });
+        this.currentPassword = "";
+        this.newPassword = "";
+        this.confirmPassword = "";
       } catch (err) {
-
         await Swal.fire({
-
-          icon: 'error',
-
-          title: 'Update Failed',
-
+          icon: "error",
+          title: "Update Failed",
           text: err.message,
-
-          confirmButtonColor: '#d33',
-
-        })
-
+          confirmButtonColor: "#d33",
+        });
       }
-
     },
-
-
-    async viewResidences() {
-
-      await Swal.fire({
-
-        icon: 'info',
-
-        title: 'View Residences',
-
-        text: 'Navigating to residence management...',
-
-        timer: 1500,
-
-        showConfirmButton: false,
-
-      })
-
-    },
-
-
-    async manageStaff() {
-
-      await Swal.fire({
-
-        icon: 'info',
-
-        title: 'Manage Staff',
-
-        text: 'Navigating to staff management...',
-
-        timer: 1500,
-
-        showConfirmButton: false,
-
-      })
-
-    },
-
-
-    async maintenanceRequestsMethod() {
-
-      await Swal.fire({
-
-        icon: 'info',
-
-        title: 'Maintenance Requests',
-
-        text: 'Navigating to maintenance dashboard...',
-
-        timer: 1500,
-
-        showConfirmButton: false,
-
-      })
-
-    },
-
-
-    async generateReports() {
-
-      await Swal.fire({
-
-        icon: 'info',
-
-        title: 'Generate Reports',
-
-        text: 'Navigating to report center...',
-
-        timer: 1500,
-
-        showConfirmButton: false,
-
-      })
-
-    }
-
-  }
-
-}
-
+  },
+};
 </script>
 
-
 <style scoped>
-
 /* Base layout */
 .res_manager-dash {
-
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 
   background-color: #f8f9fa;
 
@@ -845,13 +565,10 @@ export default {
   padding: 0;
 
   min-height: 100vh;
-
 }
-
 
 /* Top Bar */
 .top-bar {
-
   background-color: #0d1b3d;
 
   padding: 10px 24px;
@@ -873,12 +590,9 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
   flex-wrap: wrap;
-
 }
 
-
 .top-left {
-
   display: flex;
 
   align-items: center;
@@ -886,12 +600,9 @@ export default {
   gap: 12px;
 
   flex-shrink: 0;
-
 }
 
-
 .hamburger-btn {
-
   background: none;
 
   border: none;
@@ -905,30 +616,21 @@ export default {
   align-items: center;
 
   justify-content: center;
-
 }
 
-
 .hamburger-icon {
-
   font-size: 28px;
 
   color: #fff;
 
   line-height: 1;
-
 }
-
 
 .brand-link {
-
   text-decoration: none;
-
 }
 
-
 .brand {
-
   color: #fff;
 
   font-size: 22px;
@@ -940,32 +642,22 @@ export default {
   letter-spacing: 0.5px;
 
   white-space: nowrap;
-
 }
-
 
 .brand .green-text,
-
 .green-text {
-
   color: #2e7d5a;
-
 }
 
-
 .top-center {
-
   flex: 1;
 
   min-width: 160px;
 
   max-width: 520px;
-
 }
 
-
 .search-wrap {
-
   display: flex;
 
   align-items: center;
@@ -977,23 +669,16 @@ export default {
   padding: 6px 16px;
 
   border: 1px solid rgba(255, 255, 255, 0.08);
-
 }
-
 
 .search-wrap:hover,
-
 .search-wrap:focus-within {
-
-  background-color: rgba(255, 255, 255, 0.20);
+  background-color: rgba(255, 255, 255, 0.2);
 
   border-color: rgba(245, 185, 65, 0.4);
-
 }
 
-
 .search-input {
-
   background: transparent;
 
   border: none;
@@ -1007,19 +692,13 @@ export default {
   padding: 8px 0;
 
   width: 100%;
-
 }
-
 
 .search-input::placeholder {
-
   color: #9ca3af;
-
 }
 
-
 .top-right {
-
   display: flex;
 
   align-items: center;
@@ -1027,12 +706,75 @@ export default {
   flex-shrink: 0;
 
   gap: 15px;
-
 }
 
+.quote-actions {
+  display: flex;
+
+  gap: 10px;
+
+  margin-top: 12px;
+
+  flex-wrap: wrap;
+}
+
+.btn-approve {
+  flex: 1;
+
+  min-width: 140px;
+
+  background: #2e7d5a;
+
+  color: #fff;
+
+  border: none;
+
+  padding: 10px 16px;
+
+  border-radius: 8px;
+
+  font-weight: 700;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.btn-approve:hover {
+  background: #235f45;
+}
+
+.btn-decline {
+  flex: 0 0 auto;
+
+  background: transparent;
+
+  color: #b91c1c;
+
+  border: 2px solid #b91c1c;
+
+  padding: 10px 20px;
+
+  border-radius: 8px;
+
+  font-weight: 700;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.btn-decline:hover {
+  background: #b91c1c;
+
+  color: #fff;
+}
 
 .notification-bell {
-
   position: relative;
 
   cursor: pointer;
@@ -1042,19 +784,13 @@ export default {
   color: #fff;
 
   transition: color 0.3s ease;
-
 }
-
 
 .notification-bell:hover {
-
   color: #f5b941;
-
 }
 
-
 .notification-dot {
-
   position: absolute;
 
   top: -2px;
@@ -1070,12 +806,9 @@ export default {
   border-radius: 50%;
 
   border: 2px solid #0d1b3d;
-
 }
 
-
 .avatar {
-
   background-color: #f5b941;
 
   color: #0d1b3d;
@@ -1095,13 +828,10 @@ export default {
   align-items: center;
 
   justify-content: center;
-
 }
-
 
 /* Side Nav */
 .side-overlay {
-
   position: fixed;
 
   top: 0;
@@ -1120,22 +850,18 @@ export default {
 
   visibility: hidden;
 
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
-
 .side-overlay-open {
-
   opacity: 1;
 
   visibility: visible;
-
 }
 
-
 .side-nav {
-
   position: fixed;
 
   top: 0;
@@ -1163,19 +889,13 @@ export default {
   display: flex;
 
   flex-direction: column;
-
 }
-
 
 .side-nav-open {
-
   transform: translateX(0);
-
 }
 
-
 .side-nav-header {
-
   display: flex;
 
   align-items: center;
@@ -1187,23 +907,17 @@ export default {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
   margin-bottom: 20px;
-
 }
 
-
 .side-nav-header h3 {
-
   color: #fff;
 
   font-size: 20px;
 
   margin: 0;
-
 }
 
-
 .close-side-btn {
-
   background: none;
 
   border: none;
@@ -1213,19 +927,13 @@ export default {
   font-size: 28px;
 
   cursor: pointer;
-
 }
-
 
 .close-side-btn:hover {
-
   color: #f5b941;
-
 }
 
-
 .side-nav-links {
-
   list-style: none;
 
   padding: 0;
@@ -1233,19 +941,13 @@ export default {
   margin: 0;
 
   flex: 1;
-
 }
-
 
 .side-nav-links li {
-
   margin-bottom: 4px;
-
 }
 
-
 .side-nav-links li a {
-
   display: block;
 
   color: #d1d5db;
@@ -1262,35 +964,29 @@ export default {
 
   border-left: 3px solid transparent;
 
-  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
 }
 
-
 .side-nav-links li a:hover {
-
   background-color: rgba(245, 185, 65, 0.12);
 
   color: #f5b941;
 
   border-left-color: #f5b941;
-
 }
 
-
 .side-nav-logout {
-
   margin-top: auto;
 
   padding-top: 20px;
 
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-
 }
 
-
 .logout-btn {
-
   width: 100%;
 
   background: transparent;
@@ -1308,69 +1004,51 @@ export default {
   cursor: pointer;
 
   transition: all 0.3s ease;
-
 }
 
-
 .logout-btn:hover {
-
   background-color: #f5b941;
 
   color: #0d1b3d;
 
   transform: translateY(-2px);
-
 }
-
 
 /* Dashboard Content */
 .dashboard-container {
-
   max-width: 650px;
 
   margin: 0 auto;
 
   padding: 30px 20px;
-
 }
-
 
 .greeting-block {
-
   margin-bottom: 24px;
-
 }
 
-
 .dashboard-title {
-
-  color: #ffffff;
+  color: #0d1b3d;
 
   font-size: 26px;
 
   font-weight: 700;
 
   margin: 0 0 6px 0;
-
 }
 
-
 .university-text {
-
-  color: #d1d5db;
+  color: #64748b;
 
   font-size: 15px;
 
   font-weight: 500;
 
   margin: 0;
-
 }
-
 
 /* Cards */
 .card {
-
   background-color: #ffffff;
 
   border-radius: 16px;
@@ -1380,12 +1058,9 @@ export default {
   margin-bottom: 20px;
 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-
 }
 
-
 .card-heading {
-
   color: #0d1b3d;
 
   font-size: 18px;
@@ -1397,23 +1072,17 @@ export default {
   padding-bottom: 10px;
 
   border-bottom: 2px solid #6c4b6a;
-
 }
 
-
 .stats-grid {
-
   display: flex;
 
   gap: 12px;
 
   flex-wrap: wrap;
-
 }
 
-
 .stat-card {
-
   flex: 1 1 150px;
 
   padding: 15px;
@@ -1421,12 +1090,9 @@ export default {
   border-radius: 12px;
 
   text-align: center;
-
 }
 
-
 .stat-title {
-
   display: block;
 
   font-size: 12px;
@@ -1436,74 +1102,53 @@ export default {
   margin-bottom: 5px;
 
   font-weight: 500;
-
 }
 
-
 .stat-value {
-
   font-weight: bold;
 
   font-size: 22px;
 
   display: block;
-
 }
-
 
 /* ADDED: Maintenance Request Styling
    Controls the appearance of each request
    displayed in the Maintenance Requests card. */
 .maintenance-request {
-
   padding: 15px 0;
 
   border-bottom: 1px solid #eeeeee;
-
 }
-
 
 .maintenance-request:last-child {
-
   border-bottom: none;
-
 }
 
-
 .maintenance-request-info strong {
-
   color: #0d1b3d;
 
   font-size: 15px;
-
 }
 
-
 .maintenance-request-info p {
-
   margin: 6px 0 0;
 
   color: #64748b;
 
   font-size: 14px;
-
 }
 
-
 .no-requests {
-
   color: #64748b;
 
   font-size: 14px;
 
   margin: 0;
-
 }
-
 
 /* ADDED: Request status styling */
 .request-status {
-
   display: inline-block;
 
   padding: 3px 8px;
@@ -1515,67 +1160,79 @@ export default {
   font-weight: 600;
 
   text-transform: capitalize;
-
 }
-
 
 /* ADDED: Status colours based on the
-   statuses used in residence_requests. */
+  statuses used in residence_requests.*/
 .status-pending {
-
-  background-color: #fff7ed;
-
-  color: #c2410c;
-
+  background-color: #4b5563;
+  color: orange;
 }
-
-
+.status-quoted {
+  background-color: #ede9fe;
+  color: #5b21b6;
+}
+.status-assigned {
+  background-color: #ede9fe;
+  color: lightseagreen;
+}
+.status-in-progress,
+.status-in_progress {
+  background-color: #ddd6fe;
+  color: teal;
+}
 .status-approved {
-
-  background-color: #f0fdf4;
-
-  color: #15803d;
-
+  background-color: #dbeafe;
+  color: #1e40af;
 }
-
-
 .status-declined {
-
-  background-color: #fef2f2;
-
-  color: #b91c1c;
-
+  background-color: #fee2e2;
+  color: #991b1b;
 }
-
-
+.status-completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+.status-paid {
+  background-color: #d1fae5;
+  color: #065f46;
+}
 .status-cancelled {
-
   background-color: #f3f4f6;
-
   color: #4b5563;
-
 }
 
+/* Emergency badge shown next to the service name */
+.priority-tag {
+  background: #dc2626;
+
+  color: #fff;
+
+  padding: 1px 8px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  margin-left: 6px;
+
+  vertical-align: middle;
+}
 
 /* Menu items */
 .menu-item {
-
   border-bottom: 1px solid #eeeeee;
 
   padding: 12px 0;
-
 }
-
 
 .menu-item:last-child {
-
   border-bottom: none;
-
 }
 
-
 .menu-link {
-
   color: #0d1b3d;
 
   text-decoration: none;
@@ -1591,56 +1248,40 @@ export default {
   justify-content: space-between;
 
   transition: color 0.25s ease;
-
 }
-
 
 .menu-link:hover {
-
   color: #2e7d5a;
-
 }
-
 
 .menu-link:hover .arrow {
-
   transform: translateX(4px);
-
 }
 
-
 .arrow {
-
   font-weight: bold;
 
   color: #9ca3af;
 
-  transition: transform 0.25s ease, color 0.25s ease;
-
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease;
 }
-
 
 .menu-link:hover .arrow {
-
   color: #2e7d5a;
-
 }
-
 
 /* Change Password */
 .password-section {
-
   margin-top: 20px;
 
   border-top: 2px dashed #e5e7eb;
 
   padding-top: 20px;
-
 }
 
-
 .password-title {
-
   color: #6c4b6a;
 
   font-size: 16px;
@@ -1648,19 +1289,13 @@ export default {
   font-weight: 700;
 
   margin: 0 0 15px 0;
-
 }
-
 
 .form-group {
-
   margin-bottom: 15px;
-
 }
 
-
 .form-group label {
-
   display: block;
 
   font-size: 14px;
@@ -1670,12 +1305,9 @@ export default {
   color: #0d1b3d;
 
   margin-bottom: 8px;
-
 }
 
-
 .form-input {
-
   width: 100%;
 
   padding: 10px 14px;
@@ -1691,21 +1323,15 @@ export default {
   transition: border-color 0.3s ease;
 
   box-sizing: border-box;
-
 }
 
-
 .form-input:focus {
-
   outline: none;
 
   border-color: #00a6a6;
-
 }
 
-
 .btn-save {
-
   width: 100%;
 
   background-color: #f5b941;
@@ -1725,22 +1351,15 @@ export default {
   cursor: pointer;
 
   transition: background-color 0.25s ease;
-
 }
-
 
 .btn-save:hover {
-
   background-color: #e0a330;
-
 }
-
 
 /* Responsive */
 @media (max-width: 768px) {
-
   .top-center {
-
     order: 3;
 
     flex-basis: 100%;
@@ -1748,30 +1367,18 @@ export default {
     max-width: 100%;
 
     min-width: 0;
-
   }
-
 
   .top-right {
-
     display: flex;
-
   }
-
 
   .stats-grid {
-
     gap: 8px;
-
   }
-
 
   .stat-card {
-
     padding: 10px;
-
   }
-
 }
-
 </style>

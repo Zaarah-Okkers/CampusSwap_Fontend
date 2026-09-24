@@ -1,48 +1,56 @@
 <script setup>
-import { ref, watch } from 'vue'
-import StarRating from './StarRating.vue'
+import { ref, watch } from "vue";
+import StarRating from "./StarRating.vue";
 
 const props = defineProps({
   product: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submit-review', 'add-to-cart', 'request-swap'])
+const emit = defineEmits([
+  "close",
+  "submit-review",
+  "add-to-cart",
+  "request-swap",
+]);
 
-const productRatingInput = ref(0)
-const sellerRatingInput = ref(0)
-const reviewerName = ref('')
-const reviewText = ref('')
-const submitted = ref(false)
+const productRatingInput = ref(0);
+const sellerRatingInput = ref(0);
+const reviewerName = ref("");
+const reviewText = ref("");
+const submitted = ref(false);
 
-watch(() => props.product, () => {
-  productRatingInput.value = 0
-  sellerRatingInput.value = 0
-  reviewerName.value = ''
-  reviewText.value = ''
-  submitted.value = false
-})
+watch(
+  () => props.product,
+  () => {
+    productRatingInput.value = 0;
+    sellerRatingInput.value = 0;
+    reviewerName.value = "";
+    reviewText.value = "";
+    submitted.value = false;
+  },
+);
 
 function submitReview() {
-  if (productRatingInput.value === 0 && sellerRatingInput.value === 0) return
-  emit('submit-review', {
+  if (productRatingInput.value === 0 && sellerRatingInput.value === 0) return;
+  emit("submit-review", {
     id: props.product.id,
     productRating: productRatingInput.value,
     sellerRating: sellerRatingInput.value,
-    reviewerName: reviewerName.value || 'Anonymous',
-    comment: reviewText.value
-  })
-  submitted.value = true
+    reviewerName: reviewerName.value || "Anonymous",
+    comment: reviewText.value,
+  });
+  submitted.value = true;
 }
 
 function addToCart() {
-  emit('add-to-cart', props.product)
+  emit("add-to-cart", props.product);
 }
 
 function alertSellerForSwap() {
-  emit('request-swap', props.product)
+  emit("request-swap", props.product);
 }
 </script>
 
@@ -52,7 +60,17 @@ function alertSellerForSwap() {
       <div class="modal-header">
         <div class="drag-handle"></div>
         <button class="close-btn" @click="emit('close')" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
 
@@ -61,19 +79,32 @@ function alertSellerForSwap() {
         <span class="condition-badge" :class="product.conditionClass">
           {{ product.condition }}
         </span>
-        <span v-if="product.listingType === 'rent'" class="type-badge rent">For Rent</span>
-        <span v-else-if="product.listingType === 'swap'" class="type-badge swap">For Swap</span>
+        <span v-if="product.listingType === 'rent'" class="type-badge rent"
+          >For Rent</span
+        >
+        <span v-else-if="product.listingType === 'swap'" class="type-badge swap"
+          >For Swap</span
+        >
       </div>
 
       <div class="modal-body">
         <h3>{{ product.name }}</h3>
         <div class="price-row">
-          <span v-if="product.listingType === 'swap'" class="price swap-text">Swap for: {{ product.swapFor }}</span>
+          <span v-if="product.listingType === 'swap'" class="price swap-text"
+            >Swap for: {{ product.swapFor }}</span
+          >
           <span v-else class="price">
-            R{{ product.price }}<span v-if="product.listingType === 'rent'" class="rent-period">/{{ product.rentPeriod }}</span>
+            R{{ product.price
+            }}<span v-if="product.listingType === 'rent'" class="rent-period"
+              >/{{ product.rentPeriod }}</span
+            >
           </span>
           <span class="rating">
-            <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6z"/></svg>
+            <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6z"
+              />
+            </svg>
             {{ product.rating }} ({{ product.sales }} Sales)
           </span>
         </div>
@@ -87,8 +118,12 @@ function alertSellerForSwap() {
           <span class="seller-label">Sold by</span>
           <span class="seller-name">{{ product.sellerName }}</span>
           <span class="seller-rating" v-if="product.sellerRating">
-            <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6z"/></svg>
-            {{ product.sellerRating.toFixed(1) }}
+            <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6z"
+              />
+            </svg>
+            {{ Number(product.sellerRating.toFixed(1)) }}
           </span>
         </div>
 
@@ -98,12 +133,37 @@ function alertSellerForSwap() {
           class="swap-alert-btn"
           @click="alertSellerForSwap"
         >
-          <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <svg
+            class="cart-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
           Alert seller for swap
         </button>
 
         <button v-else class="add-to-cart-btn" @click="addToCart">
-          <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <svg
+            class="cart-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path
+              d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+            />
+          </svg>
           Add to cart
         </button>
 
@@ -119,11 +179,21 @@ function alertSellerForSwap() {
           </div>
           <div class="rate-block">
             <p class="rate-label">Your name</p>
-            <input v-model="reviewerName" type="text" placeholder="e.g. Zaarah K." class="review-input" />
+            <input
+              v-model="reviewerName"
+              type="text"
+              placeholder="e.g. Zaarah K."
+              class="review-input"
+            />
           </div>
           <div class="rate-block">
             <p class="rate-label">Write a review (optional)</p>
-            <textarea v-model="reviewText" rows="3" placeholder="What did you think of this item or the seller?" class="review-textarea"></textarea>
+            <textarea
+              v-model="reviewText"
+              rows="3"
+              placeholder="What did you think of this item or the seller?"
+              class="review-textarea"
+            ></textarea>
           </div>
           <button
             class="submit-rating-btn"
@@ -135,7 +205,10 @@ function alertSellerForSwap() {
         </div>
         <p v-else class="thanks-msg">Thanks for your feedback!</p>
 
-        <div class="reviews-section" v-if="product.reviews && product.reviews.length">
+        <div
+          class="reviews-section"
+          v-if="product.reviews && product.reviews.length"
+        >
           <h4 class="desc-heading">Reviews ({{ product.reviews.length }})</h4>
           <div class="review-item" v-for="(r, i) in product.reviews" :key="i">
             <div class="review-head">
@@ -165,8 +238,12 @@ function alertSellerForSwap() {
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-box {
@@ -182,8 +259,14 @@ function alertSellerForSwap() {
 }
 
 @keyframes slide-up {
-  from { transform: translateY(30px) scale(0.97); opacity: 0; }
-  to { transform: translateY(0) scale(1); opacity: 1; }
+  from {
+    transform: translateY(30px) scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 .modal-header {
@@ -347,7 +430,7 @@ function alertSellerForSwap() {
   letter-spacing: 0.04em;
   color: var(--text-faint);
   margin: 0 0 6px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 700;
 }
 
@@ -554,29 +637,33 @@ function alertSellerForSwap() {
     position: absolute;
     animation: slide-up-mobile 0.3s ease;
   }
-  
+
   @keyframes slide-up-mobile {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
   }
-  
+
   .modal-overlay {
     align-items: flex-end;
   }
-  
+
   .modal-image {
     margin: 0 12px;
     aspect-ratio: 4 / 3;
   }
-  
+
   .modal-body {
     padding: 16px 16px 20px;
   }
-  
+
   .modal-body h3 {
     font-size: 19px;
   }
-  
+
   .price {
     font-size: 17px;
   }

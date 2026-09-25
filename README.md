@@ -17,7 +17,7 @@ You can use any of these pre-seeded accounts to explore the platform.
 Role ,Email, Default Password, Lands On
 1.Student
 - thabo.m@myuct.ac.za
-- sudent123
+- student123
 -/student-dashboard
 
 2.Service Provider
@@ -35,7 +35,7 @@ Role ,Email, Default Password, Lands On
 - admin123
 - /admin
 
-* Passwords are automatically upgraded to secure bcrypt hashes in the backend database upon your first successful login.
+* Passwords are automatically upgraded to secure bcrypt hashes in the backend database upon your first successful login.If you wnat to sign in as another service provider check our db for users and use the email and the password there.
 
 How to run the site:
 
@@ -60,8 +60,25 @@ the backend and the database :
 3. mysql : database 
 4. bcryptjs : auth and security
 
-Group memebers 
+## 🔗 Live Deployment
 
-Lerato
+| Component | URL |
+|---|---|
+| **Frontend (public link)** | https://campusswap-fontend-vnrd.onrender.com |
+| Backend API | https://campusswap-backend-o0pk.onrender.com/api |
+| Database | Aiven Cloud MySQL |
+
+
+
+👥 Group Members
+Name	Role
+
+Lerato Yapi	: Project Lead & Backend architecture, Express API, MySQL schema
+
+Anela Nqenqa: Frontend & UX .Vue interface, component library, responsive design
+
+Siwaphiwe Boto :	Database & Backend schema, seed data, SafeHome workflow
+
+Zaarah Okkers :	Full-Stack & Integration, frontend-backend wiring, auth, end-to-end testing
 
 Developed with ❤️ as part of the Module 3 Core Project (September 2026).

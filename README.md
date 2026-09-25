@@ -15,6 +15,7 @@ Demo Credentials :
 You can use any of these pre-seeded accounts to explore the platform. 
 
 Role ,Email, Default Password, Lands On
+
 1.Student
 - thabo.m@myuct.ac.za
 - student123

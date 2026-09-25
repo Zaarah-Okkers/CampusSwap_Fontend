@@ -90,17 +90,13 @@
 <script>
 import { API_BASE } from "../../services/api";
 import AppIcon from "../../components/AppIcon.vue";
+import Swal from "sweetalert2";
 
 export default {
   name: "AdminUsers",
   components: { AppIcon },
   data() {
-    return {
-      users: [],
-      loading: true,
-      error: "",
-      search: "",
-    };
+    return { users: [], loading: true, error: "", search: "" };
   },
   computed: {
     filteredUsers() {
@@ -108,7 +104,7 @@ export default {
       if (!q) return this.users;
       return this.users.filter(
         (u) =>
-          (u.name || "").toLowerCase().includes(q) ||
+          (u.full_name || u.name || "").toLowerCase().includes(q) ||
           (u.email || "").toLowerCase().includes(q) ||
           (u.university || "").toLowerCase().includes(q),
       );
@@ -132,14 +128,9 @@ export default {
         this.loading = false;
       }
     },
-    initials(name) {
-      if (!name) return "?";
-      return name
-        .split(" ")
-        .map((p) => p[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
+    fallbackAvatar(user) {
+      const initial = (user.full_name || user.name || "U").charAt(0).toUpperCase();
+      return `https://placehold.co/64x64/6C5CE7/FFFFFF?text=${initial}`;
     },
     prettyRole(role) {
       return (
@@ -150,6 +141,78 @@ export default {
           admin: "Admin",
         }[role] || role
       );
+    },
+    async togglePremium(user) {
+      const next = !user.isPremium;
+      const ok = await Swal.fire({
+        title: next ? "Grant premium?" : "Remove premium?",
+        text: `${user.name || user.full_name} will be ${next ? "upgraded" : "downgraded"}.`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: next ? "Grant" : "Remove",
+        confirmButtonColor: next ? "#2e7d5a" : "#d33",
+      });
+      if (!ok.isConfirmed) return;
+      try {
+        const res = await fetch(`${API_BASE}/admin/users/${user.id}/premium`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_premium: next }),
+        });
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        user.isPremium = next;
+        Swal.fire({
+          icon: "success",
+          title: "Updated",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        Swal.fire({ icon: "error", title: "Could not update", text: err.message });
+      }
+    },
+    async verifyUser(user) {
+      try {
+        const res = await fetch(`${API_BASE}/admin/users/${user.id}/verify`, {
+          method: "PATCH",
+        });
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        user.verified = true;
+        Swal.fire({
+          icon: "success",
+          title: "Verified",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        Swal.fire({ icon: "error", title: "Could not verify", text: err.message });
+      }
+    },
+    async banUser(user) {
+      const ok = await Swal.fire({
+        title: "Ban this user?",
+        text: `${user.name || user.full_name} will not be able to log in.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ban",
+        confirmButtonColor: "#d33",
+      });
+      if (!ok.isConfirmed) return;
+      try {
+        const res = await fetch(`${API_BASE}/admin/users/${user.id}/ban`, {
+          method: "PATCH",
+        });
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        user.banned = true;
+        Swal.fire({
+          icon: "success",
+          title: "User banned",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        Swal.fire({ icon: "error", title: "Could not ban", text: err.message });
+      }
     },
   },
 };

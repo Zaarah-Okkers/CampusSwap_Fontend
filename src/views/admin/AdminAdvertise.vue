@@ -61,22 +61,7 @@ const newAd = ref({
   link: ''
 })
 
-const ads = ref([
-  { 
-    id: 1, 
-    title: 'Summer Sale!', 
-    description: 'Get 20% off on all textbooks this month!', 
-    target: 'all',
-    date: '2024-01-15' 
-  },
-  { 
-    id: 2, 
-    title: 'Premium Feature', 
-    description: 'New premium users get early access to new features!', 
-    target: 'premium',
-    date: '2024-01-14' 
-  }
-])
+const ads = ref([])
 
 function pushAd() {
   if (!newAd.value.title || !newAd.value.description) {
